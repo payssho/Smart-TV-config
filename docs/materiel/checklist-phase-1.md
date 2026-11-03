@@ -11,13 +11,12 @@
 | Box S905X3 **4 Go / 32 Go** | Oui | Recommandée : **H96 Max X3**, dont la carte a un DTB dans le noyau mainline (`meson-sm1-h96-max`). Sinon X96 Max+ ou HK1 Box (DTB fournis par ophub). |
 | Micro-SD A1/A2 32 Go | Oui | Notre OS démarre dessus, l'eMMC reste à Android. |
 | Câble Ethernet | Oui | Le Wi‑Fi n'est pas garanti sous Linux. |
-| Adaptateur USB-série 3,3 V (CP2102 ou CH340) + fils Dupont | Non, mais conseillé (~3–5 €) | Seul moyen de voir pourquoi un démarrage échoue. Sans lui, on peut avancer tant qu'Armbian démarre. Il faut parfois souder 3 broches sur les pastilles UART de la carte. |
+| Adaptateur USB-série 3,3 V | Non, **écarté par Marius** (2026-11-03) | Sans lui, un démarrage raté reste muet : on diagnostique à l'écran et en essayant les autres DTB. À reconsidérer seulement si la box ne démarre jamais. |
 
 ## Avant de commencer
 
 - [ ] Box S905X3 **4 Go / 32 Go** reçue ; noter le modèle exact (X96 Max+, HK1 Box, H96 Max X3), la révision imprimée sur la carte mère et une photo de la carte.
 - [ ] Carte micro-SD rapide (A1/A2, 32 Go), câble Ethernet, câble HDMI vers la télé.
-- [ ] Adaptateur **USB-série 3,3 V** (CP2102 ou CH340) branché sur l'UART de la box (GND, TX, RX, **jamais le 3,3 V/5 V**), terminal à 115200 bauds (PuTTY sous Windows). Fortement conseillé : sans lui, un démarrage raté est muet.
 - [ ] Démarrer une fois sous Android : noter la version, faire une capture des réglages « À propos ».
 - [ ] **Usages du premier jour (ADR 0014)** sous Android : installer Netflix, Canal+, YouTube et Twitch ; pour chacun, noter si l'installation passe (Play Store ou non), et la qualité réelle à l'œil. Installer aussi l'appli « DRM Info » pour noter le niveau Widevine d'Android (L1 ou L3) et la certification Play Protect. C'est notre solution tant que notre OS n'est pas prêt.
 - [ ] Télé Philips : relever le modèle exact (étiquette « MODEL NO. » derrière, cachée par le support mural, ou menu Réglages > Aide) et activer **EasyLink** (le CEC chez Philips) dans les réglages. Brancher la box sur **HDMI 2** (HDMI 1 ARC reste libre pour une barre de son).
@@ -27,8 +26,8 @@
 - [ ] Télécharger l'image ophub pour S905X3 ([amlogic-s9xxx-armbian](https://github.com/ophub/amlogic-s9xxx-armbian), noyau 6.12 ou 6.18) et la flasher sur la SD avec balenaEtcher ou Rufus.
 - [ ] Choisir le DTB du modèle dans `/boot/uEnv.txt` sur la SD (par exemple `meson-sm1-x96-max-plus*.dtb`, `meson-sm1-hk1box-vontar-x3.dtb` ou `meson-sm1-h96-max-x3.dtb` selon le modèle reçu).
 - [ ] Activer le démarrage sur SD : SD insérée, maintenir le bouton reset (dans le port AV) à l'allumage, ou lancer « Update » depuis Android. Noter la méthode qui a marché.
-- [ ] Le démarrage arrive au login (sur la télé et/ou la console série). Noter la durée.
-- [ ] Si échec : essayer les autres DTB candidats ; garder le log série.
+- [ ] Le démarrage arrive au login (sur la télé). Noter la durée.
+- [ ] Si échec : essayer les autres DTB candidats et noter ce qui s'affiche à l'écran avant l'arrêt.
 - [ ] Lancer `sudo scripts/materiel/diagnostic.sh > rapport-dtb.txt` et joindre le rapport à l'issue.
 
 ## 2. HDMI 1080p, Ethernet et GPU (Panfrost)

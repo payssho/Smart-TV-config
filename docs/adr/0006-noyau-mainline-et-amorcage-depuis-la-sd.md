@@ -21,4 +21,4 @@ Noyau mainline, u-boot d'origine qui enchaîne sur un script de la SD.
 ## Conséquences
 
 - Démarrage dépendant du u-boot de chaque modèle : vérifier en phase 1 (risque R5).
-- Un adaptateur USB-série 3,3 V est fortement conseillé : sans console, un échec est muet.
+- Sans adaptateur USB-série (écarté par Marius le 2026-11-03), un échec de démarrage est muet : diagnostiquer à l'écran et par essais de DTB.
