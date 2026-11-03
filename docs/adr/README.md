@@ -15,5 +15,6 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0009](0009-entrees-cec-et-infrarouge-en-evdev.md) | Recevoir la télécommande de la télé (CEC) et l'infrarouge comme des touches evdev | acceptée |
 | [0010](0010-lire-la-video-avec-gstreamer-ou-libmpv.md) | Lire la vidéo avec GStreamer (flutter-pi) ou libmpv | proposée |
 | [0011](0011-mettre-a-jour-en-a-b-avec-rauc.md) | Mettre à jour l'image en A/B avec RAUC | proposée |
-| [0012](0012-hub-domotique-rust-dans-home-device-manager.md) | Faire tourner un hub domotique Rust sur la box, développé dans Home-device-manager | proposée |
+| [0012](0012-hub-domotique-rust-dans-home-device-manager.md) | Faire tourner un hub domotique Rust sur la box, développé dans Home-device-manager | acceptée |
 | [0013](0013-reprendre-l-identite-veilleuse.md) | Reprendre l'identité visuelle « veilleuse » de l'app | proposée |
+| [0014](0014-youtube-et-twitch-dans-notre-os.md) | Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android | proposée |

@@ -6,6 +6,7 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 
 - Ne jamais écrire sur l'eMMC de la box (Android d'origine, sert au double démarrage pour Netflix/Canal+) sans accord explicite de Marius (ADR 0003). Les scripts du dépôt ne touchent qu'à la SD ou à l'USB.
 - Aucun contournement de DRM. Widevine L3 uniquement, récupéré légalement (ADR 0003).
+- Usages prioritaires : YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android (ADR 0014).
 - Cible 1080p, Ethernet d'abord (ADR 0001, 0002). Navigation 100 % télécommande : croix + OK + retour, focus toujours visible, aucune dépendance au tactile ou à la souris (ADR 0009).
 - Le contrat gRPC/Protobuf vit dans Home-device-manager, pas ici (ADR 0012).
 - L'interface reprend l'identité « veilleuse » de l'app (tokens de thème, police Bricolage Grotesque) (ADR 0013).
@@ -29,4 +30,6 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 
 ## Matériel validé
 
-(à remplir après la phase 1 : modèle reçu, DTB, CEC, IR, Wi‑Fi, vidéo ; détail dans `docs/materiel.md`)
+- Télé : Philips 1080p (modèle exact à relever), HDMI 1 ARC + HDMI 2, CEC « EasyLink ». Box sur HDMI 2.
+- Box : pas encore commandée (2026-11-03).
+- (à remplir après la phase 1 : modèle reçu, DTB, CEC, IR, Wi‑Fi, vidéo ; détail dans `docs/materiel.md`)

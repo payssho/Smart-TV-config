@@ -1,11 +1,11 @@
 # 0012. Faire tourner un hub domotique Rust sur la box, développé dans Home-device-manager
 
-- Statut : proposée
+- Statut : acceptée
 - Date : 2026-11-03
 
 ## Contexte
 
-La box pilotera les lampes (iStrip+ en BLE, ampoules WiZ en UDP) et plus tard un ESP32 en MQTT. L'app Flutter du S25 et l'interface télé doivent lui parler. Les drivers existent déjà en Dart dans `payssho/Home-device-manager`. Rust n'a jamais été confirmé par Marius.
+La box pilotera les lampes (iStrip+ en BLE, ampoules WiZ en UDP) et plus tard un ESP32 en MQTT. L'app Flutter du S25 et l'interface télé doivent lui parler. Les drivers existent déjà en Dart dans `payssho/Home-device-manager`. Rust confirmé par Marius le 2026-11-03.
 
 ## Options envisagées
 
@@ -15,7 +15,7 @@ La box pilotera les lampes (iStrip+ en BLE, ampoules WiZ en UDP) et plus tard un
 
 ## Décision
 
-Option 1, à confirmer par Marius. Le hub vit dans le monorepo `Home-device-manager` ; ce dépôt ne contient qu'un paquet Buildroot qui le compile et l'installe.
+Option 1. Le hub vit dans le monorepo `Home-device-manager` ; ce dépôt ne contient qu'un paquet Buildroot qui le compile et l'installe.
 
 ## Conséquences
 

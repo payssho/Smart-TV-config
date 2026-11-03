@@ -10,7 +10,15 @@ Le foyer de Marius, devant la télé du salon, avec la télécommande de la tél
 
 ## Résultat attendu de la v1
 
-> Je rallume la télé avec sa télécommande, j'arrive en quelques secondes sur notre écran d'accueil, je lance une vidéo de mon réseau en 1080p et j'allume les lampes du salon, sans jamais toucher un clavier ni une souris.
+> Je rallume la télé avec sa télécommande, j'arrive en quelques secondes sur notre écran d'accueil, je lance YouTube ou une chaîne Twitch en 1080p, je bascule sur Android pour Netflix ou Canal+ en un bouton, et j'allume les lampes du salon, sans jamais toucher un clavier ni une souris.
+
+## Usages priorisés
+
+Classés par Marius le 2026-11-03 (détail et choix techniques : ADR 0014) :
+
+1. YouTube, Twitch (dans notre OS), Netflix, Canal+ (sous Android, en double démarrage).
+2. Ensuite : envoi depuis le téléphone (« Cast »), IPTV.
+3. Plus tard : médias locaux, Jellyfin, radios, recopie d'écran.
 
 ## Hors périmètre de la v1
 
@@ -22,7 +30,7 @@ Le foyer de Marius, devant la télé du salon, avec la télécommande de la tél
 
 ## Contraintes
 
-- Matériel : box Amlogic S905X3 4/32 Go à ~30 € (X96 Max+, HK1 Box ou H96 Max X3), carte micro-SD, télé 1080p (ADR 0001).
+- Matériel : box Amlogic S905X3 4/32 Go à ~30 € (X96 Max+, HK1 Box ou H96 Max X3, pas encore commandée au 2026-11-03), carte micro-SD, télé **Philips** 1080p avec HDMI 1 (ARC) et HDMI 2, CEC « EasyLink » (ADR 0001).
 - Licences : briques libres ; police Bricolage Grotesque (OFL).
 - Build : une image Buildroot complète prend 1 à 2 h et 15 à 25 Go. Elle se construit en GitHub Actions ou sous WSL2 chez Marius, pas dans le conteneur de l'agent (réseau filtré, disque limité).
 - Tests : tout ce qui se teste sans la box se teste sans elle (Flutter en desktop et `flutter test`, image dans QEMU, entrées simulées). Marius teste sur la vraie télé et rapporte.
