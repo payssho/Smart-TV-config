@@ -10,5 +10,8 @@ shellcheck "${scripts[@]}"
 echo "== markdownlint"
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 
+echo "== actionlint"
+actionlint
+
 echo "== ADR"
 scripts/ci/verifier-adr.sh

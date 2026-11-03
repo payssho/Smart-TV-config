@@ -23,6 +23,8 @@ jobs:
           mapfile -t scripts < <(git ls-files '*.sh')
           shellcheck --version
           shellcheck "${scripts[@]}"
+      - name: actionlint (workflows)
+        uses: raven-actions/actionlint@v2
 
   docs:
     name: Docs et ADR
@@ -39,18 +41,38 @@ jobs:
   flutter:
     name: Flutter (format, analyse, tests)
     runs-on: ubuntu-24.04
-    # L'app Flutter TV arrive en phase 2 dans ui/ : le job s'active tout seul.
-    if: ${{ hashFiles('ui/pubspec.yaml') != '' }}
-    defaults:
-      run:
-        working-directory: ui
+    # L'app Flutter TV arrive en phase 2 dans ui/ : les étapes s'activent
+    # toutes seules dès que ui/pubspec.yaml existe (hashFiles n'est pas
+    # permis dans le « if » d'un job, d'où le test au niveau des étapes).
     steps:
       - uses: actions/checkout@v4
+      - name: Présence de l'app Flutter
+        id: app
+        run: |
+          if [[ -f ui/pubspec.yaml ]]; then
+            echo "presente=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "presente=false" >>"$GITHUB_OUTPUT"
+            echo "Pas encore de ui/pubspec.yaml : rien à vérifier."
+          fi
       - uses: subosito/flutter-action@v2
+        if: steps.app.outputs.presente == 'true'
         with:
           channel: stable
           cache: true
-      - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: flutter analyze
-      - run: flutter test
+      - name: Dépendances
+        if: steps.app.outputs.presente == 'true'
+        working-directory: ui
+        run: flutter pub get
+      - name: Format
+        if: steps.app.outputs.presente == 'true'
+        working-directory: ui
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Analyse
+        if: steps.app.outputs.presente == 'true'
+        working-directory: ui
+        run: flutter analyze
+      - name: Tests
+        if: steps.app.outputs.presente == 'true'
+        working-directory: ui
+        run: flutter test
