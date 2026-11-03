@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shell:
+    name: Lint shell
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          mapfile -t scripts < <(git ls-files '*.sh')
+          shellcheck --version
+          shellcheck "${scripts[@]}"
+
+  docs:
+    name: Docs et ADR
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: "**/*.md"
+      - name: Cohérence des ADR
+        run: scripts/ci/verifier-adr.sh
+
+  flutter:
+    name: Flutter (format, analyse, tests)
+    runs-on: ubuntu-24.04
+    # L'app Flutter TV arrive en phase 2 dans ui/ : le job s'active tout seul.
+    if: ${{ hashFiles('ui/pubspec.yaml') != '' }}
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test
