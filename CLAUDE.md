@@ -17,6 +17,7 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 ## Commandes
 
 - Vérifs locales de la CI : `scripts/ci/verifier.sh` (shellcheck, markdownlint, index des ADR).
+- Milestones GitHub (une par phase, issues rangées par label `phase-N`) : `scripts/github/creer-milestones.sh` (CLI gh).
 - Diagnostic matériel (sur la box sous Armbian, lecture seule) : `sudo scripts/materiel/diagnostic.sh > rapport.txt`.
 - (à remplir : build Buildroot, test QEMU, tests Flutter, flash SD)
 
