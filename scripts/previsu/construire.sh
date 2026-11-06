@@ -5,8 +5,10 @@
 # dernières mesures du banc mémoire.
 #
 # Usage : scripts/previsu/construire.sh   → build/previsu/
-# Publier : page build/previsu/index.html, fichiers listés dans
-# build/previsu/fichiers.txt (voir maquette/README.md).
+# Publier comme page Claude : page build/previsu/index.html, avec chaque
+# fichier de build/previsu/fichiers.txt publié à son chemin (les shaders
+# .frag en text/plain). Adresse actuelle :
+# https://claude.ai/artifact/8Lq7DPXTq3SUcfc2mzzrst
 set -euo pipefail
 
 ici="$(cd "$(dirname "$0")" && pwd)"
@@ -24,7 +26,7 @@ web="$racine/ui/build/web"
 (cd "$web" && find . -type f \
   ! -name '*.symbols' ! -path './canvaskit/skwasm*' ! -path './canvaskit/wimp*' \
   ! -path './canvaskit/webparagraph/*' ! -name 'flutter_service_worker.js' \
-  ! -name 'NOTICES' ! -name '.last_build_id' -print0 | cpio -0pdm --quiet "$sortie/app")
+  ! -name 'NOTICES' ! -name '.last_build_id' ! -name 'AssetManifest.bin' -print0 | cpio -0pdm --quiet "$sortie/app")
 # Chemins relatifs : la page est servie sous une adresse inconnue d'avance.
 sed -i 's|<base href="/">|<base href="./">|' "$sortie/app/index.html"
 cp "$ici/page.html" "$sortie/index.html"
@@ -42,5 +44,6 @@ json.dump({"date": dossier.name, "profils": profils, "verdict": lignes},
 PY
 fi
 
-(cd "$sortie" && find . -type f ! -name index.html ! -name fichiers.txt | sed 's|^\./||' | sort >fichiers.txt)
+liste="$(cd "$sortie" && find . -type f ! -name index.html | sed 's|^\./||' | sort)"
+printf '%s\n' "$liste" >"$sortie/fichiers.txt"
 echo "== Prévisu prête : $sortie ($(du -sh "$sortie" | cut -f1))"
