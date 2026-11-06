@@ -4,11 +4,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap">
 <style>
-/* Banc de prévisu de l'interface télé (maquette, pas l'app Flutter).
-   Mise en page : une ou deux télés 16:9 qui affichent un écran 1920×1080 réel mis à l'échelle,
-   la mémoire simulée sous chaque télé, la télécommande et le journal à côté.
-   Identité « veilleuse » : tokens repris de Home-device-manager app/lib/ui/theme.dart (palette nuit).
-   Choix assumé d'un seul thème sombre : une télé se regarde dans la pénombre. */
+/* Banc de prévisu de l'interface télé « veilleuse » (maquette, pas l'app Flutter).
+   Mise en page de la page : une ou deux télés 16:9 (écran 1920×1080 réel mis à l'échelle),
+   mémoire et carte SD sous chaque télé ; télécommande et journal dans la colonne de droite.
+   Mise en page de l'écran télé : rail de sections à gauche, contenu à droite, fond animé derrière.
+   Tokens repris de Home-device-manager app/lib/ui/theme.dart (palette nuit). Un seul thème
+   sombre, assumé : une télé se regarde dans la pénombre. */
 :root {
   color-scheme: dark;
   --nuit: #0F1320;
@@ -22,7 +23,7 @@
   --alerte: #FF8A7A;
   --ok: #8FD6A8;
   --serre: #FFD27A;
-  /* Couleurs des segments mémoire : désaturées pour laisser le halo et l'ambre seuls accents. */
+  --verre: rgba(24, 29, 43, .78);
   --m-reserve: #4A5168;
   --m-systeme: #6C7590;
   --m-ui: #C9A27A;
@@ -31,6 +32,7 @@
   --m-chromium: #9C8FC7;
   --m-video: #7F9CC9;
   --m-maj: #B98AA6;
+  --m-fond: #A9B87A;
   --police: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --r-panneau: 32px;
   --r-ligne: 20px;
@@ -50,24 +52,24 @@ body {
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--ambre); outline-offset: 2px; }
 
+/* ---------- Page ---------- */
 .entete { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 24px; max-width: 1480px; margin: 0 auto 20px; }
 .entete h1 { font-size: 30px; font-weight: 650; letter-spacing: -0.5px; margin: 0; font-variation-settings: "opsz" 72; text-wrap: balance; }
 .entete p { margin: 4px 0 0; color: var(--texte-discret); max-width: 62ch; }
 .reglages { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
 .groupe { display: flex; flex-direction: column; gap: 6px; }
 .groupe > span { font-size: 13px; color: var(--texte-discret); }
-.segments { display: inline-flex; border: 1px solid var(--trait); border-radius: 999px; padding: 3px; background: var(--surface); }
+.segments { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--trait); border-radius: 999px; padding: 3px; background: var(--surface); }
 .segments button { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; cursor: pointer; font-weight: 500; white-space: nowrap; }
 .segments button[aria-pressed="true"] { background: var(--ambre); color: var(--sur-ambre); }
 .case { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--texte-discret); }
 .case input { accent-color: var(--ambre); width: 18px; height: 18px; }
 
-.banc { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; max-width: 1480px; margin: 0 auto; align-items: start; }
+.banc { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; max-width: 1480px; margin: 0 auto; align-items: start; }
 @media (max-width: 960px) { .banc { grid-template-columns: minmax(0, 1fr); } }
 .teles { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
 .teles.cote { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 760px) { .teles.cote { grid-template-columns: minmax(0, 1fr); } }
-
 .poste { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .poste-titre { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .poste-titre strong { font-size: 17px; font-weight: 600; }
@@ -76,74 +78,94 @@ button { font: inherit; color: inherit; }
 .ecran-boite { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 4px; max-width: 100%; }
 .ecran { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: var(--nuit); color: var(--texte); font-family: var(--police); }
 
-/* ---- Contenu de l'écran télé, en pixels réels 1080p ---- */
+/* ---------- Écran télé (pixels réels 1080p) ---------- */
 .fond { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; }
 .contenu { position: absolute; inset: 0; }
-.halo { position: absolute; inset: 0; pointer-events: none; transition: background .6s ease; }
-.zone { position: absolute; inset: 54px 96px; display: flex; flex-direction: column; gap: 34px; }
+.halo { position: absolute; inset: 0; pointer-events: none; transition: background .8s ease; }
 .securite { position: absolute; inset: 54px 96px; border: 3px dashed rgba(255, 180, 94, .55); pointer-events: none; }
 .securite::after { content: "Zone de sécurité (5 % de surbalayage)"; position: absolute; right: 12px; bottom: 8px; font-size: 22px; color: rgba(255, 180, 94, .8); }
-.barre { display: flex; justify-content: space-between; align-items: center; }
-.barre h2 { margin: 0; font-size: 64px; font-weight: 650; letter-spacing: -1px; font-variation-settings: "opsz" 96; }
-.barre .infos { display: flex; gap: 40px; align-items: center; font-size: 30px; color: var(--texte-discret); }
-.barre .heure { font-size: 44px; color: var(--texte); font-variant-numeric: tabular-nums; font-weight: 500; }
-.rangee h3 { margin: 0 0 14px; font-size: 30px; font-weight: 500; color: var(--texte-discret); }
-.tuiles { display: flex; gap: 32px; }
-.tuile { position: relative; width: 300px; height: 204px; border-radius: var(--r-ligne); background: var(--surface); border: 2px solid var(--trait); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
-.tuile.large { width: 400px; }
-.tuile .nom { font-size: 34px; font-weight: 600; line-height: 1.1; }
-.tuile .sous { font-size: 24px; color: var(--texte-discret); }
-.tuile .pastille { position: absolute; top: 18px; right: 18px; font-size: 20px; padding: 4px 12px; border-radius: 999px; background: var(--surface-haute); color: var(--texte-discret); }
-.tuile .lumiere { width: 56px; height: 56px; border-radius: 50%; margin: 4px; }
-.tuile .logo { width: 64px; height: 64px; display: block; flex: none; }
-.tuile .icone { width: 60px; height: 60px; display: block; flex: none; fill: none; stroke: var(--texte-discret); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
-.tuile.focus .icone { stroke: var(--ambre); }
-.tuile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 50%, transparent 65%); background-size: 250% 100%; background-position: 120% 0; opacity: 0; }
-.tuile.focus::after { opacity: 1; animation: reflet 2.8s ease-in-out infinite; }
-@keyframes reflet { 0% { background-position: 120% 0; } 45%, 100% { background-position: -40% 0; } }
-.tuile.focus { transform: scale(1.07); border-color: var(--ambre); box-shadow: 0 0 0 4px var(--ambre), 0 0 60px 6px rgba(255, 180, 94, .38); z-index: 2; }
-.tuile.eteinte .nom, .tuile.eteinte .sous { opacity: .55; }
-.affiche { background: linear-gradient(160deg, color-mix(in srgb, var(--teinte, var(--surface-haute)) 26%, var(--surface-haute)), rgba(24, 29, 43, .92)); }
-.sobre .tuile.affiche { background: var(--surface); }
-.bandeau-sobre { font-size: 24px; color: var(--serre); }
-.bandeau-alerte { font-size: 24px; color: var(--alerte); }
 
-.plein { position: absolute; inset: 0; display: flex; flex-direction: column; }
-.faux-web { flex: 1; margin: 54px 96px; border-radius: var(--r-panneau); background: repeating-linear-gradient(90deg, var(--surface) 0 360px, transparent 360px 392px); opacity: .7; }
+.os { position: absolute; inset: 54px 96px; display: grid; grid-template-columns: 330px 1fr; gap: 56px; }
+.rail { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.marque { font-size: 34px; font-weight: 650; letter-spacing: -0.5px; font-variation-settings: "opsz" 96; display: flex; align-items: center; gap: 14px; margin: 0 0 34px 8px; }
+.marque i { width: 22px; height: 22px; border-radius: 50%; background: var(--ambre); box-shadow: 0 0 24px 6px rgba(255, 180, 94, .55); }
+.section { display: flex; align-items: center; gap: 20px; padding: 18px 22px; border-radius: var(--r-ligne); font-size: 29px; font-weight: 500; color: var(--texte-discret); line-height: 1.15; transition: background .2s ease, color .2s ease, transform .14s ease, box-shadow .14s ease; }
+.section svg { width: 40px; height: 40px; flex: none; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.section.active { color: var(--texte); background: rgba(35, 42, 59, .7); }
+.section.focus { color: var(--sur-ambre); background: var(--ambre); transform: scale(1.04); box-shadow: 0 0 50px 4px rgba(255, 180, 94, .35); }
+.rail-pied { margin-top: auto; padding: 0 22px; font-size: 22px; color: var(--texte-discret); display: flex; flex-direction: column; gap: 6px; }
+.rail-pied .heure { font-size: 54px; color: var(--texte); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+
+.page { display: flex; flex-direction: column; gap: 34px; min-width: 0; }
+.page-tete { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; min-height: 92px; }
+.page-tete h2 { margin: 0; font-size: 64px; font-weight: 650; letter-spacing: -1px; font-variation-settings: "opsz" 96; }
+.page-tete p { margin: 6px 0 0; font-size: 28px; color: var(--texte-discret); }
+.etats { display: flex; gap: 16px; font-size: 24px; flex-wrap: wrap; justify-content: flex-end; }
+.etats span { padding: 8px 18px; border-radius: 999px; background: var(--verre); color: var(--texte-discret); }
+.etats .sobre { color: var(--serre); }
+.etats .alerte { color: var(--alerte); }
+.bloc h3 { margin: 0 0 16px; font-size: 30px; font-weight: 500; color: var(--texte-discret); }
+.tuiles { display: flex; gap: 30px; flex-wrap: wrap; }
+
+.tuile { position: relative; width: 300px; height: 200px; border-radius: var(--r-ligne); background: var(--verre); border: 2px solid var(--trait); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.tuile.grande { width: 420px; height: 250px; padding: 28px 30px; }
+.tuile.grande .nom { font-size: 42px; }
+.tuile .nom { font-size: 34px; font-weight: 600; line-height: 1.1; }
+.tuile .sous { font-size: 24px; color: var(--texte-discret); margin-top: 4px; }
+.tuile .pastille { position: absolute; top: 18px; right: 18px; font-size: 20px; padding: 4px 12px; border-radius: 999px; background: var(--surface-haute); color: var(--texte-discret); }
+.tuile .logo { width: 72px; height: 72px; display: block; flex: none; }
+.tuile .icone { width: 64px; height: 64px; display: block; flex: none; fill: none; stroke: var(--texte-discret); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.tuile.focus .icone { stroke: var(--ambre); }
+.tuile.focus { transform: scale(1.06); border-color: var(--ambre); box-shadow: 0 0 0 4px var(--ambre), 0 0 60px 6px rgba(255, 180, 94, .36); z-index: 2; }
+.tuile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .13) 50%, transparent 65%); background-size: 250% 100%; background-position: 120% 0; opacity: 0; }
+.tuile.focus::after { opacity: 1; animation: reflet 3.2s ease-in-out infinite; }
+@keyframes reflet { 0% { background-position: 120% 0; } 45%, 100% { background-position: -40% 0; } }
+.tuile.teintee { background: linear-gradient(160deg, color-mix(in srgb, var(--teinte) 30%, rgba(35, 42, 59, .9)), rgba(24, 29, 43, .86)); }
+.tuile.inactive .nom, .tuile.inactive .sous, .tuile.inactive .icone { opacity: .5; }
+.tuile.feu { background: radial-gradient(ellipse at 50% 120%, rgba(255, 120, 40, .55), transparent 70%), var(--verre); }
+
+.ligne { display: flex; align-items: center; gap: 30px; background: var(--verre); border: 2px solid var(--trait); border-radius: var(--r-panneau); padding: 24px 34px; }
+.ligne .titre { width: 360px; flex: none; }
+.ligne .titre strong { display: block; font-size: 36px; font-weight: 600; }
+.ligne .titre span { font-size: 25px; color: var(--texte-discret); }
+.valeur { font-size: 34px; font-variant-numeric: tabular-nums; min-width: 120px; text-align: center; }
+.bouton { height: 84px; padding: 0 40px; border-radius: 999px; display: inline-flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 600; background: var(--surface-haute); border: 2px solid var(--trait); transition: transform .14s ease, box-shadow .14s ease; white-space: nowrap; }
+.bouton.choisi { background: var(--ambre); color: var(--sur-ambre); border-color: var(--ambre); }
+.bouton.focus { transform: scale(1.06); box-shadow: 0 0 0 4px var(--texte), 0 0 50px 4px rgba(255, 180, 94, .4); }
+.boutons { display: flex; gap: 24px; flex-wrap: wrap; }
+.pastilles-couleur { display: flex; gap: 22px; align-items: center; }
+.pc { width: 96px; height: 96px; border-radius: 50%; border: 4px solid transparent; transition: transform .14s ease, box-shadow .14s ease; }
+.pc.choisie { border-color: var(--texte); }
+.pc.focus { transform: scale(1.12); box-shadow: 0 0 0 5px var(--ambre), 0 0 50px 6px rgba(255, 180, 94, .45); }
+.aide { margin: 0; font-size: 26px; color: var(--texte-discret); max-width: 1200px; }
+
+.plein { position: absolute; inset: 0; }
+.faux-web { position: absolute; inset: 54px 96px; border-radius: var(--r-panneau); background: repeating-linear-gradient(90deg, var(--surface) 0 360px, transparent 360px 392px); opacity: .7; }
 .etiquette-app { position: absolute; left: 96px; top: 54px; display: flex; flex-direction: column; gap: 12px; padding: 32px 40px; background: rgba(15, 19, 32, .9); border-radius: var(--r-panneau); border: 2px solid var(--trait); max-width: 1000px; }
 .etiquette-app strong { font-size: 48px; font-weight: 650; }
 .etiquette-app span { font-size: 28px; color: var(--texte-discret); }
-.aide-retour { position: absolute; right: 96px; bottom: 54px; font-size: 26px; color: var(--texte-discret); background: rgba(15, 19, 32, .9); padding: 14px 24px; border-radius: 999px; }
+.aide-retour { position: absolute; right: 96px; bottom: 54px; font-size: 26px; color: var(--texte-discret); background: rgba(15, 19, 32, .82); padding: 14px 26px; border-radius: 999px; transition: opacity 1.2s ease; }
+.barre-feu { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); display: flex; gap: 22px; padding: 18px; border-radius: 999px; background: rgba(10, 8, 6, .55); transition: opacity .8s ease; }
+.barre-feu .bouton { background: rgba(35, 30, 26, .85); border-color: rgba(255, 180, 94, .25); }
+.barre-feu .bouton.choisi { background: rgba(255, 180, 94, .9); color: var(--sur-ambre); }
+.titre-feu { position: absolute; left: 96px; top: 64px; font-size: 40px; font-weight: 600; color: rgba(255, 230, 200, .85); transition: opacity 1.2s ease; }
+.titre-feu small { display: block; font-size: 26px; font-weight: 400; color: rgba(255, 210, 170, .6); margin-top: 6px; }
+.discrete { opacity: 0; }
 
-.lecteur { height: 560px; border-radius: var(--r-panneau); background: radial-gradient(ellipse at 30% 40%, #2A3350, var(--surface) 70%); border: 2px solid var(--trait); display: flex; align-items: flex-end; padding: 36px 44px; }
+.lecteur { height: 520px; border-radius: var(--r-panneau); background: radial-gradient(ellipse at 30% 40%, #2A3350, var(--surface) 70%); border: 2px solid var(--trait); display: flex; align-items: flex-end; padding: 36px 44px; }
 .lecteur div { font-size: 36px; font-weight: 600; }
 .lecteur small { display: block; font-size: 24px; color: var(--texte-discret); font-weight: 400; margin-top: 6px; }
-
 .dialogue-fond { position: absolute; inset: 0; background: rgba(5, 7, 12, .72); display: flex; align-items: center; justify-content: center; }
 .dialogue { width: 1060px; background: var(--surface); border: 2px solid var(--trait); border-radius: var(--r-panneau); padding: 56px 64px; display: flex; flex-direction: column; gap: 28px; }
 .dialogue h2 { margin: 0; font-size: 52px; font-weight: 650; }
 .dialogue p { margin: 0; font-size: 30px; color: var(--texte-discret); line-height: 1.4; }
-.boutons { display: flex; gap: 28px; margin-top: 12px; }
-.bouton { height: 88px; padding: 0 48px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 32px; font-weight: 600; background: var(--surface-haute); border: 2px solid var(--trait); transition: transform .14s ease, box-shadow .14s ease; }
-.bouton.primaire { background: var(--ambre); color: var(--sur-ambre); border-color: var(--ambre); }
-.bouton.focus { transform: scale(1.06); box-shadow: 0 0 0 4px var(--texte), 0 0 50px 4px rgba(255, 180, 94, .4); }
-
-.pastilles-couleur { display: flex; gap: 24px; align-items: center; }
-.pc { width: 110px; height: 110px; border-radius: 50%; border: 4px solid transparent; transition: transform .14s ease, box-shadow .14s ease; }
-.pc.choisie { border-color: var(--texte); }
-.pc.focus { transform: scale(1.12); box-shadow: 0 0 0 5px var(--ambre), 0 0 50px 6px rgba(255, 180, 94, .45); }
-.ligne-maison { display: flex; align-items: center; gap: 40px; background: rgba(24, 29, 43, .82); border: 2px solid var(--trait); border-radius: var(--r-panneau); padding: 28px 40px; }
-.ligne-maison .titre { width: 420px; }
-.ligne-maison .titre strong { display: block; font-size: 38px; font-weight: 600; }
-.ligne-maison .titre span { font-size: 26px; color: var(--texte-discret); }
-.valeur { font-size: 34px; font-variant-numeric: tabular-nums; min-width: 140px; text-align: center; }
-
-.meminfo { display: grid; grid-template-columns: 1fr auto; gap: 14px 60px; font-size: 32px; background: rgba(24, 29, 43, .82); border: 2px solid var(--trait); border-radius: var(--r-panneau); padding: 40px 48px; max-width: 1200px; font-variant-numeric: tabular-nums; }
+.meminfo { display: grid; grid-template-columns: 1fr auto; gap: 14px 60px; font-size: 30px; background: var(--verre); border: 2px solid var(--trait); border-radius: var(--r-panneau); padding: 36px 44px; max-width: 1100px; font-variant-numeric: tabular-nums; }
 .meminfo span:nth-child(even) { text-align: right; }
 .meminfo .tot { color: var(--ambre); font-weight: 600; }
 
-/* ---- Panneau mémoire sous chaque télé ---- */
+/* ---------- Panneaux sous les télés ---------- */
 .memoire { background: var(--surface); border: 1px solid var(--trait); border-radius: var(--r-ligne); padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.memoire h4 { margin: 0; font-size: 13px; font-weight: 500; color: var(--texte-discret); }
 .memoire-tete { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .memoire-tete b { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .etat { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
@@ -153,8 +175,6 @@ button { font: inherit; color: inherit; }
 .jauge { display: flex; height: 22px; border-radius: 6px; overflow: hidden; background: var(--nuit); box-shadow: inset 0 0 0 1px var(--trait); }
 .jauge i { display: block; height: 100%; transition: width .35s ease; }
 .jauge i + i { box-shadow: inset 1px 0 0 rgba(15, 19, 32, .6); }
-.jauge .libre { background: transparent; }
-.memoire h4 { margin: 0; font-size: 13px; font-weight: 500; color: var(--texte-discret); }
 .legende { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 16px; font-size: 13px; }
 .legende li { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .legende li em { font-style: normal; color: var(--texte-discret); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -162,33 +182,47 @@ button { font: inherit; color: inherit; }
 .legende li::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex: none; }
 .note-mem { font-size: 13px; color: var(--texte-discret); margin: 0; }
 
-/* ---- Colonne de droite ---- */
+/* ---------- Colonne de droite ---------- */
 .cote-droit { display: flex; flex-direction: column; gap: 20px; }
 .carte { background: var(--surface); border: 1px solid var(--trait); border-radius: var(--r-ligne); padding: 18px; }
 .carte h2 { font-size: 17px; font-weight: 600; margin: 0 0 12px; }
-.telecommande { display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 64px); gap: 8px; justify-content: center; margin: 4px 0 14px; }
-.telecommande button, .rangee-touches button { border: 1px solid var(--trait); background: var(--surface-haute); border-radius: 50%; cursor: pointer; font-size: 20px; }
-.telecommande button:active, .rangee-touches button:active { background: var(--trait); }
-.telecommande .ok { background: var(--ambre); color: var(--sur-ambre); border-color: var(--ambre); font-weight: 650; font-size: 16px; }
-.t-haut { grid-column: 2; grid-row: 1; } .t-gauche { grid-column: 1; grid-row: 2; } .ok { grid-column: 2; grid-row: 2; }
-.t-droite { grid-column: 3; grid-row: 2; } .t-bas { grid-column: 2; grid-row: 3; }
-.rangee-touches { display: flex; gap: 10px; justify-content: center; }
-.rangee-touches button { border-radius: 999px; padding: 8px 16px; font-size: 14px; }
-.clavier { font-size: 13px; color: var(--texte-discret); margin: 12px 0 0; }
+
+/* Télécommande : un galet mat, croix en anneau, raccourcis vers les trois usages du soir. */
+.zappette { width: 210px; margin: 6px auto 4px; padding: 26px 22px 30px; border-radius: 105px 105px 72px 72px; background: linear-gradient(170deg, #2A3144, #161A26 70%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -10px 24px rgba(0, 0, 0, .35), 0 18px 40px rgba(0, 0, 0, .45); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.zappette .led { width: 6px; height: 6px; border-radius: 50%; background: #3A4156; transition: background .1s ease, box-shadow .1s ease; }
+.zappette .led.on { background: var(--ambre); box-shadow: 0 0 10px 2px var(--ambre); }
+.zappette button { border: 0; cursor: pointer; color: var(--texte); background: #2B3246; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 2px 4px rgba(0, 0, 0, .4); transition: transform .06s ease, background .1s ease; }
+.zappette button:active { transform: translateY(1px) scale(.97); background: #343C53; }
+.paire { display: flex; gap: 14px; }
+.paire button { width: 66px; height: 40px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+.anneau { position: relative; width: 164px; height: 164px; border-radius: 50%; background: #20263A; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5), 0 1px 0 rgba(255, 255, 255, .05); }
+.zappette .anneau .dir { position: absolute; width: 52px; height: 52px; border-radius: 50%; background: transparent; box-shadow: none; font-size: 15px; color: var(--texte-discret); }
+.zappette .anneau .dir:active { background: rgba(255, 255, 255, .06); }
+.anneau .d-haut { left: 56px; top: 4px; } .anneau .d-bas { left: 56px; bottom: 4px; }
+.anneau .d-gauche { left: 4px; top: 56px; } .anneau .d-droite { right: 4px; top: 56px; }
+.zappette .anneau .ok { position: absolute; left: 44px; top: 44px; width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FFC47E, var(--ambre) 60%, #E39A45); color: var(--sur-ambre); font-weight: 700; font-size: 17px; }
+.volume { display: flex; flex-direction: column; border-radius: 999px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, .4); }
+.zappette .volume button { width: 46px; height: 46px; border-radius: 0; font-size: 20px; box-shadow: none; }
+.volume button + button { border-top: 1px solid rgba(0, 0, 0, .35); }
+.bas-zappette { display: flex; align-items: center; gap: 18px; }
+.raccourcis { display: flex; flex-direction: column; gap: 10px; }
+.zappette .raccourcis button { width: 92px; height: 30px; border-radius: 999px; font-size: 12px; font-weight: 500; text-align: left; padding: 0 12px; display: flex; align-items: center; gap: 8px; }
+.raccourcis button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.clavier { font-size: 13px; color: var(--texte-discret); margin: 14px 0 0; }
 kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--nuit); }
-.journal { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; max-height: 260px; overflow-y: auto; }
+.journal { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; max-height: 240px; overflow-y: auto; }
 .journal li { color: var(--texte-discret); }
 .journal li b { color: var(--texte); font-weight: 500; }
 .journal li.alerte b { color: var(--alerte); }
 .avertissement { font-size: 13px; color: var(--texte-discret); margin: 0; }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
 <header class="entete">
   <div>
     <h1>Banc télé veilleuse</h1>
-    <p>Maquette de l'interface à 3 m, pilotée comme avec la télécommande. Les chiffres de mémoire sont des estimations, à remplacer par les mesures de la phase 1.</p>
+    <p>Maquette de l'interface à 3 m, pilotée comme avec la télécommande. Les chiffres de mémoire et de stockage sont des estimations, à remplacer par les mesures de la phase 1.</p>
   </div>
   <div class="reglages">
     <div class="groupe"><span>Box simulée</span>
@@ -198,8 +232,8 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
         <button type="button" data-profil="cote">Côte à côte</button>
       </div>
     </div>
-    <div class="groupe"><span>Scénario</span>
-      <div class="segments" id="choix-scenario" role="group" aria-label="Scénario">
+    <div class="groupe"><span>Scénario mémoire</span>
+      <div class="segments" id="choix-scenario" role="group" aria-label="Scénario mémoire">
         <button type="button" data-scenario="normal">Soirée normale</button>
         <button type="button" data-scenario="pire">Pire cas</button>
       </div>
@@ -211,13 +245,6 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
         <button type="button" data-stockage="garde">2 ans avec garde-fous</button>
       </div>
     </div>
-    <div class="groupe"><span>Fond animé</span>
-      <div class="segments" id="choix-fond" role="group" aria-label="Fond animé">
-        <button type="button" data-fond="ondes">Ondes</button>
-        <button type="button" data-fond="lucioles">Lucioles</button>
-        <button type="button" data-fond="arret">Arrêt</button>
-      </div>
-    </div>
     <label class="case"><input type="checkbox" id="securite"> Zone de sécurité</label>
   </div>
 </header>
@@ -227,18 +254,32 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
   <aside class="cote-droit">
     <div class="carte">
       <h2>Télécommande</h2>
-      <div class="telecommande">
-        <button type="button" class="t-haut" data-touche="haut" aria-label="Haut">▲</button>
-        <button type="button" class="t-gauche" data-touche="gauche" aria-label="Gauche">◀</button>
-        <button type="button" class="ok" data-touche="ok">OK</button>
-        <button type="button" class="t-droite" data-touche="droite" aria-label="Droite">▶</button>
-        <button type="button" class="t-bas" data-touche="bas" aria-label="Bas">▼</button>
+      <div class="zappette">
+        <span class="led" id="led"></span>
+        <div class="paire">
+          <button type="button" data-touche="accueil">Accueil</button>
+          <button type="button" data-touche="retour">Retour</button>
+        </div>
+        <div class="anneau">
+          <button type="button" class="dir d-haut" data-touche="haut" aria-label="Haut">▲</button>
+          <button type="button" class="dir d-gauche" data-touche="gauche" aria-label="Gauche">◀</button>
+          <button type="button" class="ok" data-touche="ok">OK</button>
+          <button type="button" class="dir d-droite" data-touche="droite" aria-label="Droite">▶</button>
+          <button type="button" class="dir d-bas" data-touche="bas" aria-label="Bas">▼</button>
+        </div>
+        <div class="bas-zappette">
+          <div class="volume" role="group" aria-label="Volume de l'ampli">
+            <button type="button" data-touche="vol+" aria-label="Monter le volume">+</button>
+            <button type="button" data-touche="vol-" aria-label="Baisser le volume">−</button>
+          </div>
+          <div class="raccourcis">
+            <button type="button" data-touche="r-regarder" style="--c:#FF6A5C">Regarder</button>
+            <button type="button" data-touche="r-lumieres" style="--c:#FFB45E">Lumières</button>
+            <button type="button" data-touche="r-feu" style="--c:#FF8A3A">Feu</button>
+          </div>
+        </div>
       </div>
-      <div class="rangee-touches">
-        <button type="button" data-touche="retour">Retour</button>
-        <button type="button" data-touche="accueil">Accueil</button>
-      </div>
-      <p class="clavier">Au clavier : flèches, <kbd>Entrée</kbd>, <kbd>Échap</kbd> ou <kbd>⌫</kbd> pour Retour, <kbd>H</kbd> pour Accueil.</p>
+      <p class="clavier">Au clavier : flèches, <kbd>Entrée</kbd>, <kbd>Échap</kbd> pour Retour, <kbd>H</kbd> Accueil, <kbd>+</kbd> <kbd>−</kbd> volume, <kbd>F</kbd> feu.</p>
     </div>
     <div class="carte">
       <h2>Journal de la box</h2>
@@ -246,7 +287,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     </div>
     <div class="carte">
       <h2>Ce que simule ce banc</h2>
-      <p class="avertissement">La navigation au focus, les écrans prévus en phase 4 et 5, et un modèle de mémoire par composant. Le pire cas ajoute 2 h de YouTube (Chromium grossit), une mise à jour RAUC en fond et un scan Bluetooth du hub. Sur 2 Go, l'interface libère ses miniatures pendant que Chromium tourne, et le fond animé passe en version allégée. Le fond se met en pause pendant une vidéo. La carte SD simule ce qui s'accumule en deux ans (caches, journaux, mises à jour) avec et sans garde-fous. Les logos sont des pictogrammes dessinés pour la maquette ; l'app Flutter utilisera les icônes officielles. Ce n'est pas une émulation du processeur : la vraie mesure se fera sous QEMU et sur la box.</p>
+      <p class="avertissement">Les cinq sections de l'OS, la navigation au focus, le fond animé (lucioles, ondes), l'ambiance « Feu de cheminée » avec un crépitement synthétisé, un modèle de mémoire par composant et le remplissage de la carte SD. Sur 2 Go, les animations sont allégées. Les logos sont des pictogrammes dessinés pour la maquette ; l'app Flutter utilisera les icônes officielles. Ce n'est pas une émulation du processeur : la vraie mesure se fera sous QEMU et sur la box.</p>
     </div>
   </aside>
 </main>
@@ -255,14 +296,16 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
 (() => {
   "use strict";
 
-  // ---------- Modèle mémoire (Mo, estimations à remplacer par les mesures) ----------
+  // =====================================================================
+  // Modèles : mémoire vive et carte SD (estimations à remplacer par les mesures de #43)
+  // =====================================================================
   const PROFILS = {
     2: { total: 2048, reserve: 230, miniatures: 64, miniaturesPause: 16, chromium: 560, sobre: true, tmpfs: 48, cacheChromium: 0.25, cacheMini: 0.15 },
     4: { total: 4096, reserve: 300, miniatures: 192, miniaturesPause: 192, chromium: 720, sobre: false, tmpfs: 96, cacheChromium: 0.5, cacheMini: 0.3 },
   };
-  const MARGE_MINI = 200; // en dessous, le noyau n'a plus de cache disque : zram puis OOM.
+  const MARGE_MINI = 200;
 
-  function composants(n, etat) {
+  function composants(n) {
     const p = PROFILS[n];
     const pire = etat.scenario === "pire";
     const surChromium = etat.ecran === "youtube";
@@ -272,17 +315,18 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       { nom: "Interface (flutter-pi + app)", mo: 170, c: "var(--m-ui)" },
       { nom: "Miniatures en cache", mo: surChromium && p.sobre ? p.miniaturesPause : p.miniatures, c: "var(--m-cache)" },
       { nom: "Hub domotique Rust", mo: pire ? 70 : 30, c: "var(--m-hub)" },
-      { nom: "tmpfs (/tmp, journal en RAM)", mo: p.tmpfs, c: "var(--m-reserve)" },
+      { nom: "tmpfs (/tmp, journal)", mo: p.tmpfs, c: "var(--m-reserve)" },
     ];
+    if (etat.ecran === "feu") liste.push({ nom: "Feu de cheminée (rendu + son)", mo: p.sobre ? 28 : 40, c: "var(--m-fond)" });
+    else if (fondActif() || etat.ecran === "lucioles") liste.push({ nom: "Fond animé", mo: p.sobre ? 8 : 12, c: "var(--m-fond)" });
     if (surChromium) liste.push({ nom: pire ? "Chromium (YouTube, 2 h)" : "Chromium (YouTube)", mo: p.chromium + (pire ? 600 : 0), c: "var(--m-chromium)" });
-    if (etat.ecran === "twitch") liste.push({ nom: "Lecteur GStreamer (Twitch 1080p)", mo: pire ? 210 : 150, c: "var(--m-video)" });
+    if (etat.ecran === "twitch") liste.push({ nom: "Lecteur GStreamer (Twitch)", mo: pire ? 210 : 150, c: "var(--m-video)" });
     if (pire) liste.push({ nom: "Mise à jour RAUC en fond", mo: 120, c: "var(--m-maj)" });
     return liste;
   }
-
-  function bilan(n, etat) {
+  function bilan(n) {
     const p = PROFILS[n];
-    const liste = composants(n, etat);
+    const liste = composants(n);
     const utilise = liste.reduce((s, x) => s + x.mo, 0);
     const libre = p.total - utilise;
     let niveau = "ok", texte = "Confortable";
@@ -291,11 +335,8 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     return { liste, utilise, libre, niveau, texte, total: p.total };
   }
 
-  // ---------- Modèle de la carte SD (Go, estimations) ----------
-  // Même carte de 32 Go pour les deux profils (environ 29,7 Go utilisables). La RAM ne change
-  // que la taille des caches plafonnés et du tmpfs ; le vrai risque vient des caches sans limite.
   const SD = 29.7;
-  function stockage(n, etat) {
+  function stockage(n) {
     const p = PROFILS[n];
     const vide = etat.cachesVides;
     let c;
@@ -320,223 +361,301 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
   }
   const go = (x) => (x < 1 ? Math.round(x * 1024) + " Mo" : x.toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " Go");
 
-  // ---------- État partagé par les deux télés ----------
+  // =====================================================================
+  // État partagé par les deux télés
+  // =====================================================================
   const COULEURS = [
     { nom: "Ambre", v: "#FFB45E" }, { nom: "Rose", v: "#FF7FA8" }, { nom: "Bleu nuit", v: "#6F8CFF" },
     { nom: "Vert", v: "#7FE0A2" }, { nom: "Blanc chaud", v: "#FFE6C2" },
   ];
+  const SECTIONS = [
+    { id: "regarder", nom: "Regarder", sous: "Vidéo et apps" },
+    { id: "lumieres", nom: "Lumières", sous: "Lampes et scènes du salon" },
+    { id: "piece", nom: "Ambiance de la pièce", sous: "Feu de cheminée, lucioles, minuterie" },
+    { id: "os", nom: "Ambiance de l'OS", sous: "Le fond animé derrière l'interface" },
+    { id: "reglages", nom: "Réglages", sous: "Son, mémoire, stockage, Android" },
+  ];
+  const MINUTERIES = ["Arrêt", "30 min", "1 h", "2 h"];
   const etat = {
-    profil: "cote", scenario: "normal", securite: false,
-    ecran: "accueil", focus: { r: 0, c: 0 }, pile: [],
+    profil: "cote", scenario: "normal", stockage: "neuf", securite: false, cachesVides: false,
+    ecran: "accueil", zone: "rail", section: 0, focus: { r: 0, c: 0 }, pile: [],
     lampe: { allumee: true, couleur: 0 }, ampoule: { allumee: true, niveau: 70 },
-    recepteur: { allume: false, volume: 24 }, chaine: 0,
-    stockage: "neuf", fond: "ondes", cachesVides: false,
+    recepteur: { allume: true, volume: 24 }, chaine: 0,
+    fond: "lucioles", teinte: "naturelle", mouvement: "calme",
+    feu: { son: true, syncLampe: true, minuterie: 0 }, barreVue: 0,
   };
   try {
     const s = JSON.parse(localStorage.getItem("banc-tele") || "{}");
-    if (s.profil) etat.profil = s.profil;
-    if (s.scenario) etat.scenario = s.scenario;
+    for (const k of ["profil", "scenario", "stockage", "teinte", "mouvement"]) if (s[k]) etat[k] = s[k];
+    if (["lucioles", "ondes", "arret"].includes(s.fond)) etat.fond = s.fond;
     if (typeof s.securite === "boolean") etat.securite = s.securite;
-    if (s.stockage) etat.stockage = s.stockage;
-    if (s.fond) etat.fond = s.fond;
-  } catch (e) { /* stockage indisponible : on garde les valeurs par défaut */ }
+  } catch (e) { /* stockage indisponible : valeurs par défaut */ }
   function sauver() {
-    try { localStorage.setItem("banc-tele", JSON.stringify({ profil: etat.profil, scenario: etat.scenario, securite: etat.securite, stockage: etat.stockage, fond: etat.fond })); } catch (e) { /* rien */ }
+    try {
+      const { profil, scenario, stockage: st, fond, teinte, mouvement, securite } = etat;
+      localStorage.setItem("banc-tele", JSON.stringify({ profil, scenario, stockage: st, fond, teinte, mouvement, securite }));
+    } catch (e) { /* rien */ }
   }
-
   const CHAINES = ["Chaîne exemple 1", "Chaîne exemple 2", "Chaîne exemple 3", "Chaîne exemple 4"];
+  const fondActif = () => etat.fond !== "arret" && ["accueil", "android", "simulation", "memoire", "stockage"].includes(etat.ecran);
 
-  // Grille de focus de chaque écran : rangées d'identifiants.
+  // Grille de focus du contenu, par section ou par écran.
   function grille() {
+    if (etat.ecran === "accueil") {
+      switch (SECTIONS[etat.section].id) {
+        case "regarder": return [["youtube", "twitch", "medias"], ["netflix", "canal"]];
+        case "lumieres": return [["lampe-bascule", "c0", "c1", "c2", "c3", "c4"], ["ampoule-bascule", "ampoule-moins", "ampoule-plus"], ["scene-film", "scene-lecture", "scene-eteindre"]];
+        case "piece": return [["feu", "lucioles", "pluie"], ["sync-lampe", "minuterie"]];
+        case "os": return [["fond-lucioles", "fond-ondes", "fond-arret"], ["teinte-naturelle", "teinte-lampe"], ["mvt-calme", "mvt-vivant"]];
+        default: return [["memoire", "stockage", "android"], ["recepteur-bascule", "volume-moins", "volume-plus"]];
+      }
+    }
     switch (etat.ecran) {
-      case "accueil": return [
-        ["youtube", "twitch", "netflix", "canal", "medias"],
-        ["lampe", "ampoule", "recepteur", "scene"],
-        ["memoire", "stockage", "maison", "android"],
-      ];
-      case "maison": return [
-        ["lampe-bascule", "c0", "c1", "c2", "c3", "c4"],
-        ["ampoule-bascule", "ampoule-moins", "ampoule-plus"],
-        ["recepteur-bascule", "volume-moins", "volume-plus"],
-      ];
       case "twitch": return [CHAINES.map((_, i) => "ch" + i)];
       case "android": return [["redemarrer", "annuler"]];
       case "simulation": return [["compris"]];
       case "stockage": return [["vider", "retour"]];
+      case "feu": return [["feu-son", "feu-lampe", "feu-quitter"]];
       default: return [["retour"]];
     }
   }
-  const idFocus = () => { const g = grille(); const r = Math.min(etat.focus.r, g.length - 1); return g[r][Math.min(etat.focus.c, g[r].length - 1)]; };
+  const idFocus = () => {
+    if (etat.ecran === "accueil" && etat.zone === "rail") return "rail";
+    const g = grille(); const r = Math.min(etat.focus.r, g.length - 1);
+    return g[r][Math.min(etat.focus.c, g[r].length - 1)];
+  };
 
-  // ---------- Journal ----------
+  // =====================================================================
+  // Journal
+  // =====================================================================
   const journal = document.getElementById("journal");
   function noter(texte, alerte) {
     const li = document.createElement("li");
     if (alerte) li.className = "alerte";
-    const h = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    li.innerHTML = h + " · <b></b>";
-    li.querySelector("b").textContent = texte;
+    li.textContent = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) + " · ";
+    const b = document.createElement("b"); b.textContent = texte; li.appendChild(b);
     journal.prepend(li);
     while (journal.children.length > 40) journal.lastChild.remove();
   }
 
-  // ---------- Rendu d'un écran 1920×1080 ----------
-  const f = (id) => (idFocus() === id ? " focus" : "");
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-  function halo() {
-    if (!etat.lampe.allumee) return "radial-gradient(ellipse at 85% -10%, rgba(255,230,194,.06), transparent 60%)";
-    const c = COULEURS[etat.lampe.couleur].v;
-    return `radial-gradient(ellipse 70% 60% at 88% -12%, ${c}55, transparent 70%), radial-gradient(ellipse 50% 40% at 0% 110%, ${c}22, transparent 70%)`;
-  }
-
-  function tuile(id, nom, sous, extra = "", classes = "", teinte = "") {
-    const st = teinte ? ` style="--teinte:${teinte}"` : "";
-    return `<div class="tuile ${classes}${f(id)}"${st}>${extra}<div><div class="nom">${esc(nom)}</div><div class="sous">${esc(sous)}</div></div></div>`;
-  }
-
-  // Pictogrammes dessinés pour la maquette (pas les logos officiels : l'app Flutter les embarquera).
+  // =====================================================================
+  // Pictogrammes
+  // =====================================================================
   const LOGOS = {
     youtube: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="13" width="60" height="38" rx="12" fill="#FF0033"/><path d="M26 23 L43 32 L26 41Z" fill="#fff"/></svg>',
     twitch: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 4 L6 14 V52 H18 V60 H26 L34 52 H44 L58 38 V4Z" fill="#9146FF"/><path d="M14 10 V44 H24 V51 L31 44 H42 L52 34 V10Z" fill="#fff"/><rect x="27" y="19" width="5" height="14" rx="1" fill="#9146FF"/><rect x="39" y="19" width="5" height="14" rx="1" fill="#9146FF"/></svg>',
     netflix: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#141414"/><path d="M19 10 H28 L36 34 V10 H45 V54 H36 L28 30 V54 H19Z" fill="#E50914"/></svg>',
     canal: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#000"/><text x="32" y="38" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="15" fill="#fff">CANAL+</text></svg>',
   };
-  const ICONES = {
+  const TRACES = {
+    regarder: '<path d="M8 14 H56 V44 H8Z M22 54 H42 M32 44 V54"/>',
+    lumieres: '<path d="M24 44 A16 16 0 1 1 40 44 V50 H24Z M26 56 H38"/>',
+    piece: '<path d="M32 6 C40 18 48 24 48 38 A16 16 0 0 1 16 38 C16 30 22 26 24 18 C28 24 30 26 32 28 C34 20 32 12 32 6Z"/>',
+    os: '<path d="M10 40 C20 28 30 48 40 36 S54 30 56 34 M10 26 C20 14 30 34 40 22 S54 16 56 20"/><circle cx="18" cy="52" r="2"/><circle cx="44" cy="50" r="2"/>',
+    reglages: '<circle cx="32" cy="32" r="8"/><path d="M32 6 V14 M32 50 V58 M6 32 H14 M50 32 H58 M13 13 L19 19 M45 45 L51 51 M13 51 L19 45 M45 19 L51 13"/>',
     medias: '<path d="M8 14 H56 V50 H8Z M8 22 H56 M8 42 H56 M18 14 V22 M30 14 V22 M42 14 V22 M18 42 V50 M30 42 V50 M42 42 V50"/>',
-    ampli: '<path d="M14 10 H50 V54 H14Z"/><circle cx="32" cy="38" r="9"/><circle cx="32" cy="20" r="3"/>',
-    scene: '<path d="M40 8 A22 22 0 1 0 56 40 A18 18 0 1 1 40 8Z"/>',
+    lune: '<path d="M40 8 A22 22 0 1 0 56 40 A18 18 0 1 1 40 8Z"/>',
+    livre: '<path d="M32 16 C24 10 14 10 8 12 V50 C14 48 24 48 32 54 C40 48 50 48 56 50 V12 C50 10 40 10 32 16Z M32 16 V54"/>',
+    eteindre: '<path d="M32 8 V30 M20 16 A20 20 0 1 0 44 16"/>',
     memoire: '<path d="M16 16 H48 V48 H16Z M24 24 H40 V40 H24Z M24 8 V16 M32 8 V16 M40 8 V16 M24 48 V56 M32 48 V56 M40 48 V56 M8 24 H16 M8 32 H16 M8 40 H16 M48 24 H56 M48 32 H56 M48 40 H56"/>',
     stockage: '<path d="M18 6 H40 L50 16 V58 H18Z M26 6 V16 M32 6 V16 M38 6 V16"/>',
-    maison: '<path d="M8 30 L32 10 L56 30 M14 26 V54 H50 V26 M27 54 V38 H37 V54"/>',
     android: '<path d="M50 32 A18 18 0 1 1 44 18.5 M44 6 V19 H31"/>',
+    luciole: '<circle cx="32" cy="30" r="6"/><path d="M32 12 V18 M32 42 V48 M14 30 H20 M44 30 H50 M19 17 L23 21 M41 39 L45 43 M19 43 L23 39 M41 21 L45 17"/>',
+    pluie: '<path d="M18 34 A12 12 0 0 1 22 12 A14 14 0 0 1 48 18 A10 10 0 0 1 46 34Z M22 44 L18 54 M34 44 L30 54 M46 44 L42 54"/>',
   };
-  const icone = (nom) => `<svg class="icone" viewBox="0 0 64 64" aria-hidden="true">${ICONES[nom]}</svg>`;
+  const svg = (nom, cls = "icone") => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true">${TRACES[nom]}</svg>`;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const f = (id) => (idFocus() === id ? " focus" : "");
 
-  function ecranAccueil(n) {
-    const p = PROFILS[n];
-    const sd = stockage(n, etat);
-    const heure = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    const lc = COULEURS[etat.lampe.couleur];
-    const lampe = `<div class="lumiere" style="background:${etat.lampe.allumee ? lc.v : "var(--surface-haute)"};box-shadow:${etat.lampe.allumee ? "0 0 30px " + lc.v : "none"}"></div>`;
-    const amp = `<div class="lumiere" style="background:${etat.ampoule.allumee ? "#FFE6C2" : "var(--surface-haute)"};opacity:${etat.ampoule.allumee ? 0.4 + etat.ampoule.niveau / 170 : 1}"></div>`;
-    return `
-      <div class="zone ${p.sobre ? "sobre" : ""}">
-        <div class="barre"><h2>Bonsoir</h2>
-          <div class="infos">${sd.taux > 0.75 ? `<span class="bandeau-alerte">Carte SD remplie à ${Math.round(sd.taux * 100)} %</span>` : ""}${p.sobre ? '<span class="bandeau-sobre">Mode sobre 2 Go</span>' : ""}<span>Ethernet · 1 Gb/s</span><span class="heure">${heure}</span></div></div>
-        <div class="rangee"><h3>Regarder</h3><div class="tuiles">
-          ${tuile("youtube", "YouTube", "Dans notre OS", LOGOS.youtube, "affiche large", "#FF0033")}
-          ${tuile("twitch", "Twitch", "Écran natif", LOGOS.twitch, "affiche large", "#9146FF")}
-          ${tuile("netflix", "Netflix", "Redémarre sous Android", LOGOS.netflix + '<span class="pastille">Android</span>', "affiche", "#E50914")}
-          ${tuile("canal", "Canal+", "Redémarre sous Android", LOGOS.canal + '<span class="pastille">Android</span>', "affiche", "#5A6070")}
-          ${tuile("medias", "Médias", "Plus tard", icone("medias") + '<span class="pastille">Phase 7</span>', "eteinte")}
-        </div></div>
-        <div class="rangee"><h3>Maison</h3><div class="tuiles">
-          ${tuile("lampe", "Lampe du salon", etat.lampe.allumee ? lc.nom : "Éteinte", lampe, etat.lampe.allumee ? "" : "eteinte")}
-          ${tuile("ampoule", "Plafonnier", etat.ampoule.allumee ? etat.ampoule.niveau + " %" : "Éteint", amp, etat.ampoule.allumee ? "" : "eteinte")}
-          ${tuile("recepteur", "Ampli", etat.recepteur.allume ? "Volume " + etat.recepteur.volume : "En veille", icone("ampli"), etat.recepteur.allume ? "" : "eteinte")}
-          ${tuile("scene", "Soirée film", "Lampe ambre, plafonnier 20 %", icone("scene"))}
-        </div></div>
-        <div class="rangee"><h3>Système</h3><div class="tuiles">
-          ${tuile("memoire", "Mémoire", bilan(n, etat).texte, icone("memoire"))}
-          ${tuile("stockage", "Stockage", sd.texte + " · " + Math.round(sd.taux * 100) + " %", icone("stockage"))}
-          ${tuile("maison", "Toute la maison", "Lumières et son", icone("maison"))}
-          ${tuile("android", "Android", "Redémarrer la box", icone("android"))}
-        </div></div>
-      </div>`;
+  function tuile(id, nom, sous, visuel = "", classes = "", teinte = "") {
+    const st = teinte ? ` style="--teinte:${teinte}"` : "";
+    return `<div class="tuile ${classes}${teinte ? " teintee" : ""}${f(id)}"${st}>${visuel}<div><div class="nom">${esc(nom)}</div><div class="sous">${esc(sous)}</div></div></div>`;
+  }
+  const bouton = (id, texte, choisi = false) => `<div class="bouton${choisi ? " choisi" : ""}${f(id)}">${esc(texte)}</div>`;
+
+  // =====================================================================
+  // Écrans
+  // =====================================================================
+  function halo() {
+    if (etat.ecran === "feu" || etat.ecran === "lucioles") return "none";
+    if (!etat.lampe.allumee) return "radial-gradient(ellipse at 85% -10%, rgba(255,230,194,.05), transparent 60%)";
+    const c = COULEURS[etat.lampe.couleur].v;
+    return `radial-gradient(ellipse 70% 55% at 92% -12%, ${c}40, transparent 70%)`;
   }
 
-  function ecranMaison() {
+  function pageRegarder() {
+    return `
+      <div class="bloc"><h3>Dans notre OS</h3><div class="tuiles">
+        ${tuile("youtube", "YouTube", "Chromium en plein écran", LOGOS.youtube, "grande", "#FF0033")}
+        ${tuile("twitch", "Twitch", "Écran natif", LOGOS.twitch, "grande", "#9146FF")}
+        ${tuile("medias", "Médias", "Arrive en phase 7", svg("medias") + '<span class="pastille">Plus tard</span>', "grande inactive")}
+      </div></div>
+      <div class="bloc"><h3>Sous Android (la box redémarre)</h3><div class="tuiles">
+        ${tuile("netflix", "Netflix", "Via Android", LOGOS.netflix, "", "#E50914")}
+        ${tuile("canal", "Canal+", "Via Android", LOGOS.canal, "", "#5A6070")}
+      </div></div>`;
+  }
+
+  function pageLumieres() {
     const lc = COULEURS[etat.lampe.couleur];
     const pcs = COULEURS.map((c, i) => `<div class="pc${i === etat.lampe.couleur ? " choisie" : ""}${f("c" + i)}" style="background:${c.v}" title="${esc(c.nom)}"></div>`).join("");
-    const bascule = (id, on) => `<div class="bouton ${on ? "primaire" : ""}${f(id)}">${on ? "Allumé" : "Éteint"}</div>`;
     return `
-      <div class="zone">
-        <div class="barre"><h2>Maison</h2><div class="infos"><span>Hub domotique · 3 appareils</span></div></div>
-        <div class="ligne-maison"><div class="titre"><strong>Lampe du salon</strong><span>iStrip+ en Bluetooth · ${esc(lc.nom)}</span></div>
-          ${bascule("lampe-bascule", etat.lampe.allumee)}<div class="pastilles-couleur">${pcs}</div></div>
-        <div class="ligne-maison"><div class="titre"><strong>Plafonnier</strong><span>Ampoule WiZ</span></div>
-          ${bascule("ampoule-bascule", etat.ampoule.allumee)}<div class="bouton${f("ampoule-moins")}">−</div><div class="valeur">${etat.ampoule.niveau} %</div><div class="bouton${f("ampoule-plus")}">+</div></div>
-        <div class="ligne-maison"><div class="titre"><strong>Ampli</strong><span>Récepteur audio en CEC</span></div>
-          ${bascule("recepteur-bascule", etat.recepteur.allume)}<div class="bouton${f("volume-moins")}">−</div><div class="valeur">${etat.recepteur.volume}</div><div class="bouton${f("volume-plus")}">+</div></div>
+      <div class="ligne"><div class="titre"><strong>Lampe du salon</strong><span>iStrip+ · ${etat.lampe.allumee ? esc(lc.nom) : "éteinte"}</span></div>
+        ${bouton("lampe-bascule", etat.lampe.allumee ? "Allumée" : "Éteinte", etat.lampe.allumee)}<div class="pastilles-couleur">${pcs}</div></div>
+      <div class="ligne"><div class="titre"><strong>Plafonnier</strong><span>Ampoule WiZ</span></div>
+        ${bouton("ampoule-bascule", etat.ampoule.allumee ? "Allumé" : "Éteint", etat.ampoule.allumee)}${bouton("ampoule-moins", "−")}<div class="valeur">${etat.ampoule.niveau} %</div>${bouton("ampoule-plus", "+")}</div>
+      <div class="bloc"><h3>Scènes</h3><div class="tuiles">
+        ${tuile("scene-film", "Soirée film", "Lampe ambre, plafonnier 20 %", svg("lune"))}
+        ${tuile("scene-lecture", "Lecture", "Blanc chaud, plafonnier 80 %", svg("livre"))}
+        ${tuile("scene-eteindre", "Tout éteindre", "Lampe et plafonnier", svg("eteindre"))}
+      </div></div>`;
+  }
+
+  function pagePiece() {
+    return `
+      <div class="bloc"><h3>Plein écran, pour l'ambiance</h3><div class="tuiles">
+        ${tuile("feu", "Feu de cheminée", "Flammes et crépitement", svg("piece"), "grande feu")}
+        ${tuile("lucioles", "Lucioles", "L'interface s'efface", svg("luciole"), "grande")}
+        ${tuile("pluie", "Pluie sur la vitre", "Plus tard", svg("pluie") + '<span class="pastille">Idée</span>', "grande inactive")}
+      </div></div>
+      <div class="bloc"><h3>Options</h3><div class="boutons">
+        ${bouton("sync-lampe", "Lampe synchronisée : " + (etat.feu.syncLampe ? "oui" : "non"), etat.feu.syncLampe)}
+        ${bouton("minuterie", "Minuterie : " + MINUTERIES[etat.feu.minuterie], etat.feu.minuterie > 0)}
+      </div></div>
+      <p class="aide">Avec la lampe synchronisée, le hub fait vaciller la lampe du salon en ambre au rythme du feu. La minuterie éteint l'ambiance, la lampe et la télé (CEC).</p>`;
+  }
+
+  function pageOs(n) {
+    return `
+      <div class="ligne"><div class="titre"><strong>Fond</strong><span>Derrière l'interface</span></div><div class="boutons">
+        ${bouton("fond-lucioles", "Lucioles", etat.fond === "lucioles")}${bouton("fond-ondes", "Ondes", etat.fond === "ondes")}${bouton("fond-arret", "Arrêt", etat.fond === "arret")}</div></div>
+      <div class="ligne"><div class="titre"><strong>Couleur</strong><span>Lueur du fond</span></div><div class="boutons">
+        ${bouton("teinte-naturelle", "Naturelle", etat.teinte === "naturelle")}${bouton("teinte-lampe", "Suit la lampe", etat.teinte === "lampe")}</div></div>
+      <div class="ligne"><div class="titre"><strong>Mouvement</strong><span>Vitesse et densité</span></div><div class="boutons">
+        ${bouton("mvt-calme", "Calme", etat.mouvement === "calme")}${bouton("mvt-vivant", "Vivant", etat.mouvement === "vivant")}</div></div>
+      <p class="aide">${PROFILS[n].sobre ? "Box 2 Go : fond allégé, moitié moins de lucioles et 30 images/s." : "Le fond se met en pause dès qu'une vidéo démarre."}</p>`;
+  }
+
+  function pageReglages(n) {
+    const b = bilan(n), s = stockage(n);
+    return `
+      <div class="tuiles">
+        ${tuile("memoire", "Mémoire", b.texte, svg("memoire"))}
+        ${tuile("stockage", "Stockage", s.texte + " · " + Math.round(s.taux * 100) + " %", svg("stockage"))}
+        ${tuile("android", "Android", "Redémarrer la box", svg("android"))}
+      </div>
+      <div class="ligne"><div class="titre"><strong>Ampli</strong><span>Récepteur audio en CEC</span></div>
+        ${bouton("recepteur-bascule", etat.recepteur.allume ? "Allumé" : "En veille", etat.recepteur.allume)}${bouton("volume-moins", "−")}<div class="valeur">${etat.recepteur.volume}</div>${bouton("volume-plus", "+")}</div>`;
+  }
+
+  function ecranAccueil(n) {
+    const p = PROFILS[n], sd = stockage(n);
+    const sec = SECTIONS[etat.section];
+    const heure = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const rail = SECTIONS.map((s, i) => {
+      const cls = i === etat.section ? (etat.zone === "rail" && etat.ecran === "accueil" ? " focus" : " active") : "";
+      return `<div class="section${cls}">${svg(s.id, "")}<span>${esc(s.nom)}</span></div>`;
+    }).join("");
+    const etats = [
+      sd.taux > 0.75 ? `<span class="alerte">Carte SD remplie à ${Math.round(sd.taux * 100)} %</span>` : "",
+      p.sobre ? '<span class="sobre">Mode sobre 2 Go</span>' : "",
+      etat.feu.minuterie ? `<span>Minuterie ${MINUTERIES[etat.feu.minuterie]}</span>` : "",
+    ].join("");
+    const pages = { regarder: pageRegarder, lumieres: pageLumieres, piece: pagePiece, os: pageOs, reglages: pageReglages };
+    return `
+      <div class="os">
+        <nav class="rail"><div class="marque"><i></i>veilleuse</div>${rail}
+          <div class="rail-pied"><span class="heure">${heure}</span><span>Ethernet · Salon</span></div></nav>
+        <div class="page">
+          <div class="page-tete"><div><h2>${esc(sec.nom)}</h2><p>${esc(sec.sous)}</p></div><div class="etats">${etats}</div></div>
+          ${pages[sec.id](n)}
+        </div>
       </div>`;
   }
 
   function ecranYoutube(n) {
-    const p = PROFILS[n];
-    return `<div class="plein"><div class="faux-web"></div>
+    return `<div class="plein" style="background:var(--nuit)"><div class="faux-web"></div>
       <div class="etiquette-app"><strong>YouTube (youtube.com/tv)</strong>
-      <span>Chromium en kiosque, un seul processus de rendu.${p.sobre ? " L'interface a libéré ses miniatures et dort en attendant." : " L'interface reste en mémoire pour un retour instantané."}</span></div>
+      <span>Chromium en kiosque, un seul processus de rendu. Fond animé en pause.${PROFILS[n].sobre ? " L'interface a libéré ses miniatures." : ""}</span></div>
       <div class="aide-retour">Retour : revenir à l'accueil</div></div>`;
   }
-
   function ecranTwitch() {
-    const t = CHAINES.map((c, i) => tuile("ch" + i, c, i === etat.chaine ? "En cours" : "En direct", "", "affiche")).join("");
-    return `<div class="zone"><div class="barre"><h2>Twitch</h2><div class="infos"><span>Chaînes suivies (exemples)</span></div></div>
-      <div class="lecteur"><div>${esc(CHAINES[etat.chaine])}<small>Flux HLS 1080p30 lu par GStreamer, décodage logiciel</small></div></div>
-      <div class="tuiles">${t}</div></div>`;
+    const t = CHAINES.map((c, i) => tuile("ch" + i, c, i === etat.chaine ? "En cours" : "En direct", LOGOS.twitch, "", "#9146FF")).join("");
+    return `<div class="plein" style="background:var(--nuit)"><div class="os" style="grid-template-columns:1fr"><div class="page">
+      <div class="page-tete"><div><h2>Twitch</h2><p>Chaînes suivies (exemples)</p></div></div>
+      <div class="lecteur"><div>${esc(CHAINES[etat.chaine])}<small>Flux HLS 1080p30 lu par GStreamer, fond animé en pause</small></div></div>
+      <div class="tuiles">${t}</div></div></div></div>`;
   }
-
   function ecranMemoire(n) {
-    const b = bilan(n, etat);
+    const b = bilan(n);
     const lignes = b.liste.map((x) => `<span>${esc(x.nom)}</span><span>${x.mo} Mo</span>`).join("");
-    return `<div class="zone"><div class="barre"><h2>Mémoire</h2><div class="infos"><span>Box ${PROFILS[n].total / 1024} Go · ${esc(b.texte)}</span></div></div>
-      <div class="meminfo">${lignes}<span class="tot">Libre (cache disque compris)</span><span class="tot">${b.libre} Mo</span></div>
-      <div class="aide-retour">Retour : revenir à l'accueil</div></div>`;
+    return `<div class="os" style="grid-template-columns:1fr"><div class="page">
+      <div class="page-tete"><div><h2>Mémoire</h2><p>Box ${PROFILS[n].total / 1024} Go · ${esc(b.texte)}</p></div></div>
+      <div class="meminfo">${lignes}<span class="tot">Libre (cache disque compris)</span><span class="tot">${b.libre} Mo</span></div></div></div>
+      <div class="aide-retour">Retour : revenir aux réglages</div>`;
   }
-
   function ecranStockage(n) {
-    const s = stockage(n, etat);
+    const s = stockage(n);
     const lignes = s.liste.map((x) => `<span>${esc(x.nom)}</span><span>${go(x.go)}</span>`).join("");
     const conseil = etat.stockage === "libre" ? "Aucune limite : les caches et les journaux grossissent jusqu'à remplir la carte."
       : etat.stockage === "garde" ? "Garde-fous actifs : caches plafonnés, journal limité à 64 Mo, nettoyage chaque nuit." : "Carte neuve.";
-    return `<div class="zone"><div class="barre"><h2>Stockage</h2><div class="infos"><span>Carte SD 32 Go · ${esc(s.texte)}</span></div></div>
+    return `<div class="os" style="grid-template-columns:1fr"><div class="page">
+      <div class="page-tete"><div><h2>Stockage</h2><p>Carte SD 32 Go · ${esc(s.texte)}</p></div></div>
       <div class="meminfo">${lignes}<span class="tot">Libre</span><span class="tot">${go(SD - s.utilise)}</span></div>
-      <p style="margin:0;font-size:28px;color:var(--texte-discret)">${esc(conseil)}</p>
-      <div class="boutons"><div class="bouton primaire${f("vider")}">Vider les caches</div><div class="bouton${f("retour")}">Retour</div></div></div>`;
+      <p class="aide">${esc(conseil)}</p>
+      <div class="boutons">${bouton("vider", "Vider les caches", true)}${bouton("retour", "Retour")}</div></div></div>`;
   }
-
+  const calme = (ms) => performance.now() - etat.barreVue > ms ? " discrete" : "";
+  function ecranFeu() {
+    return `<div class="titre-feu${calme(5000)}">Feu de cheminée<small>${etat.feu.son ? "Crépitement activé" : "Son coupé"}${etat.feu.minuterie ? " · minuterie " + MINUTERIES[etat.feu.minuterie] : ""}</small></div>
+      <div class="barre-feu${calme(5000)}">${bouton("feu-son", etat.feu.son ? "Son : oui" : "Son : non", etat.feu.son)}${bouton("feu-lampe", "Lampe : " + (etat.feu.syncLampe ? "vacille" : "inchangée"), etat.feu.syncLampe)}${bouton("feu-quitter", "Quitter")}</div>`;
+  }
+  function ecranLucioles() {
+    return `<div class="aide-retour${calme(3000)}">Retour : revenir à l'accueil</div>`;
+  }
   function dialogue(titre, texte, boutons) {
     return `<div class="dialogue-fond"><div class="dialogue"><h2>${esc(titre)}</h2><p>${esc(texte)}</p><div class="boutons">${boutons}</div></div></div>`;
   }
-
   function rendreEcran(n) {
     let corps;
     switch (etat.ecran) {
-      case "maison": corps = ecranMaison(); break;
       case "youtube": corps = ecranYoutube(n); break;
       case "twitch": corps = ecranTwitch(); break;
       case "memoire": corps = ecranMemoire(n); break;
       case "stockage": corps = ecranStockage(n); break;
+      case "feu": corps = ecranFeu(); break;
+      case "lucioles": corps = ecranLucioles(); break;
       case "android": corps = ecranAccueil(n) + dialogue("Redémarrer sous Android ?",
         "Netflix et Canal+ s'ouvrent sous l'Android d'origine. Pour revenir ici, redémarre la box depuis Android.",
-        `<div class="bouton primaire${f("redemarrer")}">Redémarrer</div><div class="bouton${f("annuler")}">Annuler</div>`); break;
+        bouton("redemarrer", "Redémarrer", true) + bouton("annuler", "Annuler")); break;
       case "simulation": corps = ecranAccueil(n) + dialogue("Simulation",
         "Sur la vraie box, elle redémarrerait maintenant sous Android. Cette commande arrive en phase 4 et demande ton accord, car elle écrit l'environnement u-boot sur l'eMMC.",
-        `<div class="bouton primaire${f("compris")}">Compris</div>`); break;
+        bouton("compris", "Compris", true)); break;
       default: corps = ecranAccueil(n);
     }
     return `<div class="halo" style="background:${halo()}"></div>${corps}${etat.securite ? '<div class="securite"></div>' : ""}`;
   }
 
-  // ---------- Postes (télé + mémoire) ----------
+  // =====================================================================
+  // Postes (télé + panneaux)
+  // =====================================================================
   const teles = document.getElementById("teles");
-  function profilsAffiches() { return etat.profil === "cote" ? [2, 4] : [Number(etat.profil)]; }
+  const profilsAffiches = () => (etat.profil === "cote" ? [2, 4] : [Number(etat.profil)]);
 
-  function rendreMemoire(n) {
-    const b = bilan(n, etat);
-    const segs = b.liste.map((x) => `<i style="width:${(Math.min(x.mo, b.total) / b.total) * 100}%;background:${x.c}" title="${esc(x.nom)} : ${x.mo} Mo"></i>`).join("");
-    const leg = b.liste.map((x) => `<li style="--c:${x.c}"><em>${esc(x.nom)}</em><span>${x.mo}</span></li>`).join("");
+  function panneaux(n) {
+    const b = bilan(n), s = stockage(n);
+    const seg = (liste, tot, val, lab) => liste.map((x) => `<i style="width:${(Math.min(val(x), tot) / tot) * 100}%;background:${x.c}" title="${esc(x.nom)} : ${lab(x)}"></i>`).join("");
+    const leg = (liste, lab) => liste.map((x) => `<li style="--c:${x.c}"><em>${esc(x.nom)}</em><span>${lab(x)}</span></li>`).join("");
     const zram = b.libre < MARGE_MINI ? `<p class="note-mem">zram compresse environ ${MARGE_MINI - Math.max(b.libre, 0)} Mo : l'image saccade, le premier processus tué serait Chromium.</p>` : "";
-    const s = stockage(n, etat);
-    const segsSd = s.liste.map((x) => `<i style="width:${(Math.min(x.go, SD) / SD) * 100}%;background:${x.c}" title="${esc(x.nom)} : ${go(x.go)}"></i>`).join("");
-    const legSd = s.liste.map((x) => `<li style="--c:${x.c}"><em>${esc(x.nom)}</em><span>${go(x.go)}</span></li>`).join("");
-    const sdBloc = `<div class="memoire"><h4>Carte SD 32 Go</h4><div class="memoire-tete"><b>${go(s.utilise)} utilisés · ${go(SD - s.utilise)} libres</b><span class="etat ${s.niveau}">${esc(s.texte)}</span></div>
-      <div class="jauge" role="img" aria-label="Carte SD utilisée à ${Math.round(s.taux * 100)} %">${segsSd}</div><ul class="legende">${legSd}</ul></div>`;
     return `<div class="memoire"><h4>Mémoire vive</h4><div class="memoire-tete"><b>${b.utilise} Mo utilisés · ${Math.max(b.libre, 0)} Mo libres sur ${b.total}</b><span class="etat ${b.niveau}">${esc(b.texte)}</span></div>
-      <div class="jauge" role="img" aria-label="Mémoire utilisée : ${b.utilise} Mo sur ${b.total}">${segs}</div><ul class="legende">${leg}</ul>${zram}</div>${sdBloc}`;
+        <div class="jauge" role="img" aria-label="Mémoire utilisée : ${b.utilise} Mo sur ${b.total}">${seg(b.liste, b.total, (x) => x.mo, (x) => x.mo + " Mo")}</div><ul class="legende">${leg(b.liste, (x) => x.mo)}</ul>${zram}</div>
+      <div class="memoire"><h4>Carte SD 32 Go</h4><div class="memoire-tete"><b>${go(s.utilise)} utilisés · ${go(SD - s.utilise)} libres</b><span class="etat ${s.niveau}">${esc(s.texte)}</span></div>
+        <div class="jauge" role="img" aria-label="Carte SD utilisée à ${Math.round(s.taux * 100)} %">${seg(s.liste, SD, (x) => x.go, (x) => go(x.go))}</div><ul class="legende">${leg(s.liste, (x) => go(x.go))}</ul></div>`;
   }
 
+  const obs = new ResizeObserver((entrees) => {
+    for (const e of entrees) e.target.firstElementChild.style.transform = `scale(${e.contentRect.width / 1920})`;
+  });
   function construire() {
     const ps = profilsAffiches();
     teles.className = "teles" + (ps.length > 1 ? " cote" : "");
@@ -544,71 +663,170 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       <div class="poste" data-n="${n}">
         <div class="poste-titre"><strong>Box ${n} Go</strong><span>S905X3 · 1080p${n === 2 ? " · plan B" : " · la HK1 commandée"}</span></div>
         <div class="cadre"><div class="ecran-boite"><div class="ecran"><canvas class="fond" width="960" height="540" data-n="${n}"></canvas><div class="contenu"></div></div></div></div>
-        <div class="mem"></div>
+        <div class="panneaux"></div>
       </div>`).join("");
     teles.querySelectorAll(".ecran-boite").forEach((b) => obs.observe(b));
     rendre();
   }
 
-  const obs = new ResizeObserver((entrees) => {
-    for (const e of entrees) e.target.firstElementChild.style.transform = `scale(${e.contentRect.width / 1920})`;
-  });
-
-  let derniersNiveaux = {};
+  const derniersNiveaux = {};
   function rendre() {
     teles.querySelectorAll(".poste").forEach((poste) => {
       const n = Number(poste.dataset.n);
       poste.querySelector(".contenu").innerHTML = rendreEcran(n);
-      poste.querySelector(".mem").innerHTML = rendreMemoire(n);
-      const b = bilan(n, etat);
+      poste.querySelector(".panneaux").innerHTML = panneaux(n);
+      const b = bilan(n);
       if (derniersNiveaux[n] !== b.niveau) {
         if (b.niveau === "sature") noter(`Box ${n} Go : mémoire saturée, zram s'active`, true);
         else if (derniersNiveaux[n] === "sature") noter(`Box ${n} Go : la mémoire respire de nouveau`);
         derniersNiveaux[n] = b.niveau;
       }
     });
-    document.querySelectorAll("#choix-profil button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.profil === etat.profil)));
-    document.querySelectorAll("#choix-scenario button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scenario === etat.scenario)));
-    document.querySelectorAll("#choix-stockage button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.stockage === etat.stockage)));
-    document.querySelectorAll("#choix-fond button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.fond === etat.fond)));
+    const presse = (sel, attr) => document.querySelectorAll(sel).forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === etat[attr])));
+    presse("#choix-profil button", "profil");
+    presse("#choix-scenario button", "scenario");
+    presse("#choix-stockage button", "stockage");
     document.getElementById("securite").checked = etat.securite;
-    if (reduit.matches) document.querySelectorAll("canvas.fond").forEach((cv) => dessiner(cv, Number(cv.dataset.n), 8));
+    if (reduit.matches) dessinerTout(12);
   }
 
-  // ---------- Navigation ----------
+  // =====================================================================
+  // Son du feu, synthétisé : grondement (bruit brun filtré qui respire)
+  // et crépitements (bruit blanc très court, filtré en bande, en rafales).
+  // =====================================================================
+  const son = { ctx: null, maitre: null, actif: false, minuteur: 0, sources: [] };
+  function tampon(ctx, sec, brun) {
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * sec), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    let dernier = 0;
+    for (let i = 0; i < d.length; i++) {
+      const b = Math.random() * 2 - 1;
+      if (brun) { dernier = (dernier + 0.02 * b) / 1.02; d[i] = dernier * 3.5; } else d[i] = b;
+    }
+    return buf;
+  }
+  const volumeSon = () => 0.15 + (etat.recepteur.volume / 60) * 0.6;
+  function demarrerSon() {
+    if (!etat.feu.son || son.actif) return;
+    try {
+      if (!son.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        son.ctx = new AC();
+        son.brun = tampon(son.ctx, 4, true);
+        son.blanc = tampon(son.ctx, 1, false);
+      }
+      const ctx = son.ctx;
+      if (ctx.state === "suspended") ctx.resume();
+      son.maitre = ctx.createGain();
+      son.maitre.gain.value = 0;
+      son.maitre.connect(ctx.destination);
+      son.maitre.gain.linearRampToValueAtTime(volumeSon(), ctx.currentTime + 1.5);
+      const lit = ctx.createBufferSource(); lit.buffer = son.brun; lit.loop = true;
+      const pb = ctx.createBiquadFilter(); pb.type = "lowpass"; pb.frequency.value = 520;
+      const g = ctx.createGain(); g.gain.value = 0.55;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.13;
+      const lfoG = ctx.createGain(); lfoG.gain.value = 0.18;
+      lfo.connect(lfoG).connect(g.gain);
+      lit.connect(pb).connect(g).connect(son.maitre);
+      lit.start(); lfo.start();
+      son.sources = [lit, lfo];
+      son.actif = true;
+      planifierCrepitement();
+    } catch (e) { /* son indisponible : le feu reste muet */ }
+  }
+  function crepiter(fort) {
+    const ctx = son.ctx;
+    const src = ctx.createBufferSource(); src.buffer = son.blanc;
+    const bp = ctx.createBiquadFilter(); bp.type = "bandpass";
+    bp.frequency.value = fort ? 700 + Math.random() * 900 : 1800 + Math.random() * 3500; bp.Q.value = fort ? 2 : 6;
+    const g = ctx.createGain(); const t = ctx.currentTime;
+    const dur = fort ? 0.08 + Math.random() * 0.08 : 0.01 + Math.random() * 0.03;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(fort ? 0.9 : 0.25 + Math.random() * 0.35, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(bp).connect(g).connect(son.maitre);
+    src.start(t, Math.random() * 0.8, dur + 0.02);
+  }
+  function planifierCrepitement() {
+    if (!son.actif) return;
+    const n = Math.random() < 0.18 ? 3 + Math.floor(Math.random() * 6) : 1;
+    for (let i = 0; i < n; i++) setTimeout(() => son.actif && crepiter(false), i * (15 + Math.random() * 40));
+    if (Math.random() < 0.06) crepiter(true);
+    son.minuteur = setTimeout(planifierCrepitement, 60 + Math.random() * (etat.mouvement === "vivant" ? 220 : 380));
+  }
+  function arreterSon() {
+    if (!son.actif) return;
+    son.actif = false;
+    clearTimeout(son.minuteur);
+    const ctx = son.ctx, m = son.maitre, srcs = son.sources;
+    m.gain.cancelScheduledValues(ctx.currentTime);
+    m.gain.setValueAtTime(m.gain.value, ctx.currentTime);
+    m.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+    setTimeout(() => { srcs.forEach((s) => { try { s.stop(); } catch (e) { /* déjà arrêté */ } }); m.disconnect(); }, 900);
+  }
+  function majVolumeSon() { if (son.actif) son.maitre.gain.setTargetAtTime(volumeSon(), son.ctx.currentTime, 0.2); }
+
+  // =====================================================================
+  // Navigation
+  // =====================================================================
+  function quitterEcran(ecran) {
+    if (ecran === "feu") { arreterSon(); noter("Feu de cheminée éteint"); if (etat.feu.syncLampe) noter("Lampe : couleur précédente rétablie (hub)"); }
+    if (ecran === "youtube") noter("Chromium fermé, mémoire rendue");
+  }
   function aller(ecran, focus = { r: 0, c: 0 }) {
-    etat.pile.push({ ecran: etat.ecran, focus: { ...etat.focus } });
-    etat.ecran = ecran; etat.focus = focus;
+    etat.pile.push({ ecran: etat.ecran, focus: { ...etat.focus }, zone: etat.zone });
+    if (etat.ecran !== "accueil" && etat.ecran !== "android") quitterEcran(etat.ecran);
+    etat.ecran = ecran; etat.focus = focus; etat.barreVue = performance.now();
   }
   function retour() {
     const prec = etat.pile.pop();
-    if (prec) { etat.ecran = prec.ecran; etat.focus = prec.focus; }
-    else { etat.ecran = "accueil"; etat.focus = { r: 0, c: 0 }; }
+    quitterEcran(etat.ecran);
+    if (prec) { etat.ecran = prec.ecran; etat.focus = prec.focus; etat.zone = prec.zone; }
+    else { etat.ecran = "accueil"; etat.zone = "rail"; }
+  }
+  function versAccueil() { while (etat.ecran !== "accueil") retour(); etat.pile = []; }
+  function allerSection(i) { versAccueil(); etat.section = i; etat.zone = "contenu"; etat.focus = { r: 0, c: 0 }; }
+  function lancerFeu() {
+    if (etat.ecran !== "accueil") allerSection(2);
+    aller("feu", { r: 0, c: 2 });
+    noter("Feu de cheminée allumé");
+    if (etat.feu.syncLampe) noter("Lampe : ambre vacillant (hub)");
+    demarrerSon();
   }
 
   function valider() {
     const id = idFocus();
-    const pause = PROFILS[2];
+    if (id === "rail") { etat.zone = "contenu"; etat.focus = { r: 0, c: 0 }; return; }
+    const P = PROFILS[2];
     switch (id) {
-      case "youtube": aller("youtube"); noter("Chromium lancé sur youtube.com/tv"); if (profilsAffiches().includes(2)) noter(`Box 2 Go : miniatures libérées (${pause.miniatures} → ${pause.miniaturesPause} Mo)`); break;
+      case "youtube": aller("youtube"); noter("Chromium lancé sur youtube.com/tv"); if (profilsAffiches().includes(2)) noter(`Box 2 Go : miniatures libérées (${P.miniatures} → ${P.miniaturesPause} Mo)`); break;
       case "twitch": aller("twitch"); noter("Lecteur GStreamer démarré"); break;
       case "netflix": case "canal": case "android": aller("android", { r: 0, c: 1 }); break;
       case "medias": noter("Médias : prévu en phase 7"); break;
-      case "lampe": etat.lampe.allumee = !etat.lampe.allumee; noter("Lampe du salon " + (etat.lampe.allumee ? "allumée" : "éteinte")); break;
-      case "ampoule": etat.ampoule.allumee = !etat.ampoule.allumee; noter("Plafonnier " + (etat.ampoule.allumee ? "allumé" : "éteint")); break;
-      case "recepteur": etat.recepteur.allume = !etat.recepteur.allume; noter("Ampli " + (etat.recepteur.allume ? "allumé (CEC)" : "en veille (CEC)")); break;
-      case "scene": etat.lampe = { allumee: true, couleur: 0 }; etat.ampoule = { allumee: true, niveau: 20 }; noter("Scène « Soirée film » appliquée"); break;
-      case "memoire": aller("memoire"); break;
-      case "stockage": aller("stockage"); break;
-      case "vider": etat.cachesVides = true; noter("Caches vidés (Chromium, YouTube, miniatures)"); break;
-      case "maison": aller("maison"); break;
-      case "lampe-bascule": etat.lampe.allumee = !etat.lampe.allumee; break;
-      case "ampoule-bascule": etat.ampoule.allumee = !etat.ampoule.allumee; break;
-      case "recepteur-bascule": etat.recepteur.allume = !etat.recepteur.allume; break;
+      case "lampe-bascule": etat.lampe.allumee = !etat.lampe.allumee; noter("Lampe du salon " + (etat.lampe.allumee ? "allumée" : "éteinte")); break;
+      case "ampoule-bascule": etat.ampoule.allumee = !etat.ampoule.allumee; noter("Plafonnier " + (etat.ampoule.allumee ? "allumé" : "éteint")); break;
       case "ampoule-moins": etat.ampoule.niveau = Math.max(5, etat.ampoule.niveau - 10); break;
       case "ampoule-plus": etat.ampoule.niveau = Math.min(100, etat.ampoule.niveau + 10); break;
-      case "volume-moins": etat.recepteur.volume = Math.max(0, etat.recepteur.volume - 2); break;
-      case "volume-plus": etat.recepteur.volume = Math.min(60, etat.recepteur.volume + 2); break;
+      case "scene-film": etat.lampe = { allumee: true, couleur: 0 }; etat.ampoule = { allumee: true, niveau: 20 }; noter("Scène « Soirée film »"); break;
+      case "scene-lecture": etat.lampe = { allumee: true, couleur: 4 }; etat.ampoule = { allumee: true, niveau: 80 }; noter("Scène « Lecture »"); break;
+      case "scene-eteindre": etat.lampe.allumee = false; etat.ampoule.allumee = false; noter("Lumières éteintes"); break;
+      case "feu": lancerFeu(); break;
+      case "lucioles": aller("lucioles"); noter("Lucioles plein écran"); break;
+      case "pluie": noter("Pluie sur la vitre : idée pour plus tard"); break;
+      case "sync-lampe": case "feu-lampe": etat.feu.syncLampe = !etat.feu.syncLampe; noter("Lampe synchronisée au feu : " + (etat.feu.syncLampe ? "oui" : "non")); break;
+      case "minuterie": etat.feu.minuterie = (etat.feu.minuterie + 1) % MINUTERIES.length; noter("Minuterie : " + MINUTERIES[etat.feu.minuterie]); break;
+      case "feu-son": etat.feu.son = !etat.feu.son; if (etat.feu.son) demarrerSon(); else arreterSon(); break;
+      case "feu-quitter": retour(); break;
+      case "fond-lucioles": case "fond-ondes": case "fond-arret": etat.fond = id.slice(5); sauver(); break;
+      case "teinte-naturelle": case "teinte-lampe": etat.teinte = id.slice(7); sauver(); break;
+      case "mvt-calme": case "mvt-vivant": etat.mouvement = id.slice(4); sauver(); break;
+      case "memoire": aller("memoire"); break;
+      case "stockage": aller("stockage"); break;
+      case "vider": etat.cachesVides = true; noter("Caches vidés (Chromium, miniatures)"); break;
+      case "recepteur-bascule": etat.recepteur.allume = !etat.recepteur.allume; noter("Ampli " + (etat.recepteur.allume ? "allumé" : "en veille") + " (CEC)"); break;
+      case "volume-moins": volume(-2); break;
+      case "volume-plus": volume(2); break;
       case "redemarrer": etat.pile.pop(); etat.ecran = "simulation"; etat.focus = { r: 0, c: 0 }; noter("Redémarrage sous Android demandé (simulé)"); break;
       case "annuler": case "compris": case "retour": retour(); break;
       default:
@@ -616,18 +834,41 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
         else if (/^ch\d$/.test(id)) { etat.chaine = Number(id.slice(2)); noter("Twitch : " + CHAINES[etat.chaine]); }
     }
   }
+  function volume(d) {
+    etat.recepteur.volume = Math.max(0, Math.min(60, etat.recepteur.volume + d));
+    noter(`Ampli : volume ${etat.recepteur.volume} (CEC)`);
+    majVolumeSon();
+  }
 
+  const led = document.getElementById("led");
   function touche(t) {
+    led.classList.add("on"); setTimeout(() => led.classList.remove("on"), 120);
+    const dormait = performance.now() - etat.barreVue > 3000;
+    etat.barreVue = performance.now();
+    if (son.ctx && son.ctx.state === "suspended") son.ctx.resume();
+    // Sur les ambiances plein écran, une touche après un moment réveille seulement les commandes.
+    if ((etat.ecran === "lucioles" || (etat.ecran === "feu" && dormait)) && !["retour", "accueil", "vol+", "vol-", "r-regarder", "r-lumieres"].includes(t)) { rendre(); return; }
     const g = grille();
     const r = Math.min(etat.focus.r, g.length - 1);
-    if (t === "haut") etat.focus = { r: Math.max(0, r - 1), c: etat.focus.c };
-    else if (t === "bas") etat.focus = { r: Math.min(g.length - 1, r + 1), c: etat.focus.c };
-    else if (t === "gauche") etat.focus = { r, c: Math.max(0, Math.min(etat.focus.c, g[r].length - 1) - 1) };
-    else if (t === "droite") etat.focus = { r, c: Math.min(g[r].length - 1, etat.focus.c + 1) };
-    else if (t === "ok") valider();
-    else if (t === "retour") { if (etat.ecran === "youtube") noter("Chromium fermé, mémoire rendue"); retour(); }
-    else if (t === "accueil") { etat.pile = []; etat.ecran = "accueil"; etat.focus = { r: 0, c: 0 }; }
-    // Garder la colonne dans les bornes de la nouvelle rangée.
+    const surAccueil = etat.ecran === "accueil";
+    if (t === "haut" || t === "bas") {
+      const d = t === "haut" ? -1 : 1;
+      if (surAccueil && etat.zone === "rail") { etat.section = Math.max(0, Math.min(SECTIONS.length - 1, etat.section + d)); etat.focus = { r: 0, c: 0 }; }
+      else etat.focus = { r: Math.max(0, Math.min(g.length - 1, r + d)), c: etat.focus.c };
+    } else if (t === "gauche") {
+      if (surAccueil && etat.zone === "contenu" && Math.min(etat.focus.c, g[r].length - 1) === 0) etat.zone = "rail";
+      else etat.focus = { r, c: Math.max(0, Math.min(etat.focus.c, g[r].length - 1) - 1) };
+    } else if (t === "droite") {
+      if (surAccueil && etat.zone === "rail") { etat.zone = "contenu"; etat.focus = { r: 0, c: 0 }; }
+      else etat.focus = { r, c: Math.min(g[r].length - 1, etat.focus.c + 1) };
+    } else if (t === "ok") valider();
+    else if (t === "retour") { if (surAccueil && etat.zone === "contenu") etat.zone = "rail"; else retour(); }
+    else if (t === "accueil") { versAccueil(); etat.zone = "rail"; }
+    else if (t === "vol+") volume(2);
+    else if (t === "vol-") volume(-2);
+    else if (t === "r-regarder") allerSection(0);
+    else if (t === "r-lumieres") allerSection(1);
+    else if (t === "r-feu") { if (etat.ecran !== "feu") lancerFeu(); }
     const g2 = grille(); const r2 = Math.min(etat.focus.r, g2.length - 1);
     etat.focus = { r: r2, c: Math.min(etat.focus.c, g2[r2].length - 1) };
     rendre();
@@ -635,90 +876,214 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
 
   document.querySelectorAll("[data-touche]").forEach((b) => b.addEventListener("click", () => touche(b.dataset.touche)));
   document.addEventListener("keydown", (e) => {
-    if (e.target.closest && e.target.closest("input, .segments")) { if (!e.key.startsWith("Arrow")) return; }
-    const m = { ArrowUp: "haut", ArrowDown: "bas", ArrowLeft: "gauche", ArrowRight: "droite", Enter: "ok", Escape: "retour", Backspace: "retour", h: "accueil", H: "accueil" }[e.key];
+    if (e.target.closest && e.target.closest("input")) return;
+    const m = { ArrowUp: "haut", ArrowDown: "bas", ArrowLeft: "gauche", ArrowRight: "droite", Enter: "ok", Escape: "retour", Backspace: "retour", h: "accueil", H: "accueil", "+": "vol+", "-": "vol-", f: "r-feu", F: "r-feu" }[e.key];
     if (!m) return;
-    if (e.target.closest && e.target.closest("button") && e.key === "Enter") return; // laisser le bouton cliqué agir
+    if (e.key === "Enter" && e.target.closest && e.target.closest("button")) return;
     e.preventDefault();
     touche(m);
   });
-  document.querySelectorAll("#choix-profil button").forEach((b) => b.addEventListener("click", () => { etat.profil = b.dataset.profil; sauver(); construire(); }));
-  document.querySelectorAll("#choix-scenario button").forEach((b) => b.addEventListener("click", () => {
-    etat.scenario = b.dataset.scenario; sauver();
-    noter(etat.scenario === "pire" ? "Pire cas : 2 h de YouTube, mise à jour en fond, scan Bluetooth" : "Soirée normale");
-    rendre();
-  }));
-  document.querySelectorAll("#choix-stockage button").forEach((b) => b.addEventListener("click", () => {
-    etat.stockage = b.dataset.stockage; etat.cachesVides = false; sauver();
-    noter({ neuf: "Carte SD neuve", libre: "Carte SD après 2 ans, sans limites de cache", garde: "Carte SD après 2 ans, avec garde-fous" }[etat.stockage]);
-    rendre();
-  }));
-  document.querySelectorAll("#choix-fond button").forEach((b) => b.addEventListener("click", () => { etat.fond = b.dataset.fond; sauver(); rendre(); }));
+  const lier = (sel, attr, apres) => document.querySelectorAll(sel).forEach((b) => b.addEventListener("click", () => { etat[attr] = b.dataset[attr]; if (apres) apres(); sauver(); rendre(); }));
+  lier("#choix-profil button", "profil", () => construire());
+  lier("#choix-scenario button", "scenario", () => noter(etat.scenario === "pire" ? "Pire cas : 2 h de YouTube, mise à jour en fond, scan Bluetooth" : "Soirée normale"));
+  lier("#choix-stockage button", "stockage", () => { etat.cachesVides = false; noter({ neuf: "Carte SD neuve", libre: "Carte SD après 2 ans, sans limites", garde: "Carte SD après 2 ans, avec garde-fous" }[etat.stockage]); });
   document.getElementById("securite").addEventListener("change", (e) => { etat.securite = e.target.checked; sauver(); rendre(); });
 
-  // ---------- Fond animé ----------
-  // Motif original « veilleuse » : des rubans de lumière lents et des lucioles, teintés par la
-  // couleur réelle de la lampe. Dessiné en 960×540 puis agrandi (moins de pixels pour le GPU).
-  // En pause pendant une vidéo ; allégé sur 2 Go (moins de lignes, 30 images/s).
-  const ECRANS_ANIMES = new Set(["accueil", "maison", "memoire", "stockage", "android", "simulation"]);
+  // =====================================================================
+  // Rendu du fond : lucioles, ondes, feu. Dessiné en 960×540 puis agrandi.
+  // =====================================================================
   const reduit = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const lucioles = Array.from({ length: 46 }, (_, i) => ({ x: Math.random() * 960, y: Math.random() * 540, r: 1.2 + Math.random() * 2.8, v: 6 + Math.random() * 14, p: Math.random() * 6.28, i }));
+  const aleat = (a, b) => a + Math.random() * (b - a);
   function rgb(hex) { const v = parseInt(hex.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; }
-  let image = 0, enPause = false;
 
-  function dessiner(cv, n, t) {
-    const ctx = cv.getContext("2d");
-    ctx.clearRect(0, 0, 960, 540);
-    if (etat.fond === "arret" || !ECRANS_ANIMES.has(etat.ecran)) return;
-    const leger = PROFILS[n].sobre;
-    const [r, g, b] = rgb(etat.lampe.allumee ? COULEURS[etat.lampe.couleur].v : "#FFB45E");
-    const force = etat.lampe.allumee ? 1 : 0.45;
+  // Halos pré-dessinés : un drawImage coûte bien moins qu'un dégradé par particule.
+  const sprites = new Map();
+  function sprite(hex, durete) {
+    const cle = hex + durete;
+    if (sprites.has(cle)) return sprites.get(cle);
+    const c = document.createElement("canvas"); c.width = c.height = 64;
+    const x = c.getContext("2d"); const [r, g, b] = rgb(hex);
+    const d = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    d.addColorStop(0, `rgba(${r},${g},${b},1)`);
+    d.addColorStop(durete, `rgba(${r},${g},${b},.35)`);
+    d.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    x.fillStyle = d; x.fillRect(0, 0, 64, 64);
+    sprites.set(cle, c);
+    return c;
+  }
+
+  const scenes = new Map(); // un état de particules par canvas
+  function scene(cv) {
+    if (!scenes.has(cv)) {
+      scenes.set(cv, {
+        lucioles: Array.from({ length: 44 }, () => ({ bx: aleat(0, 960), by: aleat(200, 500), ax: aleat(30, 90), ay: aleat(10, 34), fx: aleat(0.03, 0.09), fy: aleat(0.05, 0.12), p: aleat(0, 6.28), periode: aleat(4, 10), dec: Math.random(), taille: aleat(0.7, 1.4), devant: Math.random() < 0.35 })),
+        bokeh: Array.from({ length: 9 }, () => ({ x: aleat(0, 960), y: aleat(40, 420), r: aleat(40, 110), p: aleat(0, 6.28), v: aleat(0.01, 0.03) })),
+        herbes: Array.from({ length: 110 }, (_, i) => ({ x: (i / 110) * 990 - 15 + aleat(-6, 6), h: aleat(40, 130), c: aleat(-14, 14), p: aleat(0, 6.28), l: aleat(1.4, 3) })),
+        flammes: [], braises: [], dernier: 0, reste: 0,
+      });
+    }
+    return scenes.get(cv);
+  }
+  const couleurFond = () => (etat.teinte === "lampe" && etat.lampe.allumee ? COULEURS[etat.lampe.couleur].v : null);
+
+  // Lucioles : ciel de nuit, bokeh lointain, herbes hautes en contre-jour, lucioles qui
+  // errent lentement et clignent comme les vraies (brève lueur, longue veille).
+  function dessinerLucioles(ctx, sc, t, leger) {
+    const vit = etat.mouvement === "vivant" ? 1.6 : 0.8;
+    const teinte = couleurFond();
+    const coeur = teinte || "#FFF4C2", lueur = teinte || "#E9E27A";
+    const ciel = ctx.createLinearGradient(0, 0, 0, 540);
+    ciel.addColorStop(0, "#0C101C"); ciel.addColorStop(0.65, "#121624"); ciel.addColorStop(1, "#1A1A1E");
+    ctx.fillStyle = ciel; ctx.fillRect(0, 0, 960, 540);
     ctx.globalCompositeOperation = "lighter";
-    if (etat.fond === "ondes") {
-      const rubans = leger ? 2 : 3, lignes = leger ? 9 : 18;
-      for (let k = 0; k < rubans; k++) {
-        const base = 300 + k * 70, amp = 46 + k * 18, vit = 0.11 + k * 0.05;
-        for (let l = 0; l < lignes; l++) {
-          ctx.beginPath();
-          for (let x = -20; x <= 980; x += 20) {
-            const y = base + Math.sin(x * 0.0052 + t * vit + l * 0.07 + k) * amp + Math.sin(x * 0.011 - t * vit * 0.7 + k * 2) * amp * 0.35 + l * 2.2;
-            x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-          }
-          ctx.strokeStyle = `rgba(${r},${g},${b},${(0.05 + 0.05 * Math.sin(l * 0.4 + t * 0.3)) * force})`;
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
+    const sb = sprite(teinte || "#C8B27A", 0.2);
+    for (const b of sc.bokeh) {
+      const x = b.x + Math.sin(t * b.v * vit + b.p) * 40, y = b.y + Math.cos(t * b.v * 0.7 * vit + b.p) * 20;
+      ctx.globalAlpha = 0.05 + 0.03 * Math.sin(t * 0.2 + b.p);
+      ctx.drawImage(sb, x - b.r, y - b.r, b.r * 2, b.r * 2);
+    }
+    const nb = leger ? 20 : (etat.mouvement === "vivant" ? 44 : 34);
+    const sl = sprite(lueur, 0.25), sc2 = sprite(coeur, 0.6);
+    const luciole = (q) => {
+      const x = q.bx + Math.sin(t * q.fx * vit + q.p) * q.ax + Math.sin(t * q.fx * 2.3 * vit + q.p * 2) * q.ax * 0.3;
+      const y = q.by + Math.sin(t * q.fy * vit + q.p * 1.7) * q.ay - Math.sin(t * 0.02 + q.p) * 20;
+      const ph = ((t / q.periode + q.dec) % 1 + 1) % 1;
+      const pulse = ph < 0.22 ? Math.sin((ph / 0.22) * Math.PI) : 0;
+      const a = 0.12 + pulse * 0.88;
+      const s = q.taille * (q.devant ? 1.5 : 1);
+      ctx.globalAlpha = a * 0.55; ctx.drawImage(sl, x - 26 * s, y - 26 * s, 52 * s, 52 * s);
+      ctx.globalAlpha = a; ctx.drawImage(sc2, x - 5 * s, y - 5 * s, 10 * s, 10 * s);
+    };
+    for (let i = 0; i < nb; i++) if (!sc.lucioles[i].devant) luciole(sc.lucioles[i]);
+    ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+    const sol = ctx.createLinearGradient(0, 430, 0, 540);
+    sol.addColorStop(0, "rgba(8,10,16,0)"); sol.addColorStop(1, "rgba(8,10,16,.95)");
+    ctx.fillStyle = sol; ctx.fillRect(0, 430, 960, 110);
+    ctx.strokeStyle = "#090B12"; ctx.lineCap = "round";
+    const nh = leger ? 55 : sc.herbes.length;
+    for (let i = 0; i < nh; i++) {
+      const h = sc.herbes[leger ? (i * 2) % sc.herbes.length : i];
+      const balance = Math.sin(t * 0.45 * vit + h.p + h.x * 0.004) * 10;
+      ctx.lineWidth = h.l;
+      ctx.beginPath(); ctx.moveTo(h.x, 545);
+      ctx.quadraticCurveTo(h.x + h.c * 0.5, 545 - h.h * 0.55, h.x + h.c + balance, 545 - h.h);
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "lighter";
+    for (let i = 0; i < nb; i++) if (sc.lucioles[i].devant) luciole(sc.lucioles[i]);
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  }
+
+  function dessinerOndes(ctx, t, leger) {
+    ctx.fillStyle = "#0F1320"; ctx.fillRect(0, 0, 960, 540);
+    const [r, g, b] = rgb(couleurFond() || "#FFB45E");
+    const vit = etat.mouvement === "vivant" ? 1.6 : 0.8;
+    ctx.globalCompositeOperation = "lighter";
+    const rubans = leger ? 2 : 3, lignes = leger ? 9 : 18;
+    for (let k = 0; k < rubans; k++) {
+      const base = 300 + k * 70, amp = 46 + k * 18, v = (0.11 + k * 0.05) * vit;
+      for (let l = 0; l < lignes; l++) {
+        ctx.beginPath();
+        for (let x = -20; x <= 980; x += 20) {
+          const y = base + Math.sin(x * 0.0052 + t * v + l * 0.07 + k) * amp + Math.sin(x * 0.011 - t * v * 0.7 + k * 2) * amp * 0.35 + l * 2.2;
+          if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         }
-      }
-    } else {
-      const nb = leger ? 20 : lucioles.length;
-      for (let k = 0; k < nb; k++) {
-        const q = lucioles[k];
-        const y = ((q.y - t * q.v) % 600 + 600) % 600 - 30;
-        const x = q.x + Math.sin(t * 0.4 + q.p) * 18;
-        const a = (0.35 + 0.35 * Math.sin(t * 1.3 + q.p)) * force;
-        const grd = ctx.createRadialGradient(x, y, 0, x, y, q.r * 6);
-        grd.addColorStop(0, `rgba(${r},${g},${b},${a})`);
-        grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
-        ctx.fillStyle = grd;
-        ctx.fillRect(x - q.r * 6, y - q.r * 6, q.r * 12, q.r * 12);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${0.05 + 0.05 * Math.sin(l * 0.4 + t * 0.3)})`;
+        ctx.lineWidth = 1.2; ctx.stroke();
       }
     }
     ctx.globalCompositeOperation = "source-over";
   }
 
+  // Feu : particules de flamme additives au-dessus de bûches, braises qui montent,
+  // lueur vacillante sur le foyer. Du blanc-jaune au rouge sombre.
+  const TEINTES_FEU = ["#FFE3A0", "#FFB04A", "#FF8530", "#E8541A", "#8E2408", "#5A1604"];
+  const vacille = (t) => 0.82 + 0.1 * Math.sin(t * 7.3) + 0.06 * Math.sin(t * 13.1 + 1) + 0.04 * Math.sin(t * 23.7 + 2);
+  function buche(ctx, x, y, l, a, v) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+    ctx.fillStyle = "#24140C"; ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-l / 2, -13, l, 26, 13); else ctx.rect(-l / 2, -13, l, 26);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,${Math.round(90 + 40 * v)},30,${0.55 * v})`; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(-l / 2 + 14, -10); ctx.lineTo(l / 2 - 14, -10); ctx.stroke();
+    ctx.fillStyle = `rgba(255,110,40,${0.7 * v})`; ctx.beginPath(); ctx.arc(l / 2 - 5, 0, 5, 0, 6.28); ctx.fill();
+    ctx.restore();
+  }
+  function dessinerFeu(ctx, sc, t, leger) {
+    const dt = Math.min(0.05, sc.dernier ? t - sc.dernier : 0.016); sc.dernier = t;
+    const v = vacille(t);
+    ctx.fillStyle = "#0A0706"; ctx.fillRect(0, 0, 960, 540);
+    const mur = ctx.createRadialGradient(480, 400, 20, 480, 380, 560);
+    mur.addColorStop(0, `rgba(255,130,50,${0.32 * v})`); mur.addColorStop(0.45, `rgba(140,50,15,${0.16 * v})`); mur.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = mur; ctx.fillRect(0, 0, 960, 540);
+    ctx.fillStyle = "#16100D"; ctx.fillRect(250, 120, 460, 18); ctx.fillRect(250, 120, 34, 340); ctx.fillRect(676, 120, 34, 340);
+    ctx.fillStyle = "#0D0908"; ctx.fillRect(284, 138, 392, 322);
+    const foyer = ctx.createRadialGradient(480, 430, 10, 480, 420, 240);
+    foyer.addColorStop(0, `rgba(255,120,40,${0.45 * v})`); foyer.addColorStop(1, "rgba(30,10,5,0)");
+    ctx.fillStyle = foyer; ctx.fillRect(284, 138, 392, 322);
+    ctx.fillStyle = "#120C0A"; ctx.fillRect(200, 456, 560, 26);
+    const debit = (leger ? 80 : 160) * (etat.mouvement === "vivant" ? 1.3 : 1);
+    sc.reste += debit * dt;
+    while (sc.reste >= 1) {
+      sc.reste -= 1;
+      if (sc.flammes.length >= (leger ? 140 : 260)) continue;
+      const x = 480 + (Math.random() + Math.random() - 1) * 110;
+      sc.flammes.push({ x, y: 418 + aleat(-6, 6), vx: aleat(-8, 8), vy: aleat(-110, -175), vie: 0, duree: Math.max(0.35, aleat(0.8, 1.6) * (1 - Math.abs(x - 480) / 260)), taille: aleat(30, 58), p: aleat(0, 6.28) });
+    }
+    if (Math.random() < (leger ? 2 : 4) * dt) sc.braises.push({ x: 480 + aleat(-90, 90), y: 410, vx: aleat(-10, 10), vy: aleat(-40, -80), vie: 0, duree: aleat(2.5, 5), p: aleat(0, 6.28) });
+    ctx.globalCompositeOperation = "lighter";
+    sc.flammes = sc.flammes.filter((q) => (q.vie += dt) < q.duree);
+    for (const q of sc.flammes) {
+      const k = q.vie / q.duree;
+      q.x += (q.vx + Math.sin(t * 3 + q.p + q.vie * 4) * 18 * k) * dt + (480 - q.x) * 0.6 * dt;
+      q.y += q.vy * dt * (1 - k * 0.3);
+      const teinte = TEINTES_FEU[Math.min(TEINTES_FEU.length - 1, Math.floor(k * TEINTES_FEU.length))];
+      const s = q.taille * (1 - k * 0.65);
+      ctx.globalAlpha = (1 - k) * (k < 0.2 ? 0.26 : 0.36);
+      ctx.drawImage(sprite(teinte, 0.22), q.x - s * 0.7, q.y - s * 1.5, s * 1.4, s * 3);
+    }
+    sc.braises = sc.braises.filter((q) => (q.vie += dt) < q.duree);
+    const sb = sprite("#FFB060", 0.5);
+    for (const q of sc.braises) {
+      q.x += (q.vx + Math.sin(t * 1.5 + q.p) * 14) * dt; q.y += q.vy * dt;
+      ctx.globalAlpha = (1 - q.vie / q.duree) * (0.6 + 0.4 * Math.sin(t * 9 + q.p));
+      ctx.drawImage(sb, q.x - 4, q.y - 4, 8, 8);
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    buche(ctx, 440, 440, 230, 0.12, v); buche(ctx, 525, 444, 220, -0.16, v); buche(ctx, 480, 428, 170, 0.02, v);
+    const sol = ctx.createRadialGradient(480, 470, 10, 480, 470, 320);
+    sol.addColorStop(0, `rgba(255,140,60,${0.22 * v})`); sol.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = sol; ctx.fillRect(0, 440, 960, 100);
+  }
+
+  function dessiner(cv, n, t) {
+    const ctx = cv.getContext("2d");
+    const leger = PROFILS[n].sobre;
+    if (etat.ecran === "feu") return dessinerFeu(ctx, scene(cv), t, leger);
+    if (etat.ecran === "lucioles") return dessinerLucioles(ctx, scene(cv), t, leger);
+    if (!fondActif()) { ctx.fillStyle = "#0F1320"; ctx.fillRect(0, 0, 960, 540); return; }
+    if (etat.fond === "lucioles") dessinerLucioles(ctx, scene(cv), t, leger);
+    else dessinerOndes(ctx, t, leger);
+  }
+  function dessinerTout(t) { document.querySelectorAll("canvas.fond").forEach((cv) => dessiner(cv, Number(cv.dataset.n), t)); }
+
+  let image = 0, enPause = false, barreEffacee = 0;
   function boucle(ms) {
     image++;
-    const t = reduit.matches ? 8 : ms / 1000;
-    const pause = !ECRANS_ANIMES.has(etat.ecran) && etat.fond !== "arret";
+    const t = ms / 1000;
+    const pause = !fondActif() && etat.ecran !== "feu" && etat.ecran !== "lucioles" && etat.fond !== "arret";
     if (pause !== enPause) { enPause = pause; if (pause) noter("Fond animé en pause pendant la vidéo"); }
     document.querySelectorAll("canvas.fond").forEach((cv) => {
       const n = Number(cv.dataset.n);
       if (PROFILS[n].sobre && image % 2) return; // 30 images/s sur 2 Go
       dessiner(cv, n, t);
     });
+    // Effacer les commandes des ambiances plein écran après un moment sans toucher.
+    const delai = etat.ecran === "feu" ? 5000 : 3000;
+    if ((etat.ecran === "feu" || etat.ecran === "lucioles") && performance.now() - etat.barreVue > delai && barreEffacee !== etat.barreVue) { barreEffacee = etat.barreVue; rendre(); }
     if (!reduit.matches) requestAnimationFrame(boucle);
   }
-  reduit.addEventListener("change", () => requestAnimationFrame(boucle));
+  reduit.addEventListener("change", () => { if (!reduit.matches) requestAnimationFrame(boucle); });
 
   setInterval(() => { if (etat.ecran === "accueil") rendre(); }, 30000);
   noter("Box démarrée sur l'accueil");

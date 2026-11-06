@@ -5,8 +5,10 @@
 ## Ce qu'elle montre
 
 - Un écran 1920×1080 réel mis à l'échelle, avec la zone de sécurité de surbalayage en option.
-- Les écrans prévus : accueil avec les logos des apps, YouTube (Chromium kiosque), Twitch, maison, mémoire, stockage, dialogue « redémarrer sous Android ».
-- Un fond animé original (ondes ou lucioles) teinté par la couleur de la lampe, en pause pendant la vidéo, allégé sur 2 Go.
+- Cinq sections dans un rail à gauche : Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages. Plus YouTube (Chromium kiosque), Twitch, mémoire, stockage et le dialogue « redémarrer sous Android ».
+- Un fond animé original : lucioles (herbes hautes, clignements lents, bokeh) ou ondes, couleur naturelle ou suivant la lampe, calme ou vivant ; en pause pendant la vidéo, allégé sur 2 Go.
+- L'ambiance « Feu de cheminée » plein écran avec un crépitement synthétisé en Web Audio (aucun fichier son), la lampe qui vacille en ambre et une minuterie.
+- Une télécommande à l'écran : croix en anneau, Accueil, Retour, volume de l'ampli et raccourcis Regarder, Lumières, Feu.
 - La carte SD neuve ou après 2 ans, sans limites ou avec garde-fous (#45).
 - La navigation à la télécommande : flèches, Entrée, Échap ou Retour arrière, H pour l'accueil, ou la télécommande à l'écran.
 - Un modèle mémoire par composant pour 2 Go et 4 Go, en soirée normale ou en pire cas. Les chiffres sont des **estimations** (constantes `PROFILS` et `composants()` dans le script), à remplacer par les mesures de #43.

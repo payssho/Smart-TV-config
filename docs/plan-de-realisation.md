@@ -78,7 +78,7 @@ gantt
 ### J1. Banc de prévisu de l'interface (phase 2, sans box)
 
 - **Objectif** : voir et piloter l'interface dans Claude avant d'écrire le Flutter, et comparer une box 2 Go et 4 Go.
-- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude : accueil avec logos, fond animé (ondes ou lucioles), YouTube, Twitch, maison, mémoire, stockage, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas » ; carte SD neuve ou après 2 ans, avec ou sans garde-fous.
+- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude : cinq sections (Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages), logos, fond animé (lucioles ou ondes), ambiance « Feu de cheminée » avec son, YouTube, Twitch, mémoire, stockage, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas » ; carte SD neuve ou après 2 ans, avec ou sans garde-fous.
 - **Fin** : Marius valide l'arborescence des écrans et l'identité à 3 m sur la maquette.
 - **Issues** : #41. **Durée** : 1 semaine. **Dépend de** : rien.
 
@@ -213,7 +213,9 @@ Les médias locaux (phase 7) n'iront pas sur cette carte : clé USB, disque ou N
 ## Visuel : logos et fond animé
 
 - **Logos** : les tuiles affichent l'icône de chaque app. La maquette utilise des pictogrammes dessinés ; l'app Flutter embarquera les icônes officielles en assets (usage personnel dans un lanceur, comme n'importe quelle télé).
-- **Fond animé** : un motif original lié à l'identité « veilleuse », des rubans de lumière lents ou des lucioles teintés par la couleur réelle de la lampe du salon. Il s'inspire de l'ambiance des menus de consoles sans en copier aucun.
+- **Organisation** : un rail de cinq sections à gauche (Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages), le contenu à droite. Ce qu'on regarde, la lumière, l'ambiance et le paramétrage ne se mélangent plus.
+- **Ambiance de la pièce** : des écrans plein écran pour le salon, à commencer par un feu de cheminée avec son crépitement, la lampe qui vacille en ambre (via le hub) et une minuterie qui éteint tout. Dans l'app Flutter, le son sera un fichier en boucle ou une synthèse comme dans la maquette.
+- **Fond animé** : un motif original lié à l'identité « veilleuse », des lucioles dans les herbes hautes (par défaut) ou des rubans de lumière, en couleur naturelle ou teintés par la lampe du salon. Il s'inspire de l'ambiance des menus de consoles sans en copier aucun.
 - **Budget** : rendu à demi-résolution puis agrandi, en pause dès qu'une vidéo ou Chromium est à l'écran, version allégée sur 2 Go (moins de lignes, 30 images/s), coupé si `prefers-reduced-motion` ou réglage « Arrêt ». Critère de J7 : l'accueil reste à 60 images/s sur la box avec le fond actif.
 - L'app Flutter et son fond animé avancent dans le fil dédié à l'interface ; ce plan fixe seulement les contraintes.
 
