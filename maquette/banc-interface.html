@@ -77,27 +77,36 @@ button { font: inherit; color: inherit; }
 .ecran { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: var(--nuit); color: var(--texte); font-family: var(--police); }
 
 /* ---- Contenu de l'écran télé, en pixels réels 1080p ---- */
+.fond { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; }
+.contenu { position: absolute; inset: 0; }
 .halo { position: absolute; inset: 0; pointer-events: none; transition: background .6s ease; }
-.zone { position: absolute; inset: 54px 96px; display: flex; flex-direction: column; gap: 44px; }
+.zone { position: absolute; inset: 54px 96px; display: flex; flex-direction: column; gap: 34px; }
 .securite { position: absolute; inset: 54px 96px; border: 3px dashed rgba(255, 180, 94, .55); pointer-events: none; }
 .securite::after { content: "Zone de sécurité (5 % de surbalayage)"; position: absolute; right: 12px; bottom: 8px; font-size: 22px; color: rgba(255, 180, 94, .8); }
 .barre { display: flex; justify-content: space-between; align-items: center; }
 .barre h2 { margin: 0; font-size: 64px; font-weight: 650; letter-spacing: -1px; font-variation-settings: "opsz" 96; }
 .barre .infos { display: flex; gap: 40px; align-items: center; font-size: 30px; color: var(--texte-discret); }
 .barre .heure { font-size: 44px; color: var(--texte); font-variant-numeric: tabular-nums; font-weight: 500; }
-.rangee h3 { margin: 0 0 18px; font-size: 32px; font-weight: 500; color: var(--texte-discret); }
+.rangee h3 { margin: 0 0 14px; font-size: 30px; font-weight: 500; color: var(--texte-discret); }
 .tuiles { display: flex; gap: 32px; }
-.tuile { position: relative; width: 300px; height: 190px; border-radius: var(--r-ligne); background: var(--surface); border: 2px solid var(--trait); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
+.tuile { position: relative; width: 300px; height: 204px; border-radius: var(--r-ligne); background: var(--surface); border: 2px solid var(--trait); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
 .tuile.large { width: 400px; }
 .tuile .nom { font-size: 34px; font-weight: 600; line-height: 1.1; }
 .tuile .sous { font-size: 24px; color: var(--texte-discret); }
 .tuile .pastille { position: absolute; top: 18px; right: 18px; font-size: 20px; padding: 4px 12px; border-radius: 999px; background: var(--surface-haute); color: var(--texte-discret); }
-.tuile .lumiere { width: 46px; height: 46px; border-radius: 50%; }
+.tuile .lumiere { width: 56px; height: 56px; border-radius: 50%; margin: 4px; }
+.tuile .logo { width: 64px; height: 64px; display: block; flex: none; }
+.tuile .icone { width: 60px; height: 60px; display: block; flex: none; fill: none; stroke: var(--texte-discret); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.tuile.focus .icone { stroke: var(--ambre); }
+.tuile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 50%, transparent 65%); background-size: 250% 100%; background-position: 120% 0; opacity: 0; }
+.tuile.focus::after { opacity: 1; animation: reflet 2.8s ease-in-out infinite; }
+@keyframes reflet { 0% { background-position: 120% 0; } 45%, 100% { background-position: -40% 0; } }
 .tuile.focus { transform: scale(1.07); border-color: var(--ambre); box-shadow: 0 0 0 4px var(--ambre), 0 0 60px 6px rgba(255, 180, 94, .38); z-index: 2; }
 .tuile.eteinte .nom, .tuile.eteinte .sous { opacity: .55; }
-.affiche { background: linear-gradient(160deg, var(--surface-haute), var(--surface)); }
+.affiche { background: linear-gradient(160deg, color-mix(in srgb, var(--teinte, var(--surface-haute)) 26%, var(--surface-haute)), rgba(24, 29, 43, .92)); }
 .sobre .tuile.affiche { background: var(--surface); }
 .bandeau-sobre { font-size: 24px; color: var(--serre); }
+.bandeau-alerte { font-size: 24px; color: var(--alerte); }
 
 .plein { position: absolute; inset: 0; display: flex; flex-direction: column; }
 .faux-web { flex: 1; margin: 54px 96px; border-radius: var(--r-panneau); background: repeating-linear-gradient(90deg, var(--surface) 0 360px, transparent 360px 392px); opacity: .7; }
@@ -145,6 +154,7 @@ button { font: inherit; color: inherit; }
 .jauge i { display: block; height: 100%; transition: width .35s ease; }
 .jauge i + i { box-shadow: inset 1px 0 0 rgba(15, 19, 32, .6); }
 .jauge .libre { background: transparent; }
+.memoire h4 { margin: 0; font-size: 13px; font-weight: 500; color: var(--texte-discret); }
 .legende { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 16px; font-size: 13px; }
 .legende li { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .legende li em { font-style: normal; color: var(--texte-discret); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -194,6 +204,20 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
         <button type="button" data-scenario="pire">Pire cas</button>
       </div>
     </div>
+    <div class="groupe"><span>Carte SD</span>
+      <div class="segments" id="choix-stockage" role="group" aria-label="Âge de la carte SD">
+        <button type="button" data-stockage="neuf">Neuve</button>
+        <button type="button" data-stockage="libre">2 ans sans limites</button>
+        <button type="button" data-stockage="garde">2 ans avec garde-fous</button>
+      </div>
+    </div>
+    <div class="groupe"><span>Fond animé</span>
+      <div class="segments" id="choix-fond" role="group" aria-label="Fond animé">
+        <button type="button" data-fond="ondes">Ondes</button>
+        <button type="button" data-fond="lucioles">Lucioles</button>
+        <button type="button" data-fond="arret">Arrêt</button>
+      </div>
+    </div>
     <label class="case"><input type="checkbox" id="securite"> Zone de sécurité</label>
   </div>
 </header>
@@ -222,7 +246,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     </div>
     <div class="carte">
       <h2>Ce que simule ce banc</h2>
-      <p class="avertissement">La navigation au focus, les écrans prévus en phase 4 et 5, et un modèle de mémoire par composant. Le pire cas ajoute 2 h de YouTube (Chromium grossit), une mise à jour RAUC en fond et un scan Bluetooth du hub. Sur 2 Go, l'interface libère ses miniatures pendant que Chromium tourne. Ce n'est pas une émulation du processeur : la vraie mesure se fera sous QEMU et sur la box.</p>
+      <p class="avertissement">La navigation au focus, les écrans prévus en phase 4 et 5, et un modèle de mémoire par composant. Le pire cas ajoute 2 h de YouTube (Chromium grossit), une mise à jour RAUC en fond et un scan Bluetooth du hub. Sur 2 Go, l'interface libère ses miniatures pendant que Chromium tourne, et le fond animé passe en version allégée. Le fond se met en pause pendant une vidéo. La carte SD simule ce qui s'accumule en deux ans (caches, journaux, mises à jour) avec et sans garde-fous. Les logos sont des pictogrammes dessinés pour la maquette ; l'app Flutter utilisera les icônes officielles. Ce n'est pas une émulation du processeur : la vraie mesure se fera sous QEMU et sur la box.</p>
     </div>
   </aside>
 </main>
@@ -233,8 +257,8 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
 
   // ---------- Modèle mémoire (Mo, estimations à remplacer par les mesures) ----------
   const PROFILS = {
-    2: { total: 2048, reserve: 230, miniatures: 64, miniaturesPause: 16, chromium: 560, sobre: true },
-    4: { total: 4096, reserve: 300, miniatures: 192, miniaturesPause: 192, chromium: 720, sobre: false },
+    2: { total: 2048, reserve: 230, miniatures: 64, miniaturesPause: 16, chromium: 560, sobre: true, tmpfs: 48, cacheChromium: 0.25, cacheMini: 0.15 },
+    4: { total: 4096, reserve: 300, miniatures: 192, miniaturesPause: 192, chromium: 720, sobre: false, tmpfs: 96, cacheChromium: 0.5, cacheMini: 0.3 },
   };
   const MARGE_MINI = 200; // en dessous, le noyau n'a plus de cache disque : zram puis OOM.
 
@@ -248,6 +272,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       { nom: "Interface (flutter-pi + app)", mo: 170, c: "var(--m-ui)" },
       { nom: "Miniatures en cache", mo: surChromium && p.sobre ? p.miniaturesPause : p.miniatures, c: "var(--m-cache)" },
       { nom: "Hub domotique Rust", mo: pire ? 70 : 30, c: "var(--m-hub)" },
+      { nom: "tmpfs (/tmp, journal en RAM)", mo: p.tmpfs, c: "var(--m-reserve)" },
     ];
     if (surChromium) liste.push({ nom: pire ? "Chromium (YouTube, 2 h)" : "Chromium (YouTube)", mo: p.chromium + (pire ? 600 : 0), c: "var(--m-chromium)" });
     if (etat.ecran === "twitch") liste.push({ nom: "Lecteur GStreamer (Twitch 1080p)", mo: pire ? 210 : 150, c: "var(--m-video)" });
@@ -266,6 +291,35 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     return { liste, utilise, libre, niveau, texte, total: p.total };
   }
 
+  // ---------- Modèle de la carte SD (Go, estimations) ----------
+  // Même carte de 32 Go pour les deux profils (environ 29,7 Go utilisables). La RAM ne change
+  // que la taille des caches plafonnés et du tmpfs ; le vrai risque vient des caches sans limite.
+  const SD = 29.7;
+  function stockage(n, etat) {
+    const p = PROFILS[n];
+    const vide = etat.cachesVides;
+    let c;
+    if (etat.stockage === "libre") c = { caches: vide ? 0.2 : 13, journaux: 7, maj: 1.6, hub: 0.5 };
+    else if (etat.stockage === "garde") c = { caches: vide ? 0.1 : p.cacheChromium + p.cacheMini + 0.3, journaux: 0.064, maj: 0.45, hub: 0.1 };
+    else c = { caches: vide ? 0.05 : 0.15, journaux: 0.02, maj: 0, hub: 0.01 };
+    const liste = [
+      { nom: "Démarrage", go: 0.25, c: "var(--m-reserve)" },
+      { nom: "Système A + B (RAUC)", go: 2, c: "var(--m-systeme)" },
+      { nom: "Caches (Chromium, miniatures)", go: c.caches, c: "var(--m-cache)" },
+      { nom: "Journaux et plantages", go: c.journaux, c: "var(--m-maj)" },
+      { nom: "Mises à jour téléchargées", go: c.maj, c: "var(--m-chromium)" },
+      { nom: "Base du hub", go: c.hub, c: "var(--m-hub)" },
+    ];
+    const utilise = liste.reduce((s, x) => s + x.go, 0);
+    const taux = utilise / SD;
+    let niveau = "ok", texte = "Large";
+    if (taux > 0.9) { niveau = "sature"; texte = "Pleine"; }
+    else if (taux > 0.75) { niveau = "sature"; texte = "Presque pleine"; }
+    else if (taux > 0.5) { niveau = "serre"; texte = "À surveiller"; }
+    return { liste, utilise, taux, niveau, texte };
+  }
+  const go = (x) => (x < 1 ? Math.round(x * 1024) + " Mo" : x.toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " Go");
+
   // ---------- État partagé par les deux télés ----------
   const COULEURS = [
     { nom: "Ambre", v: "#FFB45E" }, { nom: "Rose", v: "#FF7FA8" }, { nom: "Bleu nuit", v: "#6F8CFF" },
@@ -276,15 +330,18 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     ecran: "accueil", focus: { r: 0, c: 0 }, pile: [],
     lampe: { allumee: true, couleur: 0 }, ampoule: { allumee: true, niveau: 70 },
     recepteur: { allume: false, volume: 24 }, chaine: 0,
+    stockage: "neuf", fond: "ondes", cachesVides: false,
   };
   try {
     const s = JSON.parse(localStorage.getItem("banc-tele") || "{}");
     if (s.profil) etat.profil = s.profil;
     if (s.scenario) etat.scenario = s.scenario;
     if (typeof s.securite === "boolean") etat.securite = s.securite;
+    if (s.stockage) etat.stockage = s.stockage;
+    if (s.fond) etat.fond = s.fond;
   } catch (e) { /* stockage indisponible : on garde les valeurs par défaut */ }
   function sauver() {
-    try { localStorage.setItem("banc-tele", JSON.stringify({ profil: etat.profil, scenario: etat.scenario, securite: etat.securite })); } catch (e) { /* rien */ }
+    try { localStorage.setItem("banc-tele", JSON.stringify({ profil: etat.profil, scenario: etat.scenario, securite: etat.securite, stockage: etat.stockage, fond: etat.fond })); } catch (e) { /* rien */ }
   }
 
   const CHAINES = ["Chaîne exemple 1", "Chaîne exemple 2", "Chaîne exemple 3", "Chaîne exemple 4"];
@@ -295,7 +352,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       case "accueil": return [
         ["youtube", "twitch", "netflix", "canal", "medias"],
         ["lampe", "ampoule", "recepteur", "scene"],
-        ["memoire", "maison", "android"],
+        ["memoire", "stockage", "maison", "android"],
       ];
       case "maison": return [
         ["lampe-bascule", "c0", "c1", "c2", "c3", "c4"],
@@ -305,6 +362,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       case "twitch": return [CHAINES.map((_, i) => "ch" + i)];
       case "android": return [["redemarrer", "annuler"]];
       case "simulation": return [["compris"]];
+      case "stockage": return [["vider", "retour"]];
       default: return [["retour"]];
     }
   }
@@ -332,12 +390,32 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     return `radial-gradient(ellipse 70% 60% at 88% -12%, ${c}55, transparent 70%), radial-gradient(ellipse 50% 40% at 0% 110%, ${c}22, transparent 70%)`;
   }
 
-  function tuile(id, nom, sous, extra = "", classes = "") {
-    return `<div class="tuile ${classes}${f(id)}">${extra}<div class="nom">${esc(nom)}</div><div class="sous">${esc(sous)}</div></div>`;
+  function tuile(id, nom, sous, extra = "", classes = "", teinte = "") {
+    const st = teinte ? ` style="--teinte:${teinte}"` : "";
+    return `<div class="tuile ${classes}${f(id)}"${st}>${extra}<div><div class="nom">${esc(nom)}</div><div class="sous">${esc(sous)}</div></div></div>`;
   }
+
+  // Pictogrammes dessinés pour la maquette (pas les logos officiels : l'app Flutter les embarquera).
+  const LOGOS = {
+    youtube: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="13" width="60" height="38" rx="12" fill="#FF0033"/><path d="M26 23 L43 32 L26 41Z" fill="#fff"/></svg>',
+    twitch: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 4 L6 14 V52 H18 V60 H26 L34 52 H44 L58 38 V4Z" fill="#9146FF"/><path d="M14 10 V44 H24 V51 L31 44 H42 L52 34 V10Z" fill="#fff"/><rect x="27" y="19" width="5" height="14" rx="1" fill="#9146FF"/><rect x="39" y="19" width="5" height="14" rx="1" fill="#9146FF"/></svg>',
+    netflix: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#141414"/><path d="M19 10 H28 L36 34 V10 H45 V54 H36 L28 30 V54 H19Z" fill="#E50914"/></svg>',
+    canal: '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#000"/><text x="32" y="38" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="15" fill="#fff">CANAL+</text></svg>',
+  };
+  const ICONES = {
+    medias: '<path d="M8 14 H56 V50 H8Z M8 22 H56 M8 42 H56 M18 14 V22 M30 14 V22 M42 14 V22 M18 42 V50 M30 42 V50 M42 42 V50"/>',
+    ampli: '<path d="M14 10 H50 V54 H14Z"/><circle cx="32" cy="38" r="9"/><circle cx="32" cy="20" r="3"/>',
+    scene: '<path d="M40 8 A22 22 0 1 0 56 40 A18 18 0 1 1 40 8Z"/>',
+    memoire: '<path d="M16 16 H48 V48 H16Z M24 24 H40 V40 H24Z M24 8 V16 M32 8 V16 M40 8 V16 M24 48 V56 M32 48 V56 M40 48 V56 M8 24 H16 M8 32 H16 M8 40 H16 M48 24 H56 M48 32 H56 M48 40 H56"/>',
+    stockage: '<path d="M18 6 H40 L50 16 V58 H18Z M26 6 V16 M32 6 V16 M38 6 V16"/>',
+    maison: '<path d="M8 30 L32 10 L56 30 M14 26 V54 H50 V26 M27 54 V38 H37 V54"/>',
+    android: '<path d="M50 32 A18 18 0 1 1 44 18.5 M44 6 V19 H31"/>',
+  };
+  const icone = (nom) => `<svg class="icone" viewBox="0 0 64 64" aria-hidden="true">${ICONES[nom]}</svg>`;
 
   function ecranAccueil(n) {
     const p = PROFILS[n];
+    const sd = stockage(n, etat);
     const heure = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
     const lc = COULEURS[etat.lampe.couleur];
     const lampe = `<div class="lumiere" style="background:${etat.lampe.allumee ? lc.v : "var(--surface-haute)"};box-shadow:${etat.lampe.allumee ? "0 0 30px " + lc.v : "none"}"></div>`;
@@ -345,24 +423,25 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     return `
       <div class="zone ${p.sobre ? "sobre" : ""}">
         <div class="barre"><h2>Bonsoir</h2>
-          <div class="infos">${p.sobre ? '<span class="bandeau-sobre">Mode sobre 2 Go</span>' : ""}<span>Ethernet · 1 Gb/s</span><span class="heure">${heure}</span></div></div>
+          <div class="infos">${sd.taux > 0.75 ? `<span class="bandeau-alerte">Carte SD remplie à ${Math.round(sd.taux * 100)} %</span>` : ""}${p.sobre ? '<span class="bandeau-sobre">Mode sobre 2 Go</span>' : ""}<span>Ethernet · 1 Gb/s</span><span class="heure">${heure}</span></div></div>
         <div class="rangee"><h3>Regarder</h3><div class="tuiles">
-          ${tuile("youtube", "YouTube", "Dans notre OS", "", "affiche large")}
-          ${tuile("twitch", "Twitch", "Écran natif", "", "affiche large")}
-          ${tuile("netflix", "Netflix", "Redémarre sous Android", '<span class="pastille">Android</span>', "affiche")}
-          ${tuile("canal", "Canal+", "Redémarre sous Android", '<span class="pastille">Android</span>', "affiche")}
-          ${tuile("medias", "Médias", "Plus tard", '<span class="pastille">Phase 7</span>', "eteinte")}
+          ${tuile("youtube", "YouTube", "Dans notre OS", LOGOS.youtube, "affiche large", "#FF0033")}
+          ${tuile("twitch", "Twitch", "Écran natif", LOGOS.twitch, "affiche large", "#9146FF")}
+          ${tuile("netflix", "Netflix", "Redémarre sous Android", LOGOS.netflix + '<span class="pastille">Android</span>', "affiche", "#E50914")}
+          ${tuile("canal", "Canal+", "Redémarre sous Android", LOGOS.canal + '<span class="pastille">Android</span>', "affiche", "#5A6070")}
+          ${tuile("medias", "Médias", "Plus tard", icone("medias") + '<span class="pastille">Phase 7</span>', "eteinte")}
         </div></div>
         <div class="rangee"><h3>Maison</h3><div class="tuiles">
           ${tuile("lampe", "Lampe du salon", etat.lampe.allumee ? lc.nom : "Éteinte", lampe, etat.lampe.allumee ? "" : "eteinte")}
           ${tuile("ampoule", "Plafonnier", etat.ampoule.allumee ? etat.ampoule.niveau + " %" : "Éteint", amp, etat.ampoule.allumee ? "" : "eteinte")}
-          ${tuile("recepteur", "Ampli", etat.recepteur.allume ? "Volume " + etat.recepteur.volume : "En veille", "", etat.recepteur.allume ? "" : "eteinte")}
-          ${tuile("scene", "Soirée film", "Lampe ambre, plafonnier 20 %")}
+          ${tuile("recepteur", "Ampli", etat.recepteur.allume ? "Volume " + etat.recepteur.volume : "En veille", icone("ampli"), etat.recepteur.allume ? "" : "eteinte")}
+          ${tuile("scene", "Soirée film", "Lampe ambre, plafonnier 20 %", icone("scene"))}
         </div></div>
         <div class="rangee"><h3>Système</h3><div class="tuiles">
-          ${tuile("memoire", "Mémoire", bilan(n, etat).texte)}
-          ${tuile("maison", "Toute la maison", "Lumières et son")}
-          ${tuile("android", "Android", "Redémarrer la box")}
+          ${tuile("memoire", "Mémoire", bilan(n, etat).texte, icone("memoire"))}
+          ${tuile("stockage", "Stockage", sd.texte + " · " + Math.round(sd.taux * 100) + " %", icone("stockage"))}
+          ${tuile("maison", "Toute la maison", "Lumières et son", icone("maison"))}
+          ${tuile("android", "Android", "Redémarrer la box", icone("android"))}
         </div></div>
       </div>`;
   }
@@ -406,6 +485,17 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       <div class="aide-retour">Retour : revenir à l'accueil</div></div>`;
   }
 
+  function ecranStockage(n) {
+    const s = stockage(n, etat);
+    const lignes = s.liste.map((x) => `<span>${esc(x.nom)}</span><span>${go(x.go)}</span>`).join("");
+    const conseil = etat.stockage === "libre" ? "Aucune limite : les caches et les journaux grossissent jusqu'à remplir la carte."
+      : etat.stockage === "garde" ? "Garde-fous actifs : caches plafonnés, journal limité à 64 Mo, nettoyage chaque nuit." : "Carte neuve.";
+    return `<div class="zone"><div class="barre"><h2>Stockage</h2><div class="infos"><span>Carte SD 32 Go · ${esc(s.texte)}</span></div></div>
+      <div class="meminfo">${lignes}<span class="tot">Libre</span><span class="tot">${go(SD - s.utilise)}</span></div>
+      <p style="margin:0;font-size:28px;color:var(--texte-discret)">${esc(conseil)}</p>
+      <div class="boutons"><div class="bouton primaire${f("vider")}">Vider les caches</div><div class="bouton${f("retour")}">Retour</div></div></div>`;
+  }
+
   function dialogue(titre, texte, boutons) {
     return `<div class="dialogue-fond"><div class="dialogue"><h2>${esc(titre)}</h2><p>${esc(texte)}</p><div class="boutons">${boutons}</div></div></div>`;
   }
@@ -417,6 +507,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       case "youtube": corps = ecranYoutube(n); break;
       case "twitch": corps = ecranTwitch(); break;
       case "memoire": corps = ecranMemoire(n); break;
+      case "stockage": corps = ecranStockage(n); break;
       case "android": corps = ecranAccueil(n) + dialogue("Redémarrer sous Android ?",
         "Netflix et Canal+ s'ouvrent sous l'Android d'origine. Pour revenir ici, redémarre la box depuis Android.",
         `<div class="bouton primaire${f("redemarrer")}">Redémarrer</div><div class="bouton${f("annuler")}">Annuler</div>`); break;
@@ -437,8 +528,13 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     const segs = b.liste.map((x) => `<i style="width:${(Math.min(x.mo, b.total) / b.total) * 100}%;background:${x.c}" title="${esc(x.nom)} : ${x.mo} Mo"></i>`).join("");
     const leg = b.liste.map((x) => `<li style="--c:${x.c}"><em>${esc(x.nom)}</em><span>${x.mo}</span></li>`).join("");
     const zram = b.libre < MARGE_MINI ? `<p class="note-mem">zram compresse environ ${MARGE_MINI - Math.max(b.libre, 0)} Mo : l'image saccade, le premier processus tué serait Chromium.</p>` : "";
-    return `<div class="memoire"><div class="memoire-tete"><b>${b.utilise} Mo utilisés · ${Math.max(b.libre, 0)} Mo libres sur ${b.total}</b><span class="etat ${b.niveau}">${esc(b.texte)}</span></div>
-      <div class="jauge" role="img" aria-label="Mémoire utilisée : ${b.utilise} Mo sur ${b.total}">${segs}</div><ul class="legende">${leg}</ul>${zram}</div>`;
+    const s = stockage(n, etat);
+    const segsSd = s.liste.map((x) => `<i style="width:${(Math.min(x.go, SD) / SD) * 100}%;background:${x.c}" title="${esc(x.nom)} : ${go(x.go)}"></i>`).join("");
+    const legSd = s.liste.map((x) => `<li style="--c:${x.c}"><em>${esc(x.nom)}</em><span>${go(x.go)}</span></li>`).join("");
+    const sdBloc = `<div class="memoire"><h4>Carte SD 32 Go</h4><div class="memoire-tete"><b>${go(s.utilise)} utilisés · ${go(SD - s.utilise)} libres</b><span class="etat ${s.niveau}">${esc(s.texte)}</span></div>
+      <div class="jauge" role="img" aria-label="Carte SD utilisée à ${Math.round(s.taux * 100)} %">${segsSd}</div><ul class="legende">${legSd}</ul></div>`;
+    return `<div class="memoire"><h4>Mémoire vive</h4><div class="memoire-tete"><b>${b.utilise} Mo utilisés · ${Math.max(b.libre, 0)} Mo libres sur ${b.total}</b><span class="etat ${b.niveau}">${esc(b.texte)}</span></div>
+      <div class="jauge" role="img" aria-label="Mémoire utilisée : ${b.utilise} Mo sur ${b.total}">${segs}</div><ul class="legende">${leg}</ul>${zram}</div>${sdBloc}`;
   }
 
   function construire() {
@@ -447,7 +543,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     teles.innerHTML = ps.map((n) => `
       <div class="poste" data-n="${n}">
         <div class="poste-titre"><strong>Box ${n} Go</strong><span>S905X3 · 1080p${n === 2 ? " · plan B" : " · la HK1 commandée"}</span></div>
-        <div class="cadre"><div class="ecran-boite"><div class="ecran"></div></div></div>
+        <div class="cadre"><div class="ecran-boite"><div class="ecran"><canvas class="fond" width="960" height="540" data-n="${n}"></canvas><div class="contenu"></div></div></div></div>
         <div class="mem"></div>
       </div>`).join("");
     teles.querySelectorAll(".ecran-boite").forEach((b) => obs.observe(b));
@@ -462,7 +558,7 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
   function rendre() {
     teles.querySelectorAll(".poste").forEach((poste) => {
       const n = Number(poste.dataset.n);
-      poste.querySelector(".ecran").innerHTML = rendreEcran(n);
+      poste.querySelector(".contenu").innerHTML = rendreEcran(n);
       poste.querySelector(".mem").innerHTML = rendreMemoire(n);
       const b = bilan(n, etat);
       if (derniersNiveaux[n] !== b.niveau) {
@@ -473,7 +569,10 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     });
     document.querySelectorAll("#choix-profil button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.profil === etat.profil)));
     document.querySelectorAll("#choix-scenario button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scenario === etat.scenario)));
+    document.querySelectorAll("#choix-stockage button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.stockage === etat.stockage)));
+    document.querySelectorAll("#choix-fond button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.fond === etat.fond)));
     document.getElementById("securite").checked = etat.securite;
+    if (reduit.matches) document.querySelectorAll("canvas.fond").forEach((cv) => dessiner(cv, Number(cv.dataset.n), 8));
   }
 
   // ---------- Navigation ----------
@@ -500,6 +599,8 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
       case "recepteur": etat.recepteur.allume = !etat.recepteur.allume; noter("Ampli " + (etat.recepteur.allume ? "allumé (CEC)" : "en veille (CEC)")); break;
       case "scene": etat.lampe = { allumee: true, couleur: 0 }; etat.ampoule = { allumee: true, niveau: 20 }; noter("Scène « Soirée film » appliquée"); break;
       case "memoire": aller("memoire"); break;
+      case "stockage": aller("stockage"); break;
+      case "vider": etat.cachesVides = true; noter("Caches vidés (Chromium, YouTube, miniatures)"); break;
       case "maison": aller("maison"); break;
       case "lampe-bascule": etat.lampe.allumee = !etat.lampe.allumee; break;
       case "ampoule-bascule": etat.ampoule.allumee = !etat.ampoule.allumee; break;
@@ -547,10 +648,81 @@ kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--trait); bor
     noter(etat.scenario === "pire" ? "Pire cas : 2 h de YouTube, mise à jour en fond, scan Bluetooth" : "Soirée normale");
     rendre();
   }));
+  document.querySelectorAll("#choix-stockage button").forEach((b) => b.addEventListener("click", () => {
+    etat.stockage = b.dataset.stockage; etat.cachesVides = false; sauver();
+    noter({ neuf: "Carte SD neuve", libre: "Carte SD après 2 ans, sans limites de cache", garde: "Carte SD après 2 ans, avec garde-fous" }[etat.stockage]);
+    rendre();
+  }));
+  document.querySelectorAll("#choix-fond button").forEach((b) => b.addEventListener("click", () => { etat.fond = b.dataset.fond; sauver(); rendre(); }));
   document.getElementById("securite").addEventListener("change", (e) => { etat.securite = e.target.checked; sauver(); rendre(); });
+
+  // ---------- Fond animé ----------
+  // Motif original « veilleuse » : des rubans de lumière lents et des lucioles, teintés par la
+  // couleur réelle de la lampe. Dessiné en 960×540 puis agrandi (moins de pixels pour le GPU).
+  // En pause pendant une vidéo ; allégé sur 2 Go (moins de lignes, 30 images/s).
+  const ECRANS_ANIMES = new Set(["accueil", "maison", "memoire", "stockage", "android", "simulation"]);
+  const reduit = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const lucioles = Array.from({ length: 46 }, (_, i) => ({ x: Math.random() * 960, y: Math.random() * 540, r: 1.2 + Math.random() * 2.8, v: 6 + Math.random() * 14, p: Math.random() * 6.28, i }));
+  function rgb(hex) { const v = parseInt(hex.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; }
+  let image = 0, enPause = false;
+
+  function dessiner(cv, n, t) {
+    const ctx = cv.getContext("2d");
+    ctx.clearRect(0, 0, 960, 540);
+    if (etat.fond === "arret" || !ECRANS_ANIMES.has(etat.ecran)) return;
+    const leger = PROFILS[n].sobre;
+    const [r, g, b] = rgb(etat.lampe.allumee ? COULEURS[etat.lampe.couleur].v : "#FFB45E");
+    const force = etat.lampe.allumee ? 1 : 0.45;
+    ctx.globalCompositeOperation = "lighter";
+    if (etat.fond === "ondes") {
+      const rubans = leger ? 2 : 3, lignes = leger ? 9 : 18;
+      for (let k = 0; k < rubans; k++) {
+        const base = 300 + k * 70, amp = 46 + k * 18, vit = 0.11 + k * 0.05;
+        for (let l = 0; l < lignes; l++) {
+          ctx.beginPath();
+          for (let x = -20; x <= 980; x += 20) {
+            const y = base + Math.sin(x * 0.0052 + t * vit + l * 0.07 + k) * amp + Math.sin(x * 0.011 - t * vit * 0.7 + k * 2) * amp * 0.35 + l * 2.2;
+            x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = `rgba(${r},${g},${b},${(0.05 + 0.05 * Math.sin(l * 0.4 + t * 0.3)) * force})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+      }
+    } else {
+      const nb = leger ? 20 : lucioles.length;
+      for (let k = 0; k < nb; k++) {
+        const q = lucioles[k];
+        const y = ((q.y - t * q.v) % 600 + 600) % 600 - 30;
+        const x = q.x + Math.sin(t * 0.4 + q.p) * 18;
+        const a = (0.35 + 0.35 * Math.sin(t * 1.3 + q.p)) * force;
+        const grd = ctx.createRadialGradient(x, y, 0, x, y, q.r * 6);
+        grd.addColorStop(0, `rgba(${r},${g},${b},${a})`);
+        grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = grd;
+        ctx.fillRect(x - q.r * 6, y - q.r * 6, q.r * 12, q.r * 12);
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  function boucle(ms) {
+    image++;
+    const t = reduit.matches ? 8 : ms / 1000;
+    const pause = !ECRANS_ANIMES.has(etat.ecran) && etat.fond !== "arret";
+    if (pause !== enPause) { enPause = pause; if (pause) noter("Fond animé en pause pendant la vidéo"); }
+    document.querySelectorAll("canvas.fond").forEach((cv) => {
+      const n = Number(cv.dataset.n);
+      if (PROFILS[n].sobre && image % 2) return; // 30 images/s sur 2 Go
+      dessiner(cv, n, t);
+    });
+    if (!reduit.matches) requestAnimationFrame(boucle);
+  }
+  reduit.addEventListener("change", () => requestAnimationFrame(boucle));
 
   setInterval(() => { if (etat.ecran === "accueil") rendre(); }, 30000);
   noter("Box démarrée sur l'accueil");
   construire();
+  requestAnimationFrame(boucle);
 })();
 </script>

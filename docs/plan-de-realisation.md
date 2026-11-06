@@ -78,7 +78,7 @@ gantt
 ### J1. Banc de prévisu de l'interface (phase 2, sans box)
 
 - **Objectif** : voir et piloter l'interface dans Claude avant d'écrire le Flutter, et comparer une box 2 Go et 4 Go.
-- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude : accueil, YouTube, Twitch, maison, mémoire, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas ».
+- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude : accueil avec logos, fond animé (ondes ou lucioles), YouTube, Twitch, maison, mémoire, stockage, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas » ; carte SD neuve ou après 2 ans, avec ou sans garde-fous.
 - **Fin** : Marius valide l'arborescence des écrans et l'identité à 3 m sur la maquette.
 - **Issues** : #41. **Durée** : 1 semaine. **Dépend de** : rien.
 
@@ -117,31 +117,31 @@ gantt
 ### J6. Notre image démarre sur la box (phase 3)
 
 - **Objectif** : plus d'Armbian : la SD contient notre image, qui arrive sur l'interface.
-- **Livrables** : noyau mainline et DTB de la box, amorçage depuis la SD via le u-boot d'origine, flutter-pi et l'app empaquetés.
+- **Livrables** : noyau mainline et DTB de la box, amorçage depuis la SD via le u-boot d'origine, flutter-pi et l'app empaquetés, partition `/data` séparée et premiers plafonds de stockage (#45).
 - **Fin** : démarrage sur l'accueil en moins de 15 s, Android d'origine intact sur l'eMMC.
-- **Issues** : #20, #21, #22. **Durée** : 3 à 4 semaines. **Dépend de** : J2, J4, J5.
+- **Issues** : #20, #21, #22, début de #45. **Durée** : 3 à 4 semaines. **Dépend de** : J2, J4, J5.
 
 ### J7. v1 du salon (phase 4)
 
 - **Objectif** : les quatre usages prioritaires depuis notre accueil (ADR 0014).
-- **Livrables** : accueil final, lecteur vidéo, YouTube en Chromium kiosque, Twitch natif, bouton « redémarrer sous Android », télé allumée et mise en veille en CEC.
-- **Fin** : une soirée entière sans clavier ni souris ; YouTube 2 h sans saturation mémoire sur la box.
+- **Livrables** : accueil final avec les logos des apps et le fond animé, lecteur vidéo, YouTube en Chromium kiosque, Twitch natif, bouton « redémarrer sous Android », télé allumée et mise en veille en CEC.
+- **Fin** : une soirée entière sans clavier ni souris ; YouTube 2 h sans saturation mémoire sur la box ; fond animé à 60 images/s sur l'accueil (30 en mode sobre) et en pause pendant la vidéo.
 - **Issues** : #23, #24, #25, #26, #33, #38.
 - **Durée** : 6 à 8 semaines. **Dépend de** : J6. #33 demande l'accord de Marius (écriture de l'environnement u-boot sur l'eMMC).
 
 ### J8. Hub intégré (phase 5)
 
-- **Objectif** : piloter la maison depuis la télé et depuis le S25 via la box.
-- **Livrables** : hub Rust dans l'image, écran domotique (celui de la maquette), annonce mDNS.
-- **Fin** : la lampe du salon change de couleur depuis la télé, et l'app du S25 trouve la box seule.
-- **Issues** : #27, #28, #29. **Durée** : 3 à 4 semaines. **Dépend de** : J7 et le hub dans `payssho/Home-device-manager`.
+- **Objectif** : piloter la maison depuis la télé, et piloter la télé et la maison depuis une seule app sur le S25.
+- **Livrables** : hub Rust dans l'image, écran domotique (celui de la maquette), annonce mDNS, et un écran « Télé » dans l'app Home device manager : lancer une app, naviguer, allumer ou éteindre, régler le fond animé, voir le stockage et vider les caches.
+- **Fin** : la lampe du salon change de couleur depuis la télé ; depuis le S25, on lance Twitch sur la télé et on change son fond animé.
+- **Issues** : #27, #28, #29, #46. **Durée** : 3 à 4 semaines. **Dépend de** : J7 et le hub dans `payssho/Home-device-manager`.
 
 ### J9. Solidité (phase 6)
 
 - **Objectif** : une télé qu'on n'a plus besoin de réparer.
-- **Livrables** : racine en lecture seule, mises à jour A/B RAUC avec retour arrière, Wi‑Fi si la puce le permet.
-- **Fin** : une mise à jour ratée revient seule à la version précédente.
-- **Issues** : #30, #31, #32. **Durée** : 3 à 4 semaines. **Dépend de** : J7 (J8 conseillé avant).
+- **Livrables** : racine en lecture seule, mises à jour A/B RAUC avec retour arrière, garde-fous de stockage (nettoyage nocturne, alerte, refus de mise à jour si la carte est pleine), Wi‑Fi si la puce le permet.
+- **Fin** : une mise à jour ratée revient seule à la version précédente ; une carte SD remplie artificiellement à 95 % se nettoie seule et l'alerte s'affiche.
+- **Issues** : #30, #31, #32, #45. **Durée** : 3 à 4 semaines. **Dépend de** : J7 (J8 conseillé avant).
 
 ### J10. Extras (phase 7, au fil de l'eau)
 
@@ -173,6 +173,7 @@ Estimations de départ (Mo), reprises dans la maquette et à remplacer par les m
 | Chromium après 2 h | +600 | +600 | Croissance observée sur les télés à suivre en mesure |
 | Lecteur GStreamer (Twitch 1080p) | 150 à 210 | 150 à 210 | Tampons HLS |
 | Mise à jour RAUC en fond | 120 | 120 | Phase 6 |
+| tmpfs (`/tmp`, journal en RAM) | 48 | 96 | Plafonné à 128 / 256 Mo |
 
 Lecture : en soirée normale, 2 Go passent (environ 900 Mo libres sous YouTube). Dans le pire cas (2 h de YouTube, mise à jour en fond, scan Bluetooth), il reste moins de 200 Mo sur 2 Go : zram s'active, l'image saccade, puis Chromium risque d'être tué. Sur 4 Go il reste plus de 1,8 Go.
 
@@ -183,11 +184,44 @@ Règles qui en découlent, valables même sur 4 Go :
 3. zram activé dans l'image (J6), avec Chromium désigné en premier pour l'OOM.
 4. Les mises à jour RAUC ne s'appliquent pas pendant une lecture.
 
+## Stockage dans la durée
+
+Notre OS vit sur la carte microSD de 32 Go (environ 29,7 Go utilisables) ; l'eMMC reste à Android. La quantité de RAM ne change presque rien au stockage : les deux profils ont la même carte. Elle change seulement la taille des caches qu'on choisit de plafonner et celle du tmpfs. Le vrai risque, sur 2 Go comme sur 4 Go, ce sont les caches et les journaux **sans limite**, qui grossissent en silence et usent la carte.
+
+Estimations (Go), reprises dans la maquette :
+
+| Poste | Neuve | 2 ans sans limites | 2 ans avec garde-fous (2 Go / 4 Go) |
+|---|---:|---:|---:|
+| Démarrage + système A et B (RAUC) | 2,25 | 2,25 | 2,25 |
+| Caches Chromium, données YouTube, miniatures | 0,15 | 13 | 0,7 / 1,1 |
+| Journaux et rapports de plantage | 0,02 | 7 | 0,06 |
+| Mises à jour téléchargées | 0 | 1,6 | 0,45 pendant un téléchargement |
+| Base du hub | 0,01 | 0,5 | 0,1 |
+| **Remplissage** | **8 %** | **82 %** | **10 à 13 %** |
+
+Sans garde-fous, la carte n'est pas pleine en quelques semaines, mais elle approche de la saturation en un ou deux ans, et une mise à jour RAUC qui ne trouve plus de place échoue. Garde-fous retenus (#45), posés dès l'image J6 et complétés en J9 :
+
+1. **Racine en lecture seule, `/data` à part** (f2fs, `noatime`) : seule `/data` peut grossir, le système ne casse jamais à cause d'elle.
+2. **Plafonds par profil** : cache disque Chromium 256 Mo (2 Go) ou 512 Mo (4 Go), cache de miniatures en LRU 150 ou 300 Mo, journal persistant 64 Mo, rapports de plantage désactivés hors débogage.
+3. **Rien d'éphémère sur la carte** : `/tmp` en tmpfs plafonné (128 ou 256 Mo selon la RAM), pas de swap sur la SD (zram seulement), tampons vidéo en RAM.
+4. **Nettoyage chaque nuit** : au-delà de 75 % les caches sont vidés ; au-delà de 90 % la télé affiche une alerte et refuse de télécharger une mise à jour.
+5. **Mises à jour sûres** : RAUC ne télécharge que s'il reste deux fois la taille du bundle, et le supprime après installation.
+6. **Visible et réglable** : écran Réglages > Stockage sur la télé et dans l'app du S25, avec « Vider les caches ».
+
+Les médias locaux (phase 7) n'iront pas sur cette carte : clé USB, disque ou NAS.
+
+## Visuel : logos et fond animé
+
+- **Logos** : les tuiles affichent l'icône de chaque app. La maquette utilise des pictogrammes dessinés ; l'app Flutter embarquera les icônes officielles en assets (usage personnel dans un lanceur, comme n'importe quelle télé).
+- **Fond animé** : un motif original lié à l'identité « veilleuse », des rubans de lumière lents ou des lucioles teintés par la couleur réelle de la lampe du salon. Il s'inspire de l'ambiance des menus de consoles sans en copier aucun.
+- **Budget** : rendu à demi-résolution puis agrandi, en pause dès qu'une vidéo ou Chromium est à l'écran, version allégée sur 2 Go (moins de lignes, 30 images/s), coupé si `prefers-reduced-motion` ou réglage « Arrêt ». Critère de J7 : l'accueil reste à 60 images/s sur la box avec le fond actif.
+- L'app Flutter et son fond animé avancent dans le fil dédié à l'interface ; ce plan fixe seulement les contraintes.
+
 ## Banc de prévisu de l'interface
 
 Trois étages, du plus léger au plus fidèle :
 
-1. **Maquette HTML (J1)** : [`maquette/`](../maquette/README.md), publiée comme page Claude. Marius demande un changement dans le fil, l'agent modifie le fichier et republie à la même adresse. Elle simule la navigation et un modèle mémoire, pas le processeur.
+1. **Maquette HTML (J1)** : [`maquette/`](../maquette/README.md), publiée comme page Claude. Marius demande un changement dans le fil, l'agent modifie le fichier et republie à la même adresse. Elle simule la navigation, le fond animé, un modèle mémoire et le remplissage de la carte SD, pas le processeur.
 2. **Build web de l'app Flutter (J3, #42)** : la vraie app, compilée en web avec CanvasKit embarqué, publiée en artefact de CI à chaque PR et republiable comme page Claude. Un sélecteur de profil en mode debug active la politique « sobre ».
 3. **Mesure réelle (J2, J5, #43)** : la box elle-même bridée à 2 Go par `mem=2G` sur la ligne de commande du noyau (fichier de démarrage sur la SD, jamais l'eMMC), et notre image dans QEMU avec `-m 2G` et `-m 4G` en CI.
 

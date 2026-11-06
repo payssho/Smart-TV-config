@@ -5,7 +5,9 @@
 ## Ce qu'elle montre
 
 - Un écran 1920×1080 réel mis à l'échelle, avec la zone de sécurité de surbalayage en option.
-- Les écrans prévus : accueil, YouTube (Chromium kiosque), Twitch, maison, mémoire, dialogue « redémarrer sous Android ».
+- Les écrans prévus : accueil avec les logos des apps, YouTube (Chromium kiosque), Twitch, maison, mémoire, stockage, dialogue « redémarrer sous Android ».
+- Un fond animé original (ondes ou lucioles) teinté par la couleur de la lampe, en pause pendant la vidéo, allégé sur 2 Go.
+- La carte SD neuve ou après 2 ans, sans limites ou avec garde-fous (#45).
 - La navigation à la télécommande : flèches, Entrée, Échap ou Retour arrière, H pour l'accueil, ou la télécommande à l'écran.
 - Un modèle mémoire par composant pour 2 Go et 4 Go, en soirée normale ou en pire cas. Les chiffres sont des **estimations** (constantes `PROFILS` et `composants()` dans le script), à remplacer par les mesures de #43.
 
