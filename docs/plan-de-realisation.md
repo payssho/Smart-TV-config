@@ -175,6 +175,8 @@ Estimations de départ (Mo), reprises dans la maquette et à remplacer par les m
 | Mise à jour RAUC en fond | 120 | 120 | Phase 6 |
 | tmpfs (`/tmp`, journal en RAM) | 48 | 96 | Plafonné à 128 / 256 Mo |
 
+Premières mesures (banc Docker, 2026-11-06, [détail](emulation-memoire.md)) : 4 Go tient tout, il reste 1,8 Go dans le pire cas après 2 h ; 2 Go tient la soirée normale (930 Mo libres sous YouTube) mais le pire cas remplit la mémoire et, après la dérive de Chromium, le noyau tue l'onglet YouTube sans toucher à l'interface.
+
 Lecture : en soirée normale, 2 Go passent (environ 900 Mo libres sous YouTube). Dans le pire cas (2 h de YouTube, mise à jour en fond, scan Bluetooth), il reste moins de 200 Mo sur 2 Go : zram s'active, l'image saccade, puis Chromium risque d'être tué. Sur 4 Go il reste plus de 1,8 Go.
 
 Règles qui en découlent, valables même sur 4 Go :

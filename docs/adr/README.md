@@ -18,3 +18,5 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0012](0012-hub-domotique-rust-dans-home-device-manager.md) | Faire tourner un hub domotique Rust sur la box, développé dans Home-device-manager | acceptée |
 | [0013](0013-reprendre-l-identite-veilleuse.md) | Reprendre l'identité visuelle « veilleuse » de l'app | proposée |
 | [0014](0014-youtube-et-twitch-dans-notre-os.md) | Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android | proposée |
+| [0015](0015-previsualiser-l-interface-en-build-web.md) | Prévisualiser l'interface avec le build web de l'app Flutter | proposée |
+| [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | proposée |

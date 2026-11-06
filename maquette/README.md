@@ -18,4 +18,6 @@ Le fichier est un fragment de page : le `<title>`, le `<style>` et le `<script>`
 - Depuis un fil du projet Claude : demander le changement, l'agent modifie le fichier et le republie à la même adresse (outil Artifact, même chemin de fichier dans la session, ou l'URL de la page depuis une autre session).
 - En local : l'ouvrir dans un navigateur suffit, le navigateur ajoute la structure manquante.
 
+La vraie app Flutter a maintenant sa propre prévisu, construite par `scripts/previsu/construire.sh` et publiée comme page Claude (ADR 0015) : c'est elle qui fait foi pour l'interface. Cette maquette reste un carnet d'idées rapide à retoucher.
+
 Les tokens de couleur viennent de `app/lib/ui/theme.dart` dans `payssho/Home-device-manager` (palette « nuit »). Quand l'app Flutter existera (#42), son build web remplacera cette maquette.

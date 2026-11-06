@@ -1,0 +1,39 @@
+name: Banc mémoire
+
+# Compare la box à 2 Go et à 4 Go (ADR 0016). Lancé à la main : environ
+# 15 minutes, rapport en artefact.
+on:
+  workflow_dispatch:
+    inputs:
+      palier:
+        description: "Durée d'un palier, en secondes"
+        default: "40"
+
+permissions:
+  contents: read
+
+jobs:
+  banc:
+    name: Banc 2 Go / 4 Go
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Dépendances du build Linux et des médias
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev ffmpeg
+      - name: Chromium (Playwright)
+        run: npx --yes playwright@1.49.1 install chromium
+      - name: Banc
+        env:
+          PALIER: ${{ inputs.palier }}
+        run: scripts/emulation/lancer.sh --palier "$PALIER"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: banc-memoire
+          path: scripts/emulation/resultats

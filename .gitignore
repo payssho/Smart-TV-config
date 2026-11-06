@@ -14,3 +14,6 @@ build/
 .DS_Store
 *.swp
 node_modules/
+
+# Banc mémoire : médias générés et rapports bruts
+scripts/emulation/.medias/

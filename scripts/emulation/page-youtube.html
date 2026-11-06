@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Page lourde façon YouTube TV</title>
+<!-- Approximation hors ligne de youtube.com/tv pour le banc mémoire : une
+     vidéo VP9 1080p en lecture, des rangées de vignettes qui défilent et un
+     peu de JavaScript qui alloue comme une appli web réelle. -->
+<style>
+  body { margin: 0; background: #0f0f0f; color: #eee; font: 24px sans-serif; overflow: hidden; }
+  video { width: 1920px; height: 620px; object-fit: cover; display: block; }
+  .rangee { display: flex; gap: 24px; padding: 20px 48px; animation: defile 12s linear infinite alternate; }
+  .rangee img { width: 384px; height: 216px; border-radius: 12px; flex: none; }
+  @keyframes defile { to { transform: translateX(-1400px); } }
+</style>
+</head>
+<body>
+<video src="youtube-1080p.webm" autoplay muted loop playsinline></video>
+<div id="rangees"></div>
+<script>
+  const conteneur = document.getElementById('rangees');
+  for (let r = 0; r < 4; r++) {
+    const rangee = document.createElement('div');
+    rangee.className = 'rangee';
+    for (let i = 0; i < 10; i++) {
+      const img = document.createElement('img');
+      img.src = 'vignettes/' + String(r * 10 + i + 1).padStart(2, '0') + '.jpg';
+      rangee.appendChild(img);
+    }
+    conteneur.appendChild(rangee);
+  }
+  // Données de l'appli (catalogue, état) : ~60 Mo de tas JS, renouvelés.
+  let catalogue = [];
+  setInterval(() => {
+    catalogue = Array.from({ length: 300000 }, (_, i) => ({ id: i, titre: 'Vidéo ' + i, vues: Math.random() }));
+  }, 3000);
+  // « #fuite=600 » : reproduit la dérive mémoire d'une longue soirée (le tas
+  // grossit de 600 Mo, par paliers de 20 Mo par seconde, et ne rend rien).
+  const fuite = Number((location.hash.match(/fuite=(\d+)/) || [])[1] || 0);
+  const retenu = [];
+  const minuteur = setInterval(() => {
+    if (retenu.length * 20 >= fuite) return clearInterval(minuteur);
+    const bloc = new Uint8Array(20 << 20);
+    for (let i = 0; i < bloc.length; i += 4096) bloc[i] = 1;
+    retenu.push(bloc);
+  }, 1000);
+</script>
+</body>
+</html>
