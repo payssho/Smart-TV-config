@@ -20,11 +20,13 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - Vérifs locales de la CI : `scripts/ci/verifier.sh` (shellcheck, markdownlint, index des ADR).
 - Milestones GitHub (une par phase, issues rangées par label `phase-N`) : `scripts/github/creer-milestones.sh` (CLI gh).
 - Diagnostic matériel (sur la box sous Armbian, lecture seule) : `sudo scripts/materiel/diagnostic.sh > rapport.txt`.
+- Prévisu de l'interface : `maquette/banc-interface.html`, publiée comme page Claude (voir `maquette/README.md`).
 - (à remplir : build Buildroot, test QEMU, tests Flutter, flash SD)
 
 ## Arborescence
 
-- `docs/` : vision, architecture, roadmap, ADR, matériel.
+- `docs/` : vision, architecture, roadmap, plan de réalisation (jalons, budget mémoire), ADR, matériel.
+- `maquette/` : banc de prévisu HTML de l'interface (profils 2 Go et 4 Go).
 - `scripts/` : outils shell (CI, diagnostic matériel, plus tard image et flash).
 - À venir : `ui/` (app Flutter TV, phase 2), `buildroot/` (arbre `BR2_EXTERNAL`, phase 3).
 
