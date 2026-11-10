@@ -48,3 +48,7 @@ Mémoire anonyme occupée / restante, en Mo :
 - L'interface pèse ~420 Mo ici, rendu logiciel GTK compris. Sur la box avec flutter-pi, on attend bien moins : à mesurer en J4.
 
 Rapport complet : [`scripts/emulation/resultats/2026-11-06/rapport.md`](../scripts/emulation/resultats/2026-11-06/rapport.md).
+
+## Décision du 2026-11-10
+
+Marius part sur **2 Go** (ADR 0017) : la première version se teste en 2 Go, avec des tâches d'optimisation lancées régulièrement, **sans impact sur la fluidité ni sur l'expérience** (règles dans le [plan](plan-de-realisation.md#budget-mémoire--2-go-contre-4-go)). On passe en 4 Go si ça bugue. Prochaines mesures : le même pire cas avec zram et la maintenance actives, puis notre image dans QEMU en 2 Go et 4 Go, puis la vraie box (#43).

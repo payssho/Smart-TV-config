@@ -2,22 +2,25 @@
 
 À dérouler à la réception de la box, sous Armbian ophub démarré depuis la carte SD (ADR 0005). Chaque bloc correspond à une issue du milestone « Phase 1 ». Les résultats vont dans `docs/materiel.md`.
 
-> **Règle d'or : on ne touche pas à l'eMMC.** Pas de `armbian-install`, pas de `dd` vers un `mmcblk` qui n'est pas la SD, pas de « Install to eMMC ». L'Android d'origine sert au double démarrage (ADR 0003).
+> **Règle d'or : on sauvegarde l'eMMC avant d'y écrire quoi que ce soit** (ADR 0018). Écrire dessus est permis quand ça sert le projet, mais pas avant que l'image complète soit copiée hors de la box et vérifiée. Pendant cette checklist, rien n'a besoin d'y être écrit : pas de `armbian-install` ni de « Install to eMMC ». L'Android d'origine sert au double démarrage pour Netflix et Canal+ et doit rester démarrable (ADR 0003).
+>
+> Avant la réception, tout ce qui peut l'être se prépare sur la copie émulée de la box en 2 Go et 4 Go.
 
 ## À acheter
 
 | Objet | Nécessaire ? | Pourquoi |
 |---|---|---|
-| Box S905X3 **4 Go / 32 Go** | Oui | Recommandée : **H96 Max X3**, dont la carte a un DTB dans le noyau mainline (`meson-sm1-h96-max`). Sinon X96 Max+ ou HK1 Box (DTB fournis par ophub). |
+| Box S905X3 **2 Go** (d'occasion), 4 Go en repli | Oui | Modèle pas encore choisi (ADR 0017). Candidates : H96 Max X3 (DTB mainline `meson-sm1-h96-max`), X96 Max+ ou HK1 Box (DTB fournis par ophub, `meson-sm1-x96-max-plus*`, `meson-sm1-hk1box-vontar-x3`). Le DTB ne dépend pas de la quantité de RAM. |
 | Micro-SD A1/A2 32 Go | Oui | Notre OS démarre dessus, l'eMMC reste à Android. |
+| Clé USB ou disque d'au moins 32 Go | Oui | Pour la sauvegarde complète de l'eMMC. |
 | Câble Ethernet | Oui | Le Wi‑Fi n'est pas garanti sous Linux. |
 | Adaptateur USB-série 3,3 V | Non, **écarté par Marius** (2026-11-03) | Sans lui, un démarrage raté reste muet : on diagnostique à l'écran et en essayant les autres DTB. À reconsidérer seulement si la box ne démarre jamais. |
 
 ## Avant de commencer
 
-- [ ] Box S905X3 **4 Go / 32 Go** reçue ; noter le modèle exact (X96 Max+, HK1 Box, H96 Max X3), la révision imprimée sur la carte mère et une photo de la carte.
+- [ ] Box S905X3 reçue ; noter le modèle exact (X96 Max+, HK1 Box, H96 Max X3…), la RAM et l'eMMC réelles, la révision imprimée sur la carte mère et une photo de la carte. Une box d'occasion peut avoir été modifiée : noter tout ce qui sort de l'ordinaire.
 - [ ] Carte micro-SD rapide (A1/A2, 32 Go), câble Ethernet, câble HDMI vers la télé.
-- [ ] Démarrer une fois sous Android : noter la version, faire une capture des réglages « À propos ».
+- [ ] Démarrer une fois sous Android : noter la version, faire une capture des réglages « À propos ». Si l'Android d'occasion semble modifié ou instable, le signaler avant d'aller plus loin.
 - [ ] **Usages du premier jour (ADR 0014)** sous Android : installer Netflix, Canal+, YouTube et Twitch ; pour chacun, noter si l'installation passe (Play Store ou non), et la qualité réelle à l'œil. Installer aussi l'appli « DRM Info » pour noter le niveau Widevine d'Android (L1 ou L3) et la certification Play Protect. C'est notre solution tant que notre OS n'est pas prêt.
 - [ ] Télé Philips : relever le modèle exact (étiquette « MODEL NO. » derrière, cachée par le support mural, ou menu Réglages > Aide) et activer **EasyLink** (le CEC chez Philips) dans les réglages. Brancher la box sur **HDMI 2** (HDMI 1 ARC reste libre pour une barre de son).
 
@@ -29,6 +32,13 @@
 - [ ] Le démarrage arrive au login (sur la télé). Noter la durée.
 - [ ] Si échec : essayer les autres DTB candidats et noter ce qui s'affiche à l'écran avant l'arrêt.
 - [ ] Lancer `sudo scripts/materiel/diagnostic.sh > rapport-dtb.txt` et joindre le rapport à l'issue.
+
+## 1 bis. Sauvegarder l'eMMC (ADR 0018)
+
+- [ ] Armbian démarré, repérer l'eMMC dans `lsblk` (le `mmcblk` qui n'est pas la SD, avec ses `boot0`/`boot1`).
+- [ ] Copier l'eMMC entière et ses zones de démarrage vers la clé USB (`dd` en lecture depuis l'eMMC, écriture vers un fichier de la clé), puis calculer et noter les SHA-256.
+- [ ] Relire la copie et vérifier les empreintes. Ranger la clé hors de la box.
+- [ ] Écrire dans `docs/materiel.md` la procédure de restauration ; la tester une fois avant la première écriture sur l'eMMC.
 
 ## 2. HDMI 1080p, Ethernet et GPU (Panfrost)
 
@@ -69,4 +79,4 @@
 
 - [ ] Rédiger `docs/materiel.md` : modèle et révision, DTB retenu, méthode de démarrage SD, et pour chaque point : marche / partiel / ne marche pas, avec la commande de test.
 - [ ] Remplir la section « Matériel validé » de `CLAUDE.md`.
-- [ ] Ouvrir une ADR si un résultat change une décision (DTB retenu, repli CEC, plan B S905X).
+- [ ] Ouvrir une ADR si un résultat change une décision (DTB retenu, repli CEC, passage en 4 Go, plan B S905X).

@@ -16,7 +16,9 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0010](0010-lire-la-video-avec-gstreamer-ou-libmpv.md) | Lire la vidéo avec GStreamer (flutter-pi) ou libmpv | proposée |
 | [0011](0011-mettre-a-jour-en-a-b-avec-rauc.md) | Mettre à jour l'image en A/B avec RAUC | proposée |
 | [0012](0012-hub-domotique-rust-dans-home-device-manager.md) | Faire tourner un hub domotique Rust sur la box, développé dans Home-device-manager | acceptée |
-| [0013](0013-reprendre-l-identite-veilleuse.md) | Reprendre l'identité visuelle « veilleuse » de l'app | proposée |
-| [0014](0014-youtube-et-twitch-dans-notre-os.md) | Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android | proposée |
-| [0015](0015-previsualiser-l-interface-en-build-web.md) | Prévisualiser l'interface avec le build web de l'app Flutter | proposée |
-| [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | proposée |
+| [0013](0013-reprendre-l-identite-veilleuse.md) | Reprendre l'identité visuelle « veilleuse » de l'app | acceptée |
+| [0014](0014-youtube-et-twitch-dans-notre-os.md) | Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android | acceptée |
+| [0015](0015-previsualiser-l-interface-en-build-web.md) | Prévisualiser l'interface avec le build web de l'app Flutter | acceptée |
+| [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | acceptée |
+| [0017](0017-viser-une-box-2-go-d-occasion.md) | Viser d'abord une box S905X3 2 Go d'occasion, 4 Go en repli | acceptée |
+| [0018](0018-ecrire-sur-l-emmc-apres-sauvegarde.md) | Autoriser l'écriture sur l'eMMC quand elle sert le projet, après une sauvegarde complète | acceptée |

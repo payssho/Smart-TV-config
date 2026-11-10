@@ -2,14 +2,14 @@
 
 Ce plan découpe la construction de l'OS complet en **jalons**. Chaque jalon se termine par une démo vérifiable et regroupe des issues existantes. Il complète la [roadmap](roadmap.md) (le « quoi » de chaque phase) avec le « dans quel ordre, avec quelles dépendances, et quand ». L'état réel reste dans les issues GitHub : ce fichier se révise à la fin de chaque jalon, pas à chaque PR.
 
-Établi le 2026-11-06. Box HK1 S905X3 4/32 Go commandée le 2026-11-03, réception estimée entre le 17 et le 28 novembre.
+Établi le 2026-11-06, révisé le 2026-11-10 après la relecture de Marius. La box n'est pas encore achetée : Marius vise une S905X3 **2 Go d'occasion**, 4 Go en repli (ADR 0017). Les dates « avec la box » du calendrier sont donc indicatives ; en attendant, chaque jalon s'avance sur une copie émulée de la box en 2 Go et 4 Go.
 
 ## Hypothèses
 
 - **Capacité** : Marius seul, environ 8 h par semaine (soirées et week-ends), plus l'agent pour le code, les docs et la CI. Les durées sont en semaines calendaires et donnent une fourchette, pas un engagement.
-- **Tests** : tout ce qui se teste sans la box se teste sans elle (maquette, Flutter web et desktop, QEMU). Marius teste sur la vraie télé et rapporte.
+- **Tests** : tout ce qui se teste sans la box se teste sans elle (maquette, Flutter web et desktop, banc mémoire, QEMU en 2 Go et 4 Go). Marius teste sur la vraie télé à la réception et rapporte ; on corrige alors ce qui diffère.
 - **Builds lourds** : en GitHub Actions ou sous WSL2 chez Marius (CLAUDE.md).
-- **Règles inchangées** : jamais d'écriture sur l'eMMC sans accord, aucun contournement de DRM, un ADR par choix structurant.
+- **Règles** : eMMC modifiable quand c'est utile, après une sauvegarde complète vérifiée (ADR 0018) ; aucun contournement de DRM ; démarrage fiable à 100 % avant d'être rapide ; un ADR par choix structurant.
 
 ## Vue d'ensemble (Now / Next / Later)
 
@@ -41,7 +41,7 @@ flowchart LR
   J9 --> J10[J10 Extras]
 ```
 
-**Chemin critique** : réception de la box → J2 → J4 → J6 → J7. Tout ce qui ne dépend pas de la box (J1, J3, J5) avance avant, pour que la box arrive sur un terrain prêt.
+**Chemin critique** : réception de la box → J2 → J4 → J6 → J7. Tout ce qui ne dépend pas de la box (J1, J3, J5) avance avant, et les parties logicielles de J4, J6 et J7 s'avancent aussi sur la copie émulée, pour que la box arrive sur un terrain prêt.
 
 ## Calendrier indicatif
 
@@ -50,12 +50,12 @@ gantt
   dateFormat YYYY-MM-DD
   axisFormat %d %b
   section Sans la box
-  J0 Cadrage fusionné        :active,  j0, 2026-11-03, 2026-11-09
+  J0 Cadrage fusionné        :done,    j0, 2026-11-03, 2026-11-10
   J1 Banc de prévisu         :active,  j1, 2026-11-06, 2026-11-13
   J3 App Flutter sans box    :         j3, 2026-11-10, 3w
   J5 Image dans QEMU         :         j5, 2026-11-24, 4w
   section Avec la box
-  Livraison de la box        :milestone, box, 2026-11-24, 0d
+  Box d'occasion (date libre) :milestone, box, 2026-11-24, 0d
   J2 Box validée             :         j2, 2026-11-24, 3w
   J4 Hello TV                :         j4, after j2, 3w
   J6 Image sur la box        :         j6, after j4, 4w
@@ -70,26 +70,26 @@ gantt
 ### J0. Cadrage fusionné (phase 0)
 
 - **Objectif** : le dépôt suffit à reprendre le projet.
-- **Livrables** : PR #37 fusionnée (docs, 14 ADR, CI, checklist phase 1), milestones créées avec `scripts/github/creer-milestones.sh`.
-- **Fin** : CI verte sur `main`, issues rangées par milestone.
+- **Livrables** : PR #37 fusionnée (docs, 14 ADR, CI, checklist phase 1). Les labels `phase-N` suffisent pour ranger les issues ; `scripts/github/creer-milestones.sh` reste disponible.
+- **Fin** : #37, #44 et #47 fusionnées le 2026-11-10, relecture de Marius appliquée.
 - **Issues** : #1, #2, #3.
 - **Durée** : quelques jours. **Dépend de** : la relecture de Marius.
 
 ### J1. Banc de prévisu de l'interface (phase 2, sans box)
 
 - **Objectif** : voir et piloter l'interface dans Claude avant d'écrire le Flutter, et comparer une box 2 Go et 4 Go.
-- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude : cinq sections (Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages), logos, fond animé (lucioles ou ondes), ambiance « Feu de cheminée » avec son, YouTube, Twitch, mémoire, stockage, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas » ; carte SD neuve ou après 2 ans, avec ou sans garde-fous.
+- **Livrables** : [`maquette/banc-interface.html`](../maquette/README.md) publiée comme page Claude (carnet d'idées ; la prévisu de l'app Flutter fait foi depuis J3) : cinq sections (Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages ; ramenées depuis à trois onglets dans l'app), logos, fond animé (lucioles ou ondes), ambiance « Feu de cheminée » avec son, YouTube, Twitch, mémoire, stockage, dialogue Android ; navigation au focus ; profils 2 Go, 4 Go et côte à côte ; scénario « pire cas » ; carte SD neuve ou après 2 ans, avec ou sans garde-fous.
 - **Fin** : Marius valide l'arborescence des écrans et l'identité à 3 m sur la maquette.
 - **Issues** : #41. **Durée** : 1 semaine. **Dépend de** : rien.
 
 ### J2. Box validée (phase 1)
 
-- **Objectif** : savoir exactement ce que la HK1 reçue sait faire sous Linux mainline.
-- **Livrables** : `docs/materiel.md`, rapport de `scripts/materiel/diagnostic.sh`, DTB retenu, mesures mémoire réelles sous Armbian.
+- **Objectif** : savoir exactement ce que la box reçue sait faire sous Linux mainline.
+- **Livrables** : sauvegarde complète de l'eMMC (ADR 0018), `docs/materiel.md`, rapport de `scripts/materiel/diagnostic.sh`, DTB retenu, mesures mémoire réelles sous Armbian.
 - **Fin** : les spikes R1, R3, R4, R5 de la [vision](vision.md#risques-techniques) ont chacun une réponse écrite ; CLAUDE.md à jour.
 - **Issues** : #4 à #10, #39, #43 (partie box).
 - **Durée** : 2 à 3 semaines après réception. **Dépend de** : la livraison.
-- **Si ça casse** : pas de DTB qui marche → essayer les DTB voisins d'ophub (`h96-max`, `x96-max-plus`) ; CEC muet → infrarouge + app du S25 (R3).
+- **Si ça casse** : pas de DTB qui marche → essayer les DTB voisins d'ophub (`h96-max`, `x96-max-plus`, `hk1box-vontar-x3`) ; CEC muet → infrarouge + app du S25 (R3).
 
 ### J3. App Flutter TV sans box (phase 2)
 
@@ -118,7 +118,7 @@ gantt
 
 - **Objectif** : plus d'Armbian : la SD contient notre image, qui arrive sur l'interface.
 - **Livrables** : noyau mainline et DTB de la box, amorçage depuis la SD via le u-boot d'origine, flutter-pi et l'app empaquetés, partition `/data` séparée et premiers plafonds de stockage (#45).
-- **Fin** : démarrage sur l'accueil en moins de 15 s, Android d'origine intact sur l'eMMC.
+- **Fin** : 100 démarrages d'affilée qui arrivent tous sur l'accueil, puis durée réduite au mieux (cible indicative 15 s) ; Android d'origine toujours démarrable.
 - **Issues** : #20, #21, #22, début de #45. **Durée** : 3 à 4 semaines. **Dépend de** : J2, J4, J5.
 
 ### J7. v1 du salon (phase 4)
@@ -127,13 +127,13 @@ gantt
 - **Livrables** : accueil final avec les logos des apps et le fond animé, lecteur vidéo, YouTube en Chromium kiosque, Twitch natif, bouton « redémarrer sous Android », télé allumée et mise en veille en CEC.
 - **Fin** : une soirée entière sans clavier ni souris ; YouTube 2 h sans saturation mémoire sur la box ; fond animé à 60 images/s sur l'accueil (30 en mode sobre) et en pause pendant la vidéo.
 - **Issues** : #23, #24, #25, #26, #33, #38.
-- **Durée** : 6 à 8 semaines. **Dépend de** : J6. #33 demande l'accord de Marius (écriture de l'environnement u-boot sur l'eMMC).
+- **Durée** : 6 à 8 semaines. **Dépend de** : J6. #33 peut écrire l'environnement u-boot sur l'eMMC une fois la sauvegarde faite (ADR 0018).
 
 ### J8. Hub intégré (phase 5)
 
-- **Objectif** : piloter la maison depuis la télé, et piloter la télé et la maison depuis une seule app sur le S25.
-- **Livrables** : hub Rust dans l'image, écran domotique (celui de la maquette), annonce mDNS, et un écran « Télé » dans l'app Home device manager : lancer une app, naviguer, allumer ou éteindre, régler le fond animé, voir le stockage et vider les caches.
-- **Fin** : la lampe du salon change de couleur depuis la télé ; depuis le S25, on lance Twitch sur la télé et on change son fond animé.
+- **Objectif** : piloter la télé et la maison depuis une seule app sur le S25 ; sur la télé, l'onglet Ambiance applique les préréglages de la pièce.
+- **Livrables** : hub Rust dans l'image, annonce mDNS, préréglages d'ambiance (fond, lampe, son) et un écran « Télé » dans l'app Home device manager qui sert de télécommande (#46) : en accès direct la croix, OK, Retour, Accueil, le volume, la veille et les apps ; un niveau plus loin les ambiances, les lumières de la pièce, la sortie audio et le Bluetooth, l'entrée HDMI, le redémarrage sous Android, le stockage et les réglages.
+- **Fin** : depuis le S25, on lance Twitch sur la télé, on baisse le volume et on tamise la lampe du salon ; sur la télé, l'ambiance « feu » allume la lampe en ambre.
 - **Issues** : #27, #28, #29, #46. **Durée** : 3 à 4 semaines. **Dépend de** : J7 et le hub dans `payssho/Home-device-manager`.
 
 ### J9. Solidité (phase 6)
@@ -158,7 +158,7 @@ gantt
 
 ## Budget mémoire : 2 Go contre 4 Go
 
-La HK1 commandée a 4 Go. Le profil 2 Go sert à deux choses : savoir si le plan B (box S905X à 1–2 Go, [contexte](vision.md#contraintes)) reste viable, et garder une marge sur 4 Go en concevant l'interface comme si la mémoire était rare.
+Marius vise une box **2 Go** d'occasion, avec 4 Go en repli (ADR 0017). On conçoit donc tout pour 2 Go, et le profil 4 Go dit ce qu'on gagnerait en changeant de box.
 
 Estimations de départ (Mo), reprises dans la maquette et à remplacer par les mesures de #43 :
 
@@ -177,7 +177,7 @@ Estimations de départ (Mo), reprises dans la maquette et à remplacer par les m
 
 Premières mesures (banc Docker, 2026-11-06, [détail](emulation-memoire.md)) : 4 Go tient tout, il reste 1,8 Go dans le pire cas après 2 h ; 2 Go tient la soirée normale (930 Mo libres sous YouTube) mais le pire cas remplit la mémoire et, après la dérive de Chromium, le noyau tue l'onglet YouTube sans toucher à l'interface.
 
-Lecture : en soirée normale, 2 Go passent (environ 900 Mo libres sous YouTube). Dans le pire cas (2 h de YouTube, mise à jour en fond, scan Bluetooth), il reste moins de 200 Mo sur 2 Go : zram s'active, l'image saccade, puis Chromium risque d'être tué. Sur 4 Go il reste plus de 1,8 Go.
+Lecture : en soirée normale, 2 Go passent (environ 930 Mo libres sous YouTube). Dans le pire cas (YouTube, mise à jour en fond, scan Bluetooth), il reste environ 660 Mo de mémoire anonyme libre sur 2 Go mais le cache de fichiers est vidé ; après la dérive de Chromium sur 2 h, le noyau tue l'onglet YouTube. Le banc ne faisait tourner ni zram ni maintenance : c'est ce que les règles ci-dessous doivent corriger. Sur 4 Go il reste plus de 1,8 Go.
 
 Règles qui en découlent, valables même sur 4 Go :
 
@@ -185,6 +185,8 @@ Règles qui en découlent, valables même sur 4 Go :
 2. L'interface libère ses miniatures pendant qu'une app plein écran tourne.
 3. zram activé dans l'image (J6), avec Chromium désigné en premier pour l'OOM.
 4. Les mises à jour RAUC ne s'appliquent pas pendant une lecture.
+5. **Maintenance régulière sans impact** : les tâches d'optimisation (compactage mémoire, nettoyage des caches, redémarrage de Chromium s'il a trop dérivé) tournent la nuit, en veille ou quand Chromium est fermé, avec une priorité basse (`nice`, `ionice`). Jamais pendant une lecture, jamais quand l'accueil est affiché. Critère : aucune image perdue de plus qu'avec la maintenance coupée.
+6. On passe en 4 Go si une soirée normale saccade ou si l'onglet YouTube est tué malgré ces règles (ADR 0017).
 
 ## Stockage dans la durée
 
@@ -195,29 +197,30 @@ Estimations (Go), reprises dans la maquette :
 | Poste | Neuve | 2 ans sans limites | 2 ans avec garde-fous (2 Go / 4 Go) |
 |---|---:|---:|---:|
 | Démarrage + système A et B (RAUC) | 2,25 | 2,25 | 2,25 |
-| Caches Chromium, données YouTube, miniatures | 0,15 | 13 | 0,7 / 1,1 |
+| Caches Chromium, données YouTube, miniatures | 0,15 | 13 | 0,8 |
 | Journaux et rapports de plantage | 0,02 | 7 | 0,06 |
 | Mises à jour téléchargées | 0 | 1,6 | 0,45 pendant un téléchargement |
 | Base du hub | 0,01 | 0,5 | 0,1 |
-| **Remplissage** | **8 %** | **82 %** | **10 à 13 %** |
+| **Remplissage** | **8 %** | **82 %** | **environ 11 %** |
 
 Sans garde-fous, la carte n'est pas pleine en quelques semaines, mais elle approche de la saturation en un ou deux ans, et une mise à jour RAUC qui ne trouve plus de place échoue. Garde-fous retenus (#45), posés dès l'image J6 et complétés en J9 :
 
 1. **Racine en lecture seule, `/data` à part** (f2fs, `noatime`) : seule `/data` peut grossir, le système ne casse jamais à cause d'elle.
-2. **Plafonds par profil** : cache disque Chromium 256 Mo (2 Go) ou 512 Mo (4 Go), cache de miniatures en LRU 150 ou 300 Mo, journal persistant 64 Mo, rapports de plantage désactivés hors débogage.
-3. **Rien d'éphémère sur la carte** : `/tmp` en tmpfs plafonné (128 ou 256 Mo selon la RAM), pas de swap sur la SD (zram seulement), tampons vidéo en RAM.
-4. **Nettoyage chaque nuit** : au-delà de 75 % les caches sont vidés ; au-delà de 90 % la télé affiche une alerte et refuse de télécharger une mise à jour.
+2. **Plafonds** (arrêtés le 2026-11-10, #45) : cache disque Chromium **512 Mo**, cache disque de miniatures en LRU **300 Mo**, journal persistant **64 Mo** (16 Mo en RAM), trois derniers rapports de plantage (50 Mo au plus). Ces caches sont sur la carte, pas en RAM : les mêmes plafonds valent pour 2 Go et 4 Go. Assez grands pour que l'accueil et YouTube ne retéléchargent pas sans cesse leurs images (la fluidité d'abord), assez petits pour tenir sous 1 Go, soit environ 3 % de la carte.
+3. **Rien d'éphémère sur la carte** : `/tmp` en tmpfs plafonné (128 Mo sur 2 Go, 256 Mo sur 4 Go, c'est de la RAM), pas de swap sur la SD (zram seulement, la moitié de la RAM), tampons vidéo en RAM, cache de miniatures en RAM limité à 64 Mo sur 2 Go et 192 Mo sur 4 Go.
+4. **Nettoyage chaque nuit** (ou à la mise en veille, jamais pendant l'usage) : au-delà de 75 % les caches sont vidés ; au-delà de 90 % la télé affiche une alerte et refuse de télécharger une mise à jour.
 5. **Mises à jour sûres** : RAUC ne télécharge que s'il reste deux fois la taille du bundle, et le supprime après installation.
-6. **Visible et réglable** : écran Réglages > Stockage sur la télé et dans l'app du S25, avec « Vider les caches ».
+6. **Visible et réglable** dès la v1 : écran Réglages > Stockage sur la télé et dans l'app du S25, avec « Vider les caches ».
 
 Les médias locaux (phase 7) n'iront pas sur cette carte : clé USB, disque ou NAS.
 
-## Visuel : logos et fond animé
+## Visuel : onglets, logos et fonds animés
 
-- **Logos** : les tuiles affichent l'icône de chaque app. La maquette utilise des pictogrammes dessinés ; l'app Flutter embarquera les icônes officielles en assets (usage personnel dans un lanceur, comme n'importe quelle télé).
-- **Organisation** : un rail de cinq sections à gauche (Regarder, Lumières, Ambiance de la pièce, Ambiance de l'OS, Réglages), le contenu à droite. Ce qu'on regarde, la lumière, l'ambiance et le paramétrage ne se mélangent plus.
-- **Ambiance de la pièce** : des écrans plein écran pour le salon, à commencer par un feu de cheminée avec son crépitement, la lampe qui vacille en ambre (via le hub) et une minuterie qui éteint tout. Dans l'app Flutter, le son sera un fichier en boucle ou une synthèse comme dans la maquette.
-- **Fond animé** : un motif original lié à l'identité « veilleuse », des lucioles dans les herbes hautes (par défaut) ou des rubans de lumière, en couleur naturelle ou teintés par la lampe du salon. Il s'inspire de l'ambiance des menus de consoles sans en copier aucun.
+- **Logos** : les tuiles affichent l'icône officielle de chaque app (usage personnel dans un lanceur, comme n'importe quelle télé).
+- **Organisation** (relecture du 2026-11-10) : **trois onglets**. **Regarder** : les apps. **Ambiance** : des préréglages de style pour l'OS et pour la pièce (fond, lumière de la pièce, son). **Réglages** : le reste, dont Stockage. Les lumières de la maison se gèrent dans l'app Home device manager du téléphone (#46).
+- **Texte** : le moins possible, rien de superflu (pas de sous-titre explicatif sous les tuiles). Les effets visuels, eux, peuvent être riches.
+- **Ambiance « feu »** : un vrai feu filmé et un vrai son enregistré, en boucle, pas une imitation calculée ; la lampe vacille en ambre via le hub et une minuterie éteint tout. Les sources doivent avoir une licence qui permet de les embarquer.
+- **Fonds animés** : lucioles (par défaut), braises, nuit calme et pluie. Modernes et sobres : pas d'herbe ni de décor, un environnement simple avec une lumière travaillée. En couleur naturelle ou teintés par la lampe du salon.
 - **Budget** : rendu à demi-résolution puis agrandi, en pause dès qu'une vidéo ou Chromium est à l'écran, version allégée sur 2 Go (moins de lignes, 30 images/s), coupé si `prefers-reduced-motion` ou réglage « Arrêt ». Critère de J7 : l'accueil reste à 60 images/s sur la box avec le fond actif.
 - L'app Flutter et son fond animé avancent dans le fil dédié à l'interface ; ce plan fixe seulement les contraintes.
 

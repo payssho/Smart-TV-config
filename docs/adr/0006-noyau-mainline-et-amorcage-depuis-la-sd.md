@@ -3,6 +3,8 @@
 - Statut : proposée
 - Date : 2026-11-03
 
+> Depuis l'ADR 0018 (2026-11-10), l'option 3 (u-boot mainline sur l'eMMC) n'est plus exclue : elle redevient un repli si le u-boot d'origine se montre peu fiable.
+
 ## Contexte
 
 Le u-boot du fabricant, sur l'eMMC, sait chercher un script sur la SD ou l'USB (`s905_autoscript`, `emmc_autoscript`), mécanisme utilisé par ophub et LibreELEC. On ne doit pas toucher à l'eMMC (ADR 0003).

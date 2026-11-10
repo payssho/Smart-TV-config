@@ -6,11 +6,11 @@ Les télés « intelligentes » et les clés du commerce (Google TV, Fire TV) so
 
 ## Utilisateur
 
-Le foyer de Marius, devant la télé du salon, avec la télécommande de la télé (via HDMI-CEC), la télécommande infrarouge de la box ou l'app Home device manager sur le Galaxy S25.
+Le foyer de Marius, devant la télé du salon, avec la télécommande de la télé (via HDMI-CEC), la télécommande infrarouge de la box ou l'app Home device manager sur le Galaxy S25. Cette app sert à la fois de télécommande de la télé et de commande des lumières de la maison (#46).
 
 ## Résultat attendu de la v1
 
-> Je rallume la télé avec sa télécommande, j'arrive en quelques secondes sur notre écran d'accueil, je lance YouTube ou une chaîne Twitch en 1080p, je bascule sur Android pour Netflix ou Canal+ en un bouton, et j'allume les lampes du salon, sans jamais toucher un clavier ni une souris.
+> Je rallume la télé avec sa télécommande, j'arrive en quelques secondes sur notre écran d'accueil, je lance YouTube ou une chaîne Twitch en 1080p, je bascule sur Android pour Netflix ou Canal+ en un bouton, et j'allume les lampes du salon depuis le téléphone, sans jamais toucher un clavier ni une souris.
 
 ## Usages priorisés
 
@@ -23,17 +23,18 @@ Classés par Marius le 2026-11-03 (détail et choix techniques : ADR 0014) :
 ## Hors périmètre de la v1
 
 - La 4K et le HDR (décodage logiciel seulement sur noyau mainline, ADR 0002).
-- Netflix, Canal+, Disney+ dans notre OS : ils passent par l'Android d'origine en double démarrage (ADR 0003). Aucun contournement de DRM, jamais.
+- Netflix, Canal+, Disney+ en bonne qualité dans notre OS : ils passent par l'Android d'origine en double démarrage (ADR 0003). Aucun contournement de DRM, jamais.
 - Google Cast (récepteur certifié impossible).
 - Le Wi‑Fi tant que la puce reçue n'est pas identifiée (Ethernet d'abord).
-- L'écriture sur l'eMMC de la box.
 
 ## Contraintes
 
-- Matériel : box Amlogic S905X3 4/32 Go à ~30 € (X96 Max+, HK1 Box ou H96 Max X3, pas encore commandée au 2026-11-03), carte micro-SD, télé **Philips** 1080p avec HDMI 1 (ARC) et HDMI 2, CEC « EasyLink » (ADR 0001).
+- Matériel : box Amlogic S905X3 **2 Go d'occasion** visée, 4 Go en repli (X96 Max+, HK1 Box, H96 Max X3 ou équivalent ; pas encore achetée au 2026-11-10, ADR 0017), carte micro-SD, télé **Philips** 1080p avec HDMI 1 (ARC) et HDMI 2, CEC « EasyLink » (ADR 0001).
 - Licences : briques libres ; police Bricolage Grotesque (OFL).
 - Build : une image Buildroot complète prend 1 à 2 h et 15 à 25 Go. Elle se construit en GitHub Actions ou sous WSL2 chez Marius, pas dans le conteneur de l'agent (réseau filtré, disque limité).
-- Tests : tout ce qui se teste sans la box se teste sans elle (Flutter en desktop et `flutter test`, image dans QEMU, entrées simulées). Marius teste sur la vraie télé et rapporte.
+- Tests : tout ce qui se teste sans la box se teste sans elle (Flutter en desktop et `flutter test`, image dans QEMU, entrées simulées). En attendant le matériel, chaque phase s'avance sur une copie émulée de la box en 2 Go et 4 Go, quitte à corriger à la réception. Marius teste ensuite sur la vraie télé et rapporte.
+- eMMC : écriture permise quand elle sert le projet, après une sauvegarde complète vérifiée (ADR 0018).
+- Démarrage : fiable à 100 % avant d'être rapide. Chaque démarrage doit arriver sur l'interface ; on optimise la durée ensuite.
 
 ## Risques techniques
 
@@ -47,3 +48,5 @@ Classés du plus bloquant au moins bloquant. Chaque risque bloquant a son spike 
 | R4 | Décodage logiciel insuffisant pour du 1080p HEVC | Moyen | Phase 1 : mpv sur échantillons ; piste V4L2 `meson-vdec` |
 | R5 | Le u-boot d'origine n'enchaîne pas sur la SD | Bloquant pour l'image | Phase 1 (Armbian utilise le même mécanisme) |
 | R6 | Build Buildroot trop gros pour un runner GitHub | Moyen | Phase 3 : libération d'espace, cache `dl/` + ccache ; repli WSL2 |
+| R7 | Avec le temps, caches, journaux et téléchargements remplissent le stockage et dégradent la fluidité (et usent la carte SD) | Fort : lenteurs puis mises à jour impossibles | Plafonds, `/data` séparée, nettoyage nocturne, alerte à 90 % (#45), posés dès l'image J6 et testés sur la copie émulée |
+| R8 | 2 Go de RAM trop justes pour YouTube dans Chromium avec le hub | Moyen : passage en 4 Go | Banc 2 Go / 4 Go (ADR 0016), puis copie émulée et `mem=2G` ; repli 4 Go (ADR 0017) |

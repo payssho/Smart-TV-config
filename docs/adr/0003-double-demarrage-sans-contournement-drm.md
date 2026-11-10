@@ -3,6 +3,8 @@
 - Statut : acceptée
 - Date : 2026-11-03
 
+> Le 2026-11-10, l'ADR 0018 remplace la règle sur l'eMMC : écriture permise quand elle sert le projet, après une sauvegarde complète. Le double démarrage et l'interdiction de contourner les DRM tiennent.
+
 ## Contexte
 
 Netflix, Canal+ et Disney+ exigent Widevine. Un OS maison n'a que le niveau **L3** (logiciel), soit ~720p au mieux, et certains services le refusent. Google Cast exige un récepteur certifié. L'Android d'origine de la box fait tourner ces services (souvent en SD/720p, la box n'étant pas certifiée).

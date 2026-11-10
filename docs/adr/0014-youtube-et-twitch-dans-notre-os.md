@@ -1,6 +1,6 @@
 # 0014. Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android
 
-- Statut : proposée
+- Statut : acceptée
 - Date : 2026-11-03
 
 ## Contexte
@@ -25,7 +25,7 @@ YouTube par `youtube.com/tv` dans Chromium kiosque (1a), Twitch en écran natif 
 
 ## Conséquences
 
-- Dès la réception de la box, avant tout travail sur Linux, on vérifie sous Android que Netflix, Canal+, YouTube et Twitch s'installent et à quelle qualité ils jouent. C'est la solution du premier jour.
+- Avant la box, tout s'avance sur une copie émulée en 2 Go et 4 Go (ADR 0017). Dès la réception, avant tout travail sur Linux, on vérifie sous Android que Netflix, Canal+, YouTube et Twitch s'installent et à quelle qualité ils jouent. C'est la solution du premier jour.
 - L'association YouTube depuis le téléphone couvre l'essentiel du « Cast » demandé pour YouTube. Le vrai Google Cast reste impossible (ADR 0003).
-- Revenir au retour vers Android peut demander d'écrire une variable d'environnement u-boot sur l'eMMC : accord explicite de Marius requis (issue dédiée).
+- Le retour vers Android peut demander d'écrire une variable d'environnement u-boot sur l'eMMC : c'est permis une fois l'eMMC sauvegardée (ADR 0018, #33).
 - On reviendra sur 1a si Chromium est trop lent sur la box (spike en phase 4) : repli 1b.

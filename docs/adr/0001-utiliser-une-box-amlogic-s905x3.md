@@ -3,6 +3,8 @@
 - Statut : acceptée
 - Date : 2026-11-03
 
+> Le 2026-11-10, l'ADR 0017 remplace la quantité de RAM : 2 Go d'occasion d'abord, 4 Go en repli. Le reste tient.
+
 ## Contexte
 
 Il faut une box bon marché capable de faire tourner un noyau Linux **mainline** (sans blobs du fabricant), un GPU avec pilote libre, et du 1080p. Marius refuse les Google TV et les clés Fire TV. Budget autour de 30 €.
