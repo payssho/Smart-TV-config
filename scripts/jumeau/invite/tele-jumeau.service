@@ -1,0 +1,17 @@
+# Joue le scénario du jumeau si la ligne de commande du noyau en demande un
+# (tele.scenario=...), puis éteint la machine. Sans paramètre : ne fait rien,
+# le jumeau reste allumé pour une session à la main.
+[Unit]
+Description=Jumeau de la box : scénario de test
+After=tele-memoire.service multi-user.target
+Wants=tele-memoire.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/tele/jumeau/tele-jumeau
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=multi-user.target

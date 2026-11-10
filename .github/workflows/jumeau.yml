@@ -1,0 +1,125 @@
+name: Jumeau de la box
+
+# Fait tourner l'OS de la télé sur le jumeau numérique de la box (ADR 0017) :
+# QEMU arm64, 4 × Cortex-A55, RAM de 2 Go puis 4 Go, microSD A1 bridée.
+# Construit l'app Flutter et l'image arm64 sur un runner arm64 natif, puis
+# joue le scénario sur les deux profils et publie le rapport.
+on:
+  pull_request:
+    paths:
+      - "systeme/**"
+      - "scripts/jumeau/**"
+      - ".github/workflows/jumeau.yml"
+  schedule:
+    # Chaque lundi à 4 h (heure de Paris en hiver) : suivi dans la durée.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "complet ou fumee"
+        default: "complet"
+      palier:
+        description: "Durée d'un palier, en secondes"
+        default: "60"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jumeau-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SCENARIO: ${{ inputs.scenario || 'complet' }}
+  PALIER: ${{ inputs.palier || '60' }}
+
+jobs:
+  image:
+    name: Image arm64 du jumeau
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Outils (Flutter Linux, mmdebstrap)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev \
+            mmdebstrap debian-archive-keyring e2fsprogs zstd
+          git clone --depth 1 -b stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >>"$GITHUB_PATH"
+      - name: App Flutter pour arm64
+        working-directory: ui
+        run: |
+          flutter --version
+          flutter build linux --release --dart-define=TRACE_DEMARRAGE=true
+      - name: Image Debian arm64 avec nos scripts système
+        run: |
+          scripts/jumeau/construire-image.sh --appli ui/build/linux/arm64/release/bundle \
+            --sortie "$RUNNER_TEMP/image"
+      - name: Empaqueter (disque creux)
+        run: tar -C "$RUNNER_TEMP/image" -cSf - . | zstd -T0 -3 >"$RUNNER_TEMP/image.tar.zst"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-jumeau
+          path: ${{ runner.temp }}/image.tar.zst
+          compression-level: 0
+          retention-days: 7
+
+  jumeau:
+    name: Jumeau ${{ matrix.profil }}
+    needs: image
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        profil: [2go, 4go]
+    steps:
+      - uses: actions/checkout@v4
+      - name: QEMU et ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-arm qemu-utils ffmpeg zstd e2fsprogs
+          if [[ -e /dev/kvm ]]; then sudo chmod 666 /dev/kvm; fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-jumeau
+          path: ${{ runner.temp }}
+      - name: Déballer l'image
+        run: |
+          mkdir -p scripts/jumeau/.image
+          zstd -dc "$RUNNER_TEMP/image.tar.zst" | tar -C scripts/jumeau/.image -xSf -
+          cat scripts/jumeau/.image/image.txt
+      - name: Scénario
+        run: |
+          scripts/jumeau/demarrer.sh --profil "${{ matrix.profil }}" --scenario "$SCENARIO" \
+            --palier "$PALIER" --sortie resultats
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jumeau-${{ matrix.profil }}
+          path: resultats
+
+  rapport:
+    name: Rapport 2 Go / 4 Go
+    needs: jumeau
+    if: always() && needs.jumeau.result != 'skipped'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: jumeau-*
+          path: resultats
+          merge-multiple: true
+      - name: Rapport
+        run: |
+          code=0
+          python3 scripts/jumeau/rapport.py resultats >resultats/rapport.md || code=$?
+          cat resultats/rapport.md >>"$GITHUB_STEP_SUMMARY"
+          exit "$code"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-jumeau
+          path: resultats

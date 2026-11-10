@@ -1,0 +1,15 @@
+# Entretien au repos (ADR 0018). Priorités minimales : même s'il tourne,
+# l'interface et le lecteur passent toujours devant.
+[Unit]
+Description=Télé maison : entretien au repos
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/tele-entretien
+Nice=19
+CPUSchedulingPolicy=idle
+IOSchedulingClass=idle
+CPUWeight=idle
+IOWeight=1
+MemoryHigh=32M
+TimeoutStartSec=5min

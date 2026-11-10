@@ -17,3 +17,7 @@ node_modules/
 
 # Banc mémoire : médias générés et rapports bruts
 scripts/emulation/.medias/
+
+# Jumeau : image construite et médias générés
+scripts/jumeau/.image/
+scripts/jumeau/.medias/
