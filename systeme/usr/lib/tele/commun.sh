@@ -60,6 +60,25 @@ psi_avg10() {
   printf '%s\n' "${valeur:-0}"
 }
 
+# Occupation du processeur (tous cœurs), en %, mesurée sur une seconde dans
+# /proc/stat. La PSI ne suffit pas : un décodage qui occupe les 4 cœurs sans
+# file d'attente laisse la PSI à zéro.
+cpu_occupe_pourcent() {
+  f="$R/proc/stat"
+  [ -r "$f" ] || { echo 0; return; }
+  read -r _ u1 n1 s1 i1 w1 q1 sq1 st1 _ <"$f"
+  # (TELE_ATTENTE : doublure de sleep pour les tests.)
+  ${TELE_ATTENTE:-sleep} "${TELE_CPU_ECHANTILLON_S:-1}"
+  read -r _ u2 n2 s2 i2 w2 q2 sq2 st2 _ <"$f"
+  total=$(((u2 + n2 + s2 + i2 + w2 + q2 + sq2 + st2) - (u1 + n1 + s1 + i1 + w1 + q1 + sq1 + st1)))
+  repos=$(((i2 + w2) - (i1 + w1)))
+  if [ "$total" -le 0 ]; then
+    echo 0
+  else
+    echo $((100 * (total - repos) / total))
+  fi
+}
+
 # Écrit une valeur dans un fichier de /proc ou /sys, sans échouer si le
 # noyau ne connaît pas le réglage (on le note seulement).
 ecrire() {

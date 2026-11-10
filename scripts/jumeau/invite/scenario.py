@@ -302,8 +302,12 @@ def taille_mo(dossier):
 
 def entretien_comme_service(*args):
     """tele-entretien avec les priorités de son unité systemd (ADR 0020)."""
-    return subprocess.run(["chrt", "--idle", "0", "nice", "-n", "19", "ionice", "-c", "3",
-                           "tele-entretien", *args], stdout=subprocess.DEVNULL)
+    try:
+        return subprocess.run(["chrt", "--idle", "0", "nice", "-n", "19", "ionice", "-c", "3",
+                               "tele-entretien", *args], stdout=subprocess.DEVNULL, timeout=900)
+    except subprocess.TimeoutExpired:
+        journal("tele-entretien : délai de 15 min dépassé")
+        return None
 
 
 def dernier_etat():
@@ -341,25 +345,46 @@ def cout_entretien():
     activite("lecture")
     res["pendant_lecture_s"], durees = pendant(entretien_comme_service)
     res["passage_repousse_ms"] = round(statistics.median(durees) * 1000) if durees else None
+    # Fréquence de la boucle (un passage + 1 s de pause) contre 1 passage
+    # toutes les 600 s sur la box : on ramène le surcoût à la réalité.
+    res["frequence_boucle_facteur"] = round(600 / (statistics.mean(durees) + 1)) if durees else None
     res["dernier_etat_lecture"] = dernier_etat()
 
-    # 2. Accueil laissé depuis 30 min, mais le processeur travaille : la
-    # garde PSI doit aussi le faire repartir.
+    # 2. Accueil laissé depuis 30 min, mais les 4 cœurs décodent en continu :
+    # la garde processeur doit le faire repartir.
+    journal("entretien : garde processeur")
     activite("accueil", age_min=30)
-    _, _ = pendant(entretien_comme_service, fois=1)
+    charge = subprocess.Popen(["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error",
+                               "-stream_loop", "-1", "-threads", "4",
+                               "-i", f"{MEDIAS}/twitch-1080p60.mp4", "-f", "null", "-"])
+    time.sleep(5)
+    entretien_comme_service()
+    charge.terminate()
+    charge.wait()
     res["dernier_etat_processeur_occupe"] = dernier_etat()
 
+    journal("entretien : pire cas du ménage forcé")
     # 3. Pire cas : le ménage forcé tourne en même temps que la référence
     # (n'arrive pas sur la box grâce à la garde) ; coût en priorité minimale.
     dossier = remplir_cache(cap + 200)
     res["pendant_menage_s"], _ = pendant(lambda: entretien_comme_service("--forcer"))
 
-    # 4. Au repos et sans charge, l'unité systemd fait le vrai ménage.
+    journal("entretien : ménage au repos par l'unité systemd")
+    # 4. Au repos et sans charge, l'unité systemd fait le vrai ménage. On
+    # laisse d'abord la SD souffler : on vient d'y écrire des centaines de Mo.
     remplir_cache(cap + 200)
+    os.sync()
+    for _ in range(180):
+        if psi("io").get("some", 100) < 4 and psi("cpu").get("some", 100) < 8:
+            break
+        time.sleep(1)
     activite("accueil", age_min=30)
     res["cache_avant_mo"] = taille_mo(dossier)
     t = time.monotonic()
-    subprocess.run(["systemctl", "start", "tele-entretien.service"])
+    try:
+        subprocess.run(["systemctl", "start", "tele-entretien.service"], timeout=900)
+    except subprocess.TimeoutExpired:
+        journal("unité tele-entretien : délai de 15 min dépassé")
     res["menage_duree_s"] = round(time.monotonic() - t, 1)
     res["cache_apres_mo"] = taille_mo(dossier)
     res["plafond_mo"] = cap
@@ -367,6 +392,9 @@ def cout_entretien():
 
     seul = res["seul_s"]
     res["surcout_lecture_pourcent"] = round((res["pendant_lecture_s"] / seul - 1) * 100, 1)
+    if res["frequence_boucle_facteur"]:
+        res["surcout_lecture_reel_pourcent"] = round(
+            res["surcout_lecture_pourcent"] / res["frequence_boucle_facteur"], 3)
     res["surcout_menage_pourcent"] = round((res["pendant_menage_s"] / seul - 1) * 100, 1)
     journal(json.dumps(res, ensure_ascii=False))
     return res
@@ -440,6 +468,12 @@ def main():
     rapport["interface_vivante_fin"] = vivant("interface")
     for role in list(PROCS):
         arreter(role)
+    # Journaux de nos scripts système, pour comprendre un échec.
+    for nom in ("memoire", "entretien"):
+        texte = lire(f"/var/log/tele/{nom}.log")
+        if texte:
+            with open(f"{SORTIE}/{PROFIL}-{nom}.log", "w") as f:
+                f.write(texte)
     with open(f"{SORTIE}/{PROFIL}.json", "w") as f:
         json.dump(rapport, f, ensure_ascii=False, indent=2)
     journal(f"rapport écrit : {SORTIE}/{PROFIL}.json")

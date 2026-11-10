@@ -12,6 +12,10 @@ ici="$(cd "$(dirname "$0")" && pwd)"
 systeme="$(cd "$ici/.." && pwd)"
 reussis=0
 rates=0
+# Chaque cas a sa fausse racine (jusqu'à 300 Mo de faux cache) : tout est
+# effacé à la sortie.
+racines=()
+trap 'rm -rf "${racines[@]}"' EXIT
 
 ok() { reussis=$((reussis + 1)); echo "  ok   $1"; }
 ko() { rates=$((rates + 1)); echo "  RATÉ $1" >&2; }
@@ -24,6 +28,7 @@ verifier() { # verifier "description" commande...
 fausse_racine() {
   local total_mo="$1"
   racine="$(mktemp -d)"
+  racines+=("$racine")
   mkdir -p "$racine"/{proc/sys/vm,proc/pressure,proc/self,sys/kernel/mm/lru_gen,dev,run,var/log/tele,data,bin}
   mkdir -p "$racine/etc/tele" "$racine/usr/lib/tele"
   cp "$systeme/etc/tele/memoire.conf" "$racine/etc/tele/"
@@ -40,6 +45,7 @@ EOF
   echo 0 >"$racine/sys/kernel/mm/lru_gen/min_ttl_ms"
   echo 0 >"$racine/proc/self/oom_score_adj"
   echo "Filename Type Size Used Priority" >"$racine/proc/swaps"
+  echo "cpu  100 0 100 800 0 0 0 0 0 0" >"$racine/proc/stat"
   for p in cpu io memory; do
     echo "some avg10=0.00 avg60=0.00 avg300=0.00 total=0" >"$racine/proc/pressure/$p"
   done
@@ -78,6 +84,7 @@ EOF
 
 lancer() { # lancer <script> args... (dans la fausse racine)
   local s="$1"; shift
+  export TELE_CPU_ECHANTILLON_S=0
   # TELE_SH="busybox sh" : joue les scripts avec le sh de BusyBox (Buildroot).
   # shellcheck disable=SC2086 # TELE_SH peut contenir une commande et son argument.
   TELE_RACINE="$racine" TELE_LIB="$racine/usr/lib/tele" PATH="$racine/bin:$PATH" \
@@ -156,6 +163,18 @@ activite accueil 30
 echo "some avg10=42.00 avg60=0.00 avg300=0.00 total=0" >"$racine/proc/pressure/cpu"
 lancer tele-entretien >/dev/null
 verifier "repoussé" grep -q "^repousse" "$racine/run/tele/entretien-dernier"
+
+echo "== tele-entretien : au repos mais les 4 cœurs décodent (PSI à zéro)"
+fausse_racine 1700
+activite accueil 30
+# Doublure de l'attente : /proc/stat avance de 100 tics dont 90 occupés.
+cat >"$racine/bin/attente" <<EOF
+#!/bin/sh
+echo "cpu  190 0 100 810 0 0 0 0 0 0" >"$racine/proc/stat"
+EOF
+chmod +x "$racine/bin/attente"
+TELE_ATTENTE="$racine/bin/attente" lancer tele-entretien >/dev/null
+verifier "repoussé (processeur à 90 %)" grep -q "processeur occupé à 90 %" "$racine/run/tele/entretien-dernier"
 
 echo "== tele-entretien : au repos, caches au-dessus des plafonds (2 Go)"
 fausse_racine 1700

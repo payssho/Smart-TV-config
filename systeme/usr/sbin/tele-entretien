@@ -3,7 +3,7 @@
 #
 # Règle d'or : ne jamais gêner la télé. Tant qu'elle sert (lecture, YouTube,
 # menus touchés récemment) ou que le processeur ou la SD travaillent, le
-# script ne fait que lire trois compteurs et repart (quelques millisecondes).
+# script ne fait que lire quelques compteurs et repart (quelques millisecondes).
 # Le vrai ménage n'a lieu qu'au repos, en priorité minimale (nice 19, E/S
 # « idle »), et il ne vide jamais le cache du noyau : relire depuis la SD
 # coûterait plus cher que ce qu'on gagnerait.
@@ -65,6 +65,9 @@ if [ "$forcer" = non ]; then
   [ "$io" -le "$PSI_IO_MAX" ] || repousser "(SD $io %)"
   age="$(activite_age_min)"
   [ "$age" -ge "$REPOS_MIN" ] || repousser "($act depuis $age min)"
+  # Dernier contrôle, le seul qui prend une seconde : le processeur.
+  occupe="$(cpu_occupe_pourcent)"
+  [ "$occupe" -le "$CPU_MAX_POURCENT" ] || repousser "(processeur occupé à $occupe %)"
 fi
 alerte_stockage
 
@@ -113,12 +116,17 @@ plafonner() {
   cap="$2"
   avant="$(taille_mo "$dossier")"
   [ "$avant" -gt "$cap" ] || return 0
-  # Plus vieux d'abord (date de dernier accès, à défaut de modification).
+  # Plus vieux d'abord (date de dernier accès). Une seule mesure du dossier,
+  # puis on décompte la taille de chaque fichier supprimé : pas de « du » à
+  # chaque fichier, qui coûterait cher sur un cache de milliers d'entrées.
   # (stat -c plutôt que find -printf, absent de BusyBox.)
-  find "$R$dossier" -type f -exec stat -c '%X %n' {} + 2>/dev/null | sort -n |
-    while read -r _ f; do
+  reste_ko="$(du -sk "$R$dossier" 2>/dev/null | awk '{ print $1 }')"
+  cap_ko=$((cap * 1024))
+  find "$R$dossier" -type f -exec stat -c '%X %s %n' {} + 2>/dev/null | sort -n |
+    while read -r _ octets f; do
+      [ "$reste_ko" -gt "$cap_ko" ] || break
       rm -f "$f"
-      [ "$(taille_mo "$dossier")" -gt "$cap" ] || break
+      reste_ko=$((reste_ko - (octets + 1023) / 1024))
     done
   journal "$dossier : ${avant} Mo ramenés à $(taille_mo "$dossier") Mo (plafond $cap)"
 }

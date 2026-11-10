@@ -11,5 +11,5 @@ CPUSchedulingPolicy=idle
 IOSchedulingClass=idle
 CPUWeight=idle
 IOWeight=1
-MemoryHigh=32M
+MemoryHigh=64M
 TimeoutStartSec=5min

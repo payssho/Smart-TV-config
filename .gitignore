@@ -21,3 +21,4 @@ scripts/emulation/.medias/
 # Jumeau : image construite et médias générés
 scripts/jumeau/.image/
 scripts/jumeau/.medias/
+__pycache__/

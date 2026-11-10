@@ -73,7 +73,9 @@ print("|---|" + "---:|" * len(profils))
 lignes = [
     ("Référence seule (s)", "seul_s"),
     ("Pendant une lecture, entretien en boucle (s)", "pendant_lecture_s"),
-    ("Surcoût pendant la lecture (%)", "surcout_lecture_pourcent"),
+    ("Surcoût pendant la lecture, boucle serrée (%)", "surcout_lecture_pourcent"),
+    ("Boucle plus fréquente que sur la box (×)", "frequence_boucle_facteur"),
+    ("Surcoût ramené à 1 passage / 10 min (%)", "surcout_lecture_reel_pourcent"),
     ("Durée d'un passage repoussé (ms)", "passage_repousse_ms"),
     ("Garde quand le processeur travaille", "dernier_etat_processeur_occupe"),
     ("Pire cas : ménage forcé en même temps (s)", "pendant_menage_s"),
