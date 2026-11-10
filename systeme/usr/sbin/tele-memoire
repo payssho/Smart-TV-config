@@ -1,5 +1,5 @@
 #!/bin/sh
-# Règle la mémoire de la box au démarrage, selon sa RAM (ADR 0018) :
+# Règle la mémoire de la box au démarrage, selon sa RAM (ADR 0020) :
 # swap compressé zram, réglages du noyau (swappiness, MGLRU, écritures SD).
 # Une seule fois par démarrage, avant l'interface. Aucun coût ensuite :
 # c'est le noyau qui travaille, pas un processus qui tourne.

@@ -1,6 +1,6 @@
 # Jumeau numérique de la box
 
-En attendant la box, l'OS de la télé tourne sur une copie numérique : une machine QEMU arm64 qui imite la S905X3 en 2 Go et en 4 Go (mémoire vue par Linux, carte microSD A1, écran 1080p). Choix, modèle de la mémoire et limites : [ADR 0017](adr/0017-emuler-la-box-dans-un-jumeau-qemu-arm64.md). Réglages mémoire et entretien testés dedans : [ADR 0018](adr/0018-garder-la-box-2-go-fluide-avec-zram-et-un-entretien-au-repos.md).
+En attendant la box, l'OS de la télé tourne sur une copie numérique : une machine QEMU arm64 qui imite la S905X3 en 2 Go et en 4 Go (mémoire vue par Linux, carte microSD A1, écran 1080p). Choix, modèle de la mémoire et limites : [ADR 0019](adr/0019-emuler-la-box-dans-un-jumeau-qemu-arm64.md). Réglages mémoire et entretien testés dedans : [ADR 0020](adr/0020-garder-la-box-2-go-fluide-avec-zram-et-un-entretien-au-repos.md).
 
 ## En CI (le plus simple)
 
@@ -41,4 +41,4 @@ Le scénario `fumee` ne garde que 1, 2 et 8. Chaque brique est lancée par `tele
 
 ## Ce qui reste à valider sur la vraie box
 
-GPU Mali et flutter-pi, décodeur vidéo matériel, HDMI-CEC et infrarouge, eMMC et double démarrage Android, Wi-Fi et Bluetooth, chauffe, `MemTotal` et débit SD réels. Tableau complet dans l'ADR 0017.
+GPU Mali et flutter-pi, décodeur vidéo matériel, HDMI-CEC et infrarouge, eMMC et double démarrage Android, Wi-Fi et Bluetooth, chauffe, `MemTotal` et débit SD réels. Tableau complet dans l'ADR 0019.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Construit l'image du jumeau numérique de la box (ADR 0017) : un système
+# Construit l'image du jumeau numérique de la box (ADR 0019) : un système
 # Linux arm64 complet (noyau, systemd, Chromium, cage, ffmpeg) avec nos
 # scripts système (systeme/) et, si on la donne, l'app Flutter compilée
 # pour arm64. demarrer.sh la fait ensuite tourner dans QEMU en 2 Go ou 4 Go.

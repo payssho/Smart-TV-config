@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Démarre le jumeau numérique de la box dans QEMU (ADR 0017).
+# Démarre le jumeau numérique de la box dans QEMU (ADR 0019).
 #
 # La machine imite la S905X3 là où ça compte pour nos tests : 4 cœurs
 # Cortex-A55, la RAM que Linux voit vraiment sur une box de 2 Go ou 4 Go,
 # une carte microSD A1 (débit et IOPS bridés), un écran 1080p (virtio-gpu),
 # un clavier (la future télécommande evdev). Elle n'imite pas le GPU Mali,
-# le décodeur vidéo, le CEC, l'infrarouge ni l'eMMC (voir ADR 0017).
+# le décodeur vidéo, le CEC, l'infrarouge ni l'eMMC (voir ADR 0019).
 #
 # Usage : scripts/jumeau/demarrer.sh --profil 2go|4go [options]
 #   --scenario NOM   complet | fumee : joue le scénario puis s'éteint.

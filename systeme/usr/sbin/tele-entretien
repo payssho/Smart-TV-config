@@ -1,5 +1,5 @@
 #!/bin/sh
-# Entretien régulier de la box (ADR 0018), lancé toutes les 10 minutes.
+# Entretien régulier de la box (ADR 0020), lancé toutes les 10 minutes.
 #
 # Règle d'or : ne jamais gêner la télé. Tant qu'elle sert (lecture, YouTube,
 # menus touchés récemment) ou que le processeur ou la SD travaillent, le

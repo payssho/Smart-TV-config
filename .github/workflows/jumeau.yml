@@ -1,6 +1,6 @@
 name: Jumeau de la box
 
-# Fait tourner l'OS de la télé sur le jumeau numérique de la box (ADR 0017) :
+# Fait tourner l'OS de la télé sur le jumeau numérique de la box (ADR 0019) :
 # QEMU arm64, 4 × Cortex-A55, RAM de 2 Go puis 4 Go, microSD A1 bridée.
 # Construit l'app Flutter et l'image arm64 sur un runner arm64 natif, puis
 # joue le scénario sur les deux profils et publie le rapport.

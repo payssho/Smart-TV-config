@@ -1,11 +1,11 @@
-# 0018. Garder la box 2 Go fluide avec zram et un entretien qui ne tourne qu'au repos
+# 0020. Garder la box 2 Go fluide avec zram et un entretien qui ne tourne qu'au repos
 
 - Statut : proposée
 - Date : 2026-11-10
 
 ## Contexte
 
-Marius veut une première version sur une box 2 Go, d'occasion si possible, et ne passer à 4 Go que si ça bugue. Il demande des scripts d'optimisation lancés régulièrement, sans aucun impact sur les performances ni sur l'expérience. Le banc de l'ADR 0016 montre que 2 Go tient une soirée normale mais perd l'onglet YouTube après une longue session, et la vision ajoute un risque : le stockage et les caches qui se remplissent avec le temps et ralentissent la box (#45).
+Marius veut une première version sur une box 2 Go, d'occasion si possible, et ne passer à 4 Go que si ça bugue (ADR 0017). Il demande des scripts d'optimisation lancés régulièrement, sans aucun impact sur les performances ni sur l'expérience. Le banc de l'ADR 0016 montre que 2 Go tient une soirée normale mais perd l'onglet YouTube après une longue session, et la vision ajoute un risque : le stockage et les caches qui se remplissent avec le temps et ralentissent la box (#45).
 
 Deux pièges : un script « d'optimisation » qui tourne pendant qu'on regarde vole du processeur et de la carte SD, donc crée les saccades qu'il devait éviter ; et vider le cache du noyau (`drop_caches`) libère de la RAM sur le papier mais force à tout relire depuis une SD lente.
 
@@ -17,7 +17,7 @@ Deux pièges : un script « d'optimisation » qui tourne pendant qu'on regarde v
 
 ## Décision
 
-Option 1, dans `systeme/` (futur « overlay » de l'image Buildroot, déjà installé tel quel dans le jumeau de l'ADR 0017) :
+Option 1, dans `systeme/` (futur « overlay » de l'image Buildroot, déjà installé tel quel dans le jumeau de l'ADR 0019) :
 
 - **Profil 2 Go** : zram lz4 à 75 % de la RAM, swappiness 100 (compresser du tas inactif coûte moins cher que relire la SD), `watermark_scale_factor` 125 (kswapd plus tôt, moins d'à-coups), MGLRU `min_ttl_ms` 1000 (sous forte pression, tuer Chromium plutôt que ramer). **Profil 4 Go** : zram 25 %, swappiness 60, réglages du noyau par défaut ailleurs.
 - **Rangs OOM** : Chromium 800, mise à jour 300, lecteur −300, hub −800, interface −900.

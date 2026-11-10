@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scénario joué dans le jumeau de la box (ADR 0017), lancé par tele-jumeau.
+"""Scénario joué dans le jumeau de la box (ADR 0019), lancé par tele-jumeau.
 
 Contrairement au banc Docker (ADR 0016), on est ici dans une vraie machine
 arm64 : vrai noyau, vraie RAM bornée comme sur la box, zram et réglages de

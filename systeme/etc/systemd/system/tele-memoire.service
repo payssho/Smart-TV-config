@@ -1,4 +1,4 @@
-# Réglages mémoire au démarrage (zram, noyau), avant l'interface. ADR 0018.
+# Réglages mémoire au démarrage (zram, noyau), avant l'interface. ADR 0020.
 [Unit]
 Description=Télé maison : réglages mémoire (zram, noyau)
 DefaultDependencies=no

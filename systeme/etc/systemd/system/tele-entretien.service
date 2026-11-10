@@ -1,4 +1,4 @@
-# Entretien au repos (ADR 0018). Priorités minimales : même s'il tourne,
+# Entretien au repos (ADR 0020). Priorités minimales : même s'il tourne,
 # l'interface et le lecteur passent toujours devant.
 [Unit]
 Description=Télé maison : entretien au repos

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Lance une brique de la télé avec son rang face au manque de mémoire.
 # Le score OOM dit au noyau qui tuer en premier si la RAM manque : Chromium
-# d'abord, l'interface et le hub jamais (ADR 0018). Le pid est noté dans
+# d'abord, l'interface et le hub jamais (ADR 0020). Le pid est noté dans
 # /run/tele/roles/ pour que tele-entretien sache qui tourne.
 #
 # Usage : tele-role <interface|hub|lecteur|mise_a_jour|chromium> -- commande...
