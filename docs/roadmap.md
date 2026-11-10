@@ -2,6 +2,8 @@
 
 Chaque phase livre quelque chose d'utilisable et se termine par une démo sur la vraie télé. Ce fichier donne l'objectif et le critère de fin ; **l'état réel vit dans les [milestones GitHub](https://github.com/payssho/Smart-TV-config/milestones)** et leurs issues. Après chaque phase : courte rétro dans `docs/journal.md`, puis révision de cette roadmap.
 
+L'ordre, les dépendances, les dates indicatives et le budget mémoire sont dans le [plan de réalisation](plan-de-realisation.md) (jalons J0 à J10).
+
 Les phases 1 et 2 servent de spikes pour les risques bloquants R1 à R5 de la [vision](vision.md#risques-techniques).
 
 ## Phase 0. Cadrage du dépôt
