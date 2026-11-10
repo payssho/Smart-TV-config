@@ -68,6 +68,8 @@ rm -rf "$travail"
 mkdir -p "$sortie"
 
 echo "== Système $distribution $suite arm64 (mmdebstrap)"
+# $1 et $JUMEAU_DEPOT du crochet sont développés par mmdebstrap, pas ici.
+# shellcheck disable=SC2016
 JUMEAU_DEPOT="$racine_depot" JUMEAU_APPLI="$appli" \
   mmdebstrap --mode=root --arch=arm64 --variant=apt --components="$composants" \
   --include="$(IFS=,; echo "${paquets[*]}")" \
