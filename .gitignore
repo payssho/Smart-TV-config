@@ -1,0 +1,16 @@
+# Sorties de build
+buildroot/output/
+dl/
+*.img
+*.img.xz
+
+# Flutter / Dart
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Divers
+.DS_Store
+*.swp
+node_modules/
