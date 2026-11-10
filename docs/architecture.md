@@ -45,6 +45,8 @@ flowchart TB
 | Vidéo | GStreamer (lecteur intégré à flutter-pi) ou libmpv | `ui/` + Buildroot | 0010 |
 | Mises à jour | A/B avec RAUC | `buildroot/` (phase 6) | 0011 |
 | Hub domotique | Service Rust (tokio, bluer, WiZ, MQTT), gRPC + mDNS | `payssho/Home-device-manager`, empaqueté ici | 0012 |
+| Prévisu de l'interface | Build web de l'app, page hôte avec télécommande | `ui/`, `scripts/previsu/` | 0015 |
+| Banc mémoire 2 Go / 4 Go | Conteneurs Docker bornés, vrais programmes | `scripts/emulation/` | 0016 |
 
 ## Flux principaux
 

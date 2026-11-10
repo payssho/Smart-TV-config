@@ -1,0 +1,321 @@
+<meta charset="utf-8">
+<title>Prévisu télé maison</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap">
+<style>
+/* Mise en page : la télé en grand au centre, la télécommande à sa droite,
+   la mémoire mesurée dessous. Un seul univers visuel : la pièce dans la
+   pénombre de l'interface « veilleuse », donc page sombre dans les deux thèmes. */
+:root {
+  --nuit: #0F1320;
+  --ardoise: #181D2B;
+  --ardoise-claire: #232A3B;
+  --lin: #EEE7DA;
+  --brume: #A2A8B6;
+  --ambre: #FFB45E;
+  --trait: #2f3650;
+  --s-interface: #3987e5;
+  --s-chromium: #d95926;
+  --s-lecteur: #199e70;
+  --s-hub: #c98500;
+  --s-maj: #d55181;
+  --s-autres: #5b6380;
+  --police: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--nuit);
+  color: var(--lin);
+  font: 400 16px/1.5 var(--police);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+}
+.page { max-width: 1240px; margin: 0 auto; display: grid; gap: 32px; }
+header { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; }
+h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; font-stretch: 80%; letter-spacing: -0.02em; line-height: 1; margin: 0; text-wrap: balance; }
+.sous-titre { color: var(--brume); margin: 8px 0 0; max-width: 60ch; }
+.reglages { display: flex; flex-wrap: wrap; gap: 12px; }
+.choix { display: inline-flex; background: var(--ardoise); border-radius: 999px; padding: 4px; }
+.choix button {
+  font: 600 15px var(--police); color: var(--brume); background: none; border: 0;
+  border-radius: 999px; padding: 8px 16px; cursor: pointer;
+}
+.choix button[aria-pressed="true"] { background: var(--ardoise-claire); color: var(--lin); box-shadow: inset 0 0 0 2px var(--ambre); }
+button:focus-visible { outline: 3px solid var(--ambre); outline-offset: 2px; }
+
+.scene { display: grid; grid-template-columns: minmax(0, 1fr) 224px; gap: 24px; align-items: start; }
+@media (max-width: 760px) { .scene { grid-template-columns: minmax(0, 1fr); } }
+.tele {
+  position: relative; aspect-ratio: 16 / 9; max-width: 100%;
+  background: #000; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 0 0 10px #0b0d13, 0 30px 80px -20px rgba(244, 166, 59, 0.25);
+}
+.tele iframe { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; }
+.legende-tele { color: var(--brume); font-size: 14px; margin-top: 18px; }
+
+.telecommande {
+  background: linear-gradient(160deg, #2a3045, #181c28 70%); border-radius: 48px; padding: 32px 20px 28px;
+  display: grid; justify-items: center; gap: 24px;
+  box-shadow: inset 0 1px 0 rgba(239, 231, 214, 0.08), 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+}
+@media (max-width: 760px) { .telecommande { grid-template-columns: auto auto; align-items: center; justify-content: center; border-radius: 32px; } }
+.anneau {
+  position: relative; width: 172px; height: 172px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #343b54, #232839 70%);
+  box-shadow: inset 0 0 0 1px rgba(239, 231, 214, 0.06);
+}
+.anneau button {
+  position: absolute; border: 0; background: none; color: var(--brume); cursor: pointer;
+  font: 700 16px var(--police); width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+}
+.anneau button:hover, .anneau button:active { color: var(--lin); }
+.anneau .haut { top: 2px; left: 58px; } .anneau .bas { bottom: 2px; left: 58px; }
+.anneau .gauche { left: 2px; top: 58px; } .anneau .droite { right: 2px; top: 58px; }
+.anneau .ok {
+  top: 46px; left: 46px; width: 80px; height: 80px; background: var(--ambre); color: var(--nuit);
+  font-size: 18px; box-shadow: 0 0 24px rgba(244, 166, 59, 0.35);
+}
+.anneau button:active, .touches button:active { transform: scale(0.94); }
+.touches { display: flex; gap: 8px; }
+.touches button {
+  border: 0; cursor: pointer; color: var(--lin); background: var(--ardoise-claire);
+  font: 600 14px var(--police); border-radius: 999px; padding: 10px 14px;
+}
+.astuce { color: var(--brume); font-size: 13px; text-align: center; margin: 0; max-width: 20ch; }
+@media (max-width: 760px) { .astuce { grid-column: 1 / -1; max-width: none; } }
+
+section h2 { font-size: 26px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+section > p { color: var(--brume); margin: 0 0 20px; max-width: 70ch; }
+.cles { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 20px; font-size: 14px; color: var(--brume); }
+.cles span { display: inline-flex; align-items: center; gap: 8px; }
+.cles i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.paliers { display: grid; gap: 22px; }
+.palier h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; }
+.ligne { display: grid; grid-template-columns: 48px minmax(0, 1fr) 150px; gap: 12px; align-items: center; margin-bottom: 6px; font-size: 14px; }
+.ligne .profil { color: var(--brume); font-weight: 600; }
+.ligne .chiffre { font-variant-numeric: tabular-nums; color: var(--lin); text-align: right; white-space: nowrap; }
+.ligne .chiffre.alerte { color: var(--ambre); }
+.piste { position: relative; height: 22px; background: var(--ardoise); border-radius: 4px; }
+.piste .seg { position: absolute; top: 0; bottom: 0; border-right: 2px solid var(--nuit); }
+.piste .seg:first-child { border-radius: 4px 0 0 4px; }
+.piste .plafond { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--lin); }
+.piste .hors { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(135deg, transparent 0 5px, rgba(149, 156, 169, 0.18) 5px 7px); border-radius: 0 4px 4px 0; }
+@media (max-width: 520px) { .ligne { grid-template-columns: 40px minmax(0, 1fr); } .ligne .chiffre { grid-column: 2; text-align: left; } }
+.bulle {
+  position: fixed; pointer-events: none; background: var(--ardoise-claire); color: var(--lin);
+  border-radius: 8px; padding: 8px 12px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.4); z-index: 5;
+}
+.verdict { background: var(--ardoise); border-radius: 18px; padding: 20px 24px; display: grid; gap: 8px; }
+.verdict p { margin: 0; max-width: 75ch; }
+details { margin-top: 20px; color: var(--brume); }
+details summary { cursor: pointer; color: var(--lin); font-weight: 600; }
+.table { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; min-width: 640px; }
+th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--trait); }
+th:first-child, td:first-child { text-align: left; }
+.limites { color: var(--brume); font-size: 14px; }
+.limites li { margin-bottom: 6px; max-width: 75ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+  <header>
+    <div>
+      <h1>Télé maison</h1>
+      <p class="sous-titre">La vraie app Flutter, compilée pour le navigateur, dans un écran 1080p mis à l'échelle. Pilotez-la avec la télécommande ou le clavier : la croix vers le haut mène aux onglets.</p>
+    </div>
+    <div class="reglages">
+      <div class="choix" role="group" aria-label="Mémoire de la box">
+        <button type="button" id="profil-4go" data-profil="4go" aria-pressed="true">Box 4 Go</button>
+        <button type="button" id="profil-2go" data-profil="2go" aria-pressed="false">Box 2 Go</button>
+      </div>
+      <div class="choix" role="group" aria-label="Heure affichée">
+        <button type="button" id="heure-soir" data-heure="21:47" aria-pressed="true">Soir</button>
+        <button type="button" id="heure-matin" data-heure="09:12" aria-pressed="false">Matin</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="scene">
+    <div>
+      <div class="tele" id="tele">
+        <iframe id="ecran" title="Interface de la télé" src="app/index.html?memoire=4go&amp;heure=21:47"></iframe>
+      </div>
+      <p class="legende-tele">En 2 Go, le fond est allégé et le cache d'images passe de 96 à 32 Mo. Le processeur de la box n'est pas simulé ici : la fluidité réelle se juge sur la télé.</p>
+    </div>
+    <div class="telecommande" aria-label="Télécommande">
+      <div class="anneau">
+        <button type="button" class="haut" data-touche="ArrowUp" aria-label="Haut">▲</button>
+        <button type="button" class="gauche" data-touche="ArrowLeft" aria-label="Gauche">◀</button>
+        <button type="button" class="ok" data-touche="Enter" aria-label="OK">OK</button>
+        <button type="button" class="droite" data-touche="ArrowRight" aria-label="Droite">▶</button>
+        <button type="button" class="bas" data-touche="ArrowDown" aria-label="Bas">▼</button>
+      </div>
+      <div class="touches">
+        <button type="button" data-touche="Escape">Retour</button>
+        <button type="button" data-touche="Home">Accueil</button>
+      </div>
+      <p class="astuce">Clavier : flèches, Entrée, Échap, H pour l'accueil. Pour le son du feu, cliquez une fois sur l'écran.</p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Mémoire mesurée, box 2 Go contre 4 Go</h2>
+    <p id="intro-banc">Chargement des mesures du banc…</p>
+    <div class="verdict" id="verdict" hidden></div>
+    <div class="cles" id="cles"></div>
+    <div class="paliers" id="paliers"></div>
+    <details>
+      <summary>Voir les chiffres en tableau</summary>
+      <div class="table"><table id="tableau"></table></div>
+    </details>
+    <details>
+      <summary>Ce que le banc mesure, et ce qu'il ne mesure pas</summary>
+      <ul class="limites">
+        <li>Chaque profil tourne dans un conteneur dont la mémoire est bornée à ce que Linux voit sur la box : 1 700 Mo pour 2 Go, 3 500 Mo pour 4 Go (zone vidéo CMA, firmware et trou d'adressage retirés).</li>
+        <li>Les programmes sont les vrais : l'app Flutter, Chromium sur une page lourde façon YouTube TV avec une vidéo VP9 1080p, un décodage logiciel 1080p60 façon Twitch. Le hub et la mise à jour sont simulés par des blocs de mémoire de la bonne taille.</li>
+        <li>Le banc tourne sur un processeur x86 sans GPU : l'interface passe par le rendu logiciel de GTK, plus gourmand que flutter-pi sur la box. Ses chiffres sont un plafond haut.</li>
+        <li>Pas de zram dans le banc. Sur la box, zram donnera de la marge en plus, au prix de saccades.</li>
+        <li>La dérive de Chromium après 2 h est une estimation (600 Mo) à confirmer sur la vraie box.</li>
+      </ul>
+    </details>
+  </section>
+</div>
+<div class="bulle" id="bulle" hidden></div>
+
+<script>
+(() => {
+  const ecran = document.getElementById('ecran');
+  const tele = document.getElementById('tele');
+  const etat = { profil: '4go', heure: '21:47' };
+
+  // L'iframe garde ses 1920 × 1080 logiques ; on la réduit à la largeur dispo.
+  const ajuster = () => { ecran.style.transform = `scale(${tele.clientWidth / 1920})`; };
+  new ResizeObserver(ajuster).observe(tele);
+  ajuster();
+
+  const recharger = () => {
+    ecran.src = `app/index.html?memoire=${etat.profil}&heure=${etat.heure}`;
+  };
+  document.querySelectorAll('[data-profil]').forEach((b) => b.addEventListener('click', () => {
+    etat.profil = b.dataset.profil;
+    document.querySelectorAll('[data-profil]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    recharger();
+  }));
+  document.querySelectorAll('[data-heure]').forEach((b) => b.addEventListener('click', () => {
+    etat.heure = b.dataset.heure;
+    document.querySelectorAll('[data-heure]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    recharger();
+  }));
+
+  // Télécommande : l'app écoute les messages de la page (Flutter web refuse
+  // les événements clavier synthétiques).
+  const codes = { ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1, Enter: 1, Escape: 1, Home: 1 };
+  const envoyer = (touche) => ecran.contentWindow?.postMessage({ touche }, '*');
+  document.querySelectorAll('[data-touche]').forEach((b) => b.addEventListener('click', () => envoyer(b.dataset.touche)));
+  document.addEventListener('keydown', (e) => {
+    const touche = e.key === 'h' || e.key === 'H' ? 'Home' : e.key;
+    if (codes[touche] && !e.target.closest('button')) { e.preventDefault(); envoyer(touche); }
+  });
+
+  // --- Mesures du banc -------------------------------------------------
+  const ROLES = [
+    ['interface', 'Interface Flutter', '--s-interface'],
+    ['chromium', 'Chromium', '--s-chromium'],
+    ['lecteur', 'Lecteur 1080p60', '--s-lecteur'],
+    ['hub', 'Hub', '--s-hub'],
+    ['mise_a_jour', 'Mise à jour', '--s-maj'],
+    ['autres', 'Système et banc', '--s-autres'],
+  ];
+  const mo = (v) => `${Math.round(v).toLocaleString('fr-FR')} Mo`;
+  const bulle = document.getElementById('bulle');
+
+  const regrouper = (roles) => {
+    const r = { ...roles };
+    r.autres = (r.affichage || 0) + (r.systeme || 0);
+    return r;
+  };
+
+  fetch('banc.json').then((r) => r.json()).then((banc) => {
+    const profils = banc.profils; // [{profil, limite_mo, paliers: [...]}, …]
+    const max = Math.max(...profils.map((p) => p.limite_mo));
+    document.getElementById('intro-banc').textContent =
+      `Mesures du ${banc.date}, paliers de ${profils[0].palier_s} s. Barres : mémoire occupée par brique ; trait clair : ce que la box laisse à Linux ; hachures : mémoire que la box n'a pas.`;
+
+    const cles = document.getElementById('cles');
+    for (const [, nom, couleur] of ROLES) {
+      cles.insertAdjacentHTML('beforeend', `<span><i style="background:var(${couleur})"></i>${nom}</span>`);
+    }
+
+    const conteneur = document.getElementById('paliers');
+    profils[0].paliers.forEach((p0, i) => {
+      const bloc = document.createElement('div');
+      bloc.className = 'palier';
+      bloc.innerHTML = `<h3>${p0.nom}</h3>`;
+      for (const pr of profils) {
+        const p = pr.paliers[i];
+        const roles = regrouper(p.roles_mo);
+        const total = ROLES.reduce((s, [k]) => s + (roles[k] || 0), 0);
+        const morts = Object.entries(p.vivants).filter(([, v]) => !v).map(([k]) => k);
+        const plein = p.pic_mo >= pr.limite_mo - 5;
+        const tendu = p.oom_kills > 0 || morts.length > 0 || plein;
+        const ligne = document.createElement('div');
+        ligne.className = 'ligne';
+        let x = 0;
+        const segs = ROLES.map(([k, nom, couleur]) => {
+          const v = roles[k] || 0;
+          if (v < 1) return '';
+          const html = `<div class="seg" data-info="${nom} : ${mo(v)}" style="left:${(x / max) * 100}%;width:${(v / max) * 100}%;background:var(${couleur})"></div>`;
+          x += v;
+          return html;
+        }).join('');
+        const hors = pr.limite_mo < max
+          ? `<div class="hors" style="width:${(1 - pr.limite_mo / max) * 100}%"></div>` : '';
+        let texte = `${mo(total)}, reste ${mo(Math.max(0, p.libre_mo))}`;
+        if (plein) texte = `${mo(total)}, mémoire pleine`;
+        if (p.oom_kills > 0) texte = `${mo(total)}, onglet tué`;
+        if (morts.length) texte = `${mo(total)}, ${morts.join(', ')} tué`;
+        ligne.innerHTML = `<span class="profil">${pr.profil.replace('go', ' Go')}</span>
+          <div class="piste" role="img" aria-label="${pr.profil} : ${texte}">${segs}${hors}
+            <div class="plafond" style="left:calc(${(pr.limite_mo / max) * 100}% - 1px)"></div></div>
+          <span class="chiffre${tendu ? ' alerte' : ''}">${texte}</span>`;
+        bloc.appendChild(ligne);
+      }
+      conteneur.appendChild(bloc);
+    });
+
+    conteneur.addEventListener('mousemove', (e) => {
+      const seg = e.target.closest('.seg');
+      if (!seg) { bulle.hidden = true; return; }
+      bulle.textContent = seg.dataset.info;
+      bulle.hidden = false;
+      bulle.style.left = `${e.clientX + 14}px`;
+      bulle.style.top = `${e.clientY + 14}px`;
+    });
+    conteneur.addEventListener('mouseleave', () => { bulle.hidden = true; });
+
+    // Tableau.
+    const t = document.getElementById('tableau');
+    let html = '<tr><th>Palier</th>' + profils.map((p) => `<th>${p.profil} occupée</th><th>${p.profil} reste</th><th>${p.profil} tués</th>`).join('') + '</tr>';
+    profils[0].paliers.forEach((p0, i) => {
+      html += `<tr><td>${p0.nom}</td>` + profils.map((pr) => {
+        const p = pr.paliers[i];
+        return `<td>${mo(p.anon_mo)}</td><td>${mo(Math.max(0, p.libre_mo))}</td><td>${p.oom_kills}</td>`;
+      }).join('') + '</tr>';
+    });
+    t.innerHTML = html;
+
+    if (banc.verdict) {
+      const v = document.getElementById('verdict');
+      v.innerHTML = banc.verdict.map((l) => `<p>${l}</p>`).join('');
+      v.hidden = false;
+    }
+  }).catch(() => {
+    document.getElementById('intro-banc').textContent =
+      'Mesures absentes : lancer scripts/emulation/lancer.sh puis reconstruire la prévisu.';
+  });
+})();
+</script>

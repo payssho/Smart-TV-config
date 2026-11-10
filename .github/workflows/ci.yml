@@ -76,3 +76,13 @@ jobs:
         if: steps.app.outputs.presente == 'true'
         working-directory: ui
         run: flutter test
+      - name: Prévisu web (ADR 0015)
+        if: steps.app.outputs.presente == 'true'
+        run: scripts/previsu/construire.sh
+      - name: Publier la prévisu en artefact
+        if: steps.app.outputs.presente == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: previsu-interface
+          path: build/previsu
+          retention-days: 14

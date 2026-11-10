@@ -1,0 +1,39 @@
+name: tele
+description: "Interface 10 pieds de la télé maison (box S905X3), pilotée à la télécommande."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  web: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/sons/
+  fonts:
+    - family: Bricolage
+      fonts:
+        - asset: assets/fonts/BricolageGrotesque-400.ttf
+          weight: 400
+        - asset: assets/fonts/BricolageGrotesque-500.ttf
+          weight: 500
+        - asset: assets/fonts/BricolageGrotesque-600.ttf
+          weight: 600
+        - asset: assets/fonts/BricolageGrotesque-700.ttf
+          weight: 700
+    - family: BricolageEtroite
+      fonts:
+        - asset: assets/fonts/BricolageGrotesque-Condensed700.ttf
+          weight: 700
+        - asset: assets/fonts/BricolageGrotesque-Condensed800.ttf
+          weight: 800

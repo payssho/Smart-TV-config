@@ -21,14 +21,17 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - Milestones GitHub (une par phase, issues rangées par label `phase-N`) : `scripts/github/creer-milestones.sh` (CLI gh).
 - Diagnostic matériel (sur la box sous Armbian, lecture seule) : `sudo scripts/materiel/diagnostic.sh > rapport.txt`.
 - Prévisu de l'interface : `maquette/banc-interface.html`, publiée comme page Claude (voir `maquette/README.md`).
-- (à remplir : build Buildroot, test QEMU, tests Flutter, flash SD)
+- Interface Flutter : `cd ui && flutter test` ; prévisu publiable : `scripts/previsu/construire.sh` (ADR 0015, détail dans `ui/README.md`).
+- Banc mémoire 2 Go / 4 Go : `scripts/emulation/lancer.sh` (Docker, environ 12 min, ADR 0016, résultats dans `docs/emulation-memoire.md`).
+- (à remplir : build Buildroot, test QEMU, flash SD)
 
 ## Arborescence
 
 - `docs/` : vision, architecture, roadmap, plan de réalisation (jalons, budget mémoire), ADR, matériel.
 - `maquette/` : banc de prévisu HTML de l'interface (profils 2 Go et 4 Go).
 - `scripts/` : outils shell (CI, diagnostic matériel, plus tard image et flash).
-- À venir : `ui/` (app Flutter TV, phase 2), `buildroot/` (arbre `BR2_EXTERNAL`, phase 3).
+- `ui/` : app Flutter TV (onglets, ambiances, feu de cheminée), testable sans la box.
+- À venir : `buildroot/` (arbre `BR2_EXTERNAL`, phase 3).
 
 ## Matériel validé
 

@@ -1,0 +1,165 @@
+{
+  "profil": "2go",
+  "limite_mo": 1700,
+  "palier_s": 40,
+  "debut": "2026-11-06T10:44:42+0000",
+  "paliers": [
+    {
+      "nom": "Accueil",
+      "memoire_mo": 545.5,
+      "anon_mo": 408.7,
+      "cache_mo": 131.4,
+      "libre_mo": 1291.3,
+      "pic_mo": 552.7,
+      "psi_some_max": 0,
+      "psi_full_max": 0,
+      "oom_kills": 0,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 49.4,
+        "hub": 45.3,
+        "interface": 425.5,
+        "systeme": 8.4
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true
+      },
+      "lecteur_vitesse": null
+    },
+    {
+      "nom": "YouTube (Chromium)",
+      "memoire_mo": 1259.4,
+      "anon_mo": 768.1,
+      "cache_mo": 469.8,
+      "libre_mo": 931.9,
+      "pic_mo": 1323.6,
+      "psi_some_max": 0,
+      "psi_full_max": 0,
+      "oom_kills": 0,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 52.1,
+        "chromium": 643.8,
+        "hub": 44.9,
+        "interface": 401.5,
+        "systeme": 10.3
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true,
+        "chromium": true
+      },
+      "lecteur_vitesse": null
+    },
+    {
+      "nom": "Retour à l'accueil",
+      "memoire_mo": 805.1,
+      "anon_mo": 413.7,
+      "cache_mo": 384.0,
+      "libre_mo": 1286.3,
+      "pic_mo": 812.7,
+      "psi_some_max": 0,
+      "psi_full_max": 0,
+      "oom_kills": 0,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 51.1,
+        "hub": 45.3,
+        "interface": 423.5,
+        "systeme": 8.6
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true
+      },
+      "lecteur_vitesse": null
+    },
+    {
+      "nom": "Twitch (lecteur 1080p60)",
+      "memoire_mo": 941.8,
+      "anon_mo": 481.4,
+      "cache_mo": 451.3,
+      "libre_mo": 1218.6,
+      "pic_mo": 948.4,
+      "psi_some_max": 0,
+      "psi_full_max": 0,
+      "oom_kills": 0,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 50.2,
+        "hub": 45.2,
+        "interface": 421.0,
+        "lecteur": 98.7,
+        "systeme": 8.5
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true,
+        "lecteur": true
+      },
+      "lecteur_vitesse": 1.01
+    },
+    {
+      "nom": "Pire cas",
+      "memoire_mo": 1694.8,
+      "anon_mo": 1038.5,
+      "cache_mo": 635.7,
+      "libre_mo": 661.5,
+      "pic_mo": 1700.0,
+      "psi_some_max": 19.91,
+      "psi_full_max": 5.45,
+      "oom_kills": 0,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 36.6,
+        "chromium": 390.2,
+        "hub": 73.0,
+        "interface": 364.3,
+        "lecteur": 73.2,
+        "mise_a_jour": 124.0,
+        "systeme": 8.2
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true,
+        "chromium": true,
+        "lecteur": true,
+        "mise_a_jour": true
+      },
+      "lecteur_vitesse": 1.01
+    },
+    {
+      "nom": "Pire cas après 2 h de YouTube",
+      "memoire_mo": 1579.9,
+      "anon_mo": 776.6,
+      "cache_mo": 785.7,
+      "libre_mo": 923.4,
+      "pic_mo": 1700.0,
+      "psi_some_max": 23.05,
+      "psi_full_max": 12.65,
+      "oom_kills": 1,
+      "plafond_atteint": 0,
+      "roles_mo": {
+        "affichage": 39.4,
+        "chromium": 234.5,
+        "hub": 73.1,
+        "interface": 365.9,
+        "lecteur": 74.8,
+        "mise_a_jour": 124.4,
+        "systeme": 8.1
+      },
+      "vivants": {
+        "interface": true,
+        "hub": true,
+        "chromium": true,
+        "lecteur": true,
+        "mise_a_jour": true
+      },
+      "lecteur_vitesse": 1.0
+    }
+  ],
+  "ui_premiere_image_ms": 731,
+  "pic_global_mo": 1700.0,
+  "oom_kills_total": 1
+}
