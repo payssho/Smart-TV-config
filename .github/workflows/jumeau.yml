@@ -2,8 +2,15 @@ name: Jumeau de la box
 
 # Fait tourner l'OS de la télé sur le jumeau numérique de la box (ADR 0019) :
 # QEMU arm64, 4 × Cortex-A55, RAM de 2 Go puis 4 Go, microSD A1 bridée.
-# Construit l'app Flutter et l'image arm64 sur un runner arm64 natif, puis
-# joue le scénario sur les deux profils et publie le rapport.
+# Construit l'image arm64, puis joue le scénario sur les deux profils et
+# publie le rapport.
+#
+# Runner : variable de dépôt JUMEAU_RUNNER, ubuntu-24.04 (x86) par défaut,
+# car les runners arm64 sont payants sur un dépôt privé. Sur x86, l'image
+# se construit par émulation (qemu-user) et sans l'app Flutter, que Flutter
+# ne sait compiler pour arm64 que sur une machine arm64 : l'interface est
+# alors remplacée par un bloc de 150 Mo. Avec JUMEAU_RUNNER=ubuntu-24.04-arm,
+# l'app est compilée et embarquée.
 on:
   pull_request:
     paths:
@@ -36,26 +43,31 @@ env:
 jobs:
   image:
     name: Image arm64 du jumeau
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 60
+    runs-on: ${{ vars.JUMEAU_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - name: Outils (Flutter Linux, mmdebstrap)
+      - name: Outils (mmdebstrap, et qemu-user sur x86)
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev \
-            mmdebstrap debian-archive-keyring e2fsprogs zstd
-          git clone --depth 1 -b stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
-          echo "$RUNNER_TEMP/flutter/bin" >>"$GITHUB_PATH"
-      - name: App Flutter pour arm64
-        working-directory: ui
+          sudo apt-get install -y mmdebstrap debian-archive-keyring e2fsprogs zstd
+          if [[ "$RUNNER_ARCH" != ARM64 ]]; then
+            sudo apt-get install -y qemu-user-static binfmt-support
+          fi
+      - name: App Flutter pour arm64 (runner arm64 seulement)
+        if: runner.arch == 'ARM64'
         run: |
-          flutter --version
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
+          git clone --depth 1 -b stable https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          export PATH="$RUNNER_TEMP/flutter/bin:$PATH"
+          cd ui
           flutter build linux --release --dart-define=TRACE_DEMARRAGE=true
+          echo "APPLI=$PWD/build/linux/arm64/release/bundle" >>"$GITHUB_ENV"
       - name: Image Debian arm64 avec nos scripts système
         run: |
-          scripts/jumeau/construire-image.sh --appli ui/build/linux/arm64/release/bundle \
-            --sortie "$RUNNER_TEMP/image"
+          args=(--sortie "$RUNNER_TEMP/image")
+          if [[ -n "${APPLI:-}" ]]; then args+=(--appli "$APPLI"); fi
+          scripts/jumeau/construire-image.sh "${args[@]}"
       - name: Empaqueter (disque creux)
         run: tar -C "$RUNNER_TEMP/image" -cSf - . | zstd -T0 -3 >"$RUNNER_TEMP/image.tar.zst"
       - uses: actions/upload-artifact@v4
@@ -68,7 +80,7 @@ jobs:
   jumeau:
     name: Jumeau ${{ matrix.profil }}
     needs: image
-    runs-on: ubuntu-24.04-arm
+    runs-on: ${{ vars.JUMEAU_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 150
     strategy:
       fail-fast: false

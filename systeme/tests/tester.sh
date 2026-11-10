@@ -138,8 +138,9 @@ for etat in lecture youtube android inconnue; do
   remplir /data/chromium/Default/Cache 300
   [[ "$etat" = inconnue ]] || activite "$etat" 60
   lancer tele-entretien >/dev/null
-  verifier "$etat : repoussé" test "$(lire /run/tele/entretien-dernier)" = repousse
+  verifier "$etat : repoussé" grep -q "^repousse" "$racine/run/tele/entretien-dernier"
   verifier "$etat : cache intact" test "$(find "$racine/data/chromium/Default/Cache" -type f | wc -l)" = 300
+  verifier "$etat : rien écrit dans le journal (pas d'écriture SD)" test ! -e "$racine/var/log/tele/entretien.log"
 done
 
 echo "== tele-entretien : accueil touché il y a 2 min, pas encore au repos"
@@ -147,14 +148,14 @@ fausse_racine 1700
 remplir /data/chromium/Default/Cache 300
 activite accueil 2
 lancer tele-entretien >/dev/null
-verifier "repoussé" test "$(lire /run/tele/entretien-dernier)" = repousse
+verifier "repoussé" grep -q "^repousse" "$racine/run/tele/entretien-dernier"
 
 echo "== tele-entretien : au repos mais processeur occupé"
 fausse_racine 1700
 activite accueil 30
 echo "some avg10=42.00 avg60=0.00 avg300=0.00 total=0" >"$racine/proc/pressure/cpu"
 lancer tele-entretien >/dev/null
-verifier "repoussé" test "$(lire /run/tele/entretien-dernier)" = repousse
+verifier "repoussé" grep -q "^repousse" "$racine/run/tele/entretien-dernier"
 
 echo "== tele-entretien : au repos, caches au-dessus des plafonds (2 Go)"
 fausse_racine 1700

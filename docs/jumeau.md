@@ -4,7 +4,7 @@ En attendant la box, l'OS de la télé tourne sur une copie numérique : une mac
 
 ## En CI (le plus simple)
 
-Workflow « Jumeau de la box » : à chaque PR qui touche `systeme/` ou `scripts/jumeau/`, chaque lundi, ou à la main (onglet Actions, « Run workflow », scénario `complet` ou `fumee`). Le rapport 2 Go / 4 Go s'affiche dans le résumé du workflow ; l'artefact `rapport-jumeau` contient aussi les JSON, les journaux série et les captures de l'écran du jumeau.
+Workflow « Jumeau de la box » : à chaque PR qui touche `systeme/` ou `scripts/jumeau/`, chaque lundi, ou à la main (onglet Actions, « Run workflow », scénario `complet` ou `fumee`). Le rapport 2 Go / 4 Go s'affiche dans le résumé du workflow ; l'artefact `rapport-jumeau` contient aussi les JSON, les journaux série et les captures de l'écran du jumeau. Par défaut le workflow tourne sur un runner x86, sans l'app Flutter ; pour l'embarquer, définir la variable de dépôt `JUMEAU_RUNNER=ubuntu-24.04-arm` (runner arm64, payant sur un dépôt privé).
 
 ## Sur un poste (Linux ou WSL2)
 

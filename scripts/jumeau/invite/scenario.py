@@ -300,49 +300,71 @@ def taille_mo(dossier):
     return total >> 20
 
 
-def cout_entretien():
-    journal("coût de l'entretien")
-    res = {}
-    res["seul_s"] = mesurer()
+def entretien_comme_service(*args):
+    """tele-entretien avec les priorités de son unité systemd (ADR 0020)."""
+    return subprocess.run(["chrt", "--idle", "0", "nice", "-n", "19", "ionice", "-c", "3",
+                           "tele-entretien", *args], stdout=subprocess.DEVNULL)
 
-    # Pendant une lecture : l'entretien tourne en boucle (bien plus souvent
-    # que les 10 minutes réelles) et doit repartir aussitôt.
-    activite("lecture")
+
+def dernier_etat():
+    return (lire(f"{RUN}/entretien-dernier") or "").strip()
+
+
+def pendant(action, fois=3):
+    """Mesure la référence pendant qu'action() tourne en boucle à côté."""
     arret = threading.Event()
     durees = []
 
     def boucle():
         while not arret.is_set():
             t = time.monotonic()
-            subprocess.run(["tele-entretien"], stdout=subprocess.DEVNULL)
+            action()
             durees.append(time.monotonic() - t)
             time.sleep(1)
 
     th = threading.Thread(target=boucle)
     th.start()
-    res["pendant_lecture_s"] = mesurer()
+    resultat = mesurer(fois)
     arret.set()
     th.join()
-    res["passage_repousse_ms"] = round(statistics.median(durees) * 1000) if durees else None
-    res["dernier_etat_lecture"] = (lire(f"{RUN}/entretien-dernier") or "").strip()
+    return resultat, durees
 
-    # Au repos, avec du vrai ménage à faire, lancé comme sur la box (unité
-    # systemd en priorité minimale) pendant le travail de référence.
+
+def cout_entretien():
+    journal("coût de l'entretien")
+    res = {}
+    res["seul_s"] = mesurer()
     cap = 256 if PROFIL == "2go" else 512
+
+    # 1. Pendant une lecture : l'entretien passe en boucle (600 fois plus
+    # souvent que sur la box) et doit repartir aussitôt.
+    activite("lecture")
+    res["pendant_lecture_s"], durees = pendant(entretien_comme_service)
+    res["passage_repousse_ms"] = round(statistics.median(durees) * 1000) if durees else None
+    res["dernier_etat_lecture"] = dernier_etat()
+
+    # 2. Accueil laissé depuis 30 min, mais le processeur travaille : la
+    # garde PSI doit aussi le faire repartir.
+    activite("accueil", age_min=30)
+    _, _ = pendant(entretien_comme_service, fois=1)
+    res["dernier_etat_processeur_occupe"] = dernier_etat()
+
+    # 3. Pire cas : le ménage forcé tourne en même temps que la référence
+    # (n'arrive pas sur la box grâce à la garde) ; coût en priorité minimale.
     dossier = remplir_cache(cap + 200)
+    res["pendant_menage_s"], _ = pendant(lambda: entretien_comme_service("--forcer"))
+
+    # 4. Au repos et sans charge, l'unité systemd fait le vrai ménage.
+    remplir_cache(cap + 200)
     activite("accueil", age_min=30)
     res["cache_avant_mo"] = taille_mo(dossier)
-    subprocess.run(["systemctl", "start", "--no-block", "tele-entretien.service"])
-    res["pendant_menage_s"] = mesurer()
-    for _ in range(600):
-        etat = subprocess.run(["systemctl", "is-active", "tele-entretien.service"],
-                              capture_output=True, text=True).stdout.strip()
-        if etat not in ("active", "activating"):
-            break
-        time.sleep(1)
+    t = time.monotonic()
+    subprocess.run(["systemctl", "start", "tele-entretien.service"])
+    res["menage_duree_s"] = round(time.monotonic() - t, 1)
     res["cache_apres_mo"] = taille_mo(dossier)
     res["plafond_mo"] = cap
-    res["dernier_etat_repos"] = (lire(f"{RUN}/entretien-dernier") or "").strip()
+    res["dernier_etat_repos"] = dernier_etat()
+
     seul = res["seul_s"]
     res["surcout_lecture_pourcent"] = round((res["pendant_lecture_s"] / seul - 1) * 100, 1)
     res["surcout_menage_pourcent"] = round((res["pendant_menage_s"] / seul - 1) * 100, 1)

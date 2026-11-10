@@ -11,9 +11,10 @@ RUN="$R/run/tele"
 
 journal() {
   # Une ligne horodatée sur la sortie et dans le journal de la box.
-  printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*"
+  ligne="$(date '+%Y-%m-%dT%H:%M:%S') $*"
+  printf '%s\n' "$ligne"
   if [ -d "$R/var/log/tele" ]; then
-    printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*" >>"$R/var/log/tele/${TELE_NOM:-tele}.log"
+    printf '%s\n' "$ligne" >>"$R/var/log/tele/${TELE_NOM:-tele}.log"
   fi
 }
 
@@ -26,6 +27,11 @@ meminfo_mo() {
 charger_profil() {
   # shellcheck disable=SC1090
   . "$CONF"
+  # Profil déjà choisi au démarrage par tele-memoire : on le reprend (une
+  # lecture de fichier au lieu d'un calcul).
+  if [ -z "${PROFIL:-}" ] && [ -r "$RUN/profil" ]; then
+    read -r PROFIL <"$RUN/profil" || true
+  fi
   if [ -z "${PROFIL:-}" ]; then
     total="$(meminfo_mo MemTotal)"
     if [ "$total" -lt "$SEUIL_PROFIL_2GO_MO" ]; then
@@ -41,11 +47,17 @@ charger_profil() {
   esac
 }
 
-# avg10 d'un fichier PSI (/proc/pressure/cpu, io, memory), arrondi à l'entier.
+# avg10 d'un fichier PSI (/proc/pressure/cpu, io, memory), partie entière.
+# Sans sous-processus : lu par le shell lui-même (chemin rapide de l'entretien).
 psi_avg10() {
   f="$R/proc/pressure/$1"
-  [ -r "$f" ] || { echo 0; return; }
-  awk '$1 == "some" { split($2, a, "="); printf "%d\n", a[2] }' "$f"
+  valeur=0
+  if [ -r "$f" ]; then
+    read -r _ valeur _ <"$f" || true
+    valeur="${valeur#avg10=}"
+    valeur="${valeur%%.*}"
+  fi
+  printf '%s\n' "${valeur:-0}"
 }
 
 # Écrit une valeur dans un fichier de /proc ou /sys, sans échouer si le
@@ -73,11 +85,11 @@ taille_mo() {
 # veille, accueil, lecture, youtube, android. Inconnue = on considère
 # que la télé sert (prudence).
 activite() {
+  etat=inconnue
   if [ -r "$RUN/activite" ]; then
-    head -n 1 "$RUN/activite"
-  else
-    echo inconnue
+    read -r etat <"$RUN/activite" || true
   fi
+  printf '%s\n' "${etat:-inconnue}"
 }
 
 # Âge du dernier changement d'activité, en minutes.

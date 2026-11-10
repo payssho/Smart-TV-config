@@ -49,5 +49,5 @@ Carte SD : 22 Mo/s en lecture, 10 Mo/s en écriture, 1 500 / 500 IOPS (minimums 
 
 - Toutes les phases peuvent avancer sans la box sur ce qui est couvert ; ce qui ne l'est pas reste marqué « à valider sur la box » dans les issues.
 - Une PR qui touche les scripts système déclenche le jumeau : environ 30 à 45 minutes de CI par profil, hors du chemin rapide de la CI principale.
-- Le runner `ubuntu-24.04-arm` construit l'app et l'image en natif. Si `/dev/kvm` y est disponible, le jumeau tourne avec KVM (rapide, processeur hôte) ; sinon en TCG avec un vrai modèle Cortex-A55.
+- Runner : `ubuntu-24.04` (x86) par défaut, car les runners arm64 sont payants sur un dépôt privé ; l'image s'y construit par émulation (qemu-user), sans l'app Flutter (remplacée par un bloc de 150 Mo), et le jumeau tourne en TCG avec un vrai modèle Cortex-A55. Avec la variable de dépôt `JUMEAU_RUNNER=ubuntu-24.04-arm`, l'app est compilée pour arm64 et embarquée, et le jumeau passe en KVM si `/dev/kvm` est disponible.
 - À réception de la box : relever `MemTotal`, la CMA et le débit SD réels, corriger le tableau ci-dessus et `demarrer.sh`, puis comparer le rapport du jumeau à la mesure `mem=2G` sur la box (#43).

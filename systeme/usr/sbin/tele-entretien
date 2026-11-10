@@ -21,15 +21,12 @@ forcer=non
 charger_profil
 mkdir -p "$RUN"
 
-# Un seul entretien à la fois.
-exec 9>"$RUN/entretien.verrou"
-if command -v flock >/dev/null 2>&1 && ! flock -n 9; then
-  journal "entretien déjà en cours"
-  exit 0
-fi
+# --- Garde de repos (chemin rapide) -----------------------------------------
+# Tant que la télé sert, l'entretien ne lit que deux petits fichiers (shell
+# seul, sans sous-processus), vérifie l'alerte de stockage et repart, sans
+# rien écrire sur la SD.
 
-# --- Toujours (lecture seule, quasi gratuit) --------------------------------
-
+# Taux d'occupation de /data, en % (lecture seule).
 usage_data_pourcent() {
   if [ -d "$R$DOSSIER_DATA" ]; then
     df -P "$R$DOSSIER_DATA" | awk 'NR == 2 { sub("%", "", $5); print $5 }'
@@ -38,34 +35,43 @@ usage_data_pourcent() {
   fi
 }
 
-usage="$(usage_data_pourcent)"
-if [ "$usage" -ge "$SEUIL_ALERTE_POURCENT" ]; then
-  echo "$usage" >"$RUN/alerte-stockage"
-  touch "$RUN/maj-refusee"
-else
-  rm -f "$RUN/alerte-stockage" "$RUN/maj-refusee"
-fi
-
-# --- Garde de repos ---------------------------------------------------------
-
-act="$(activite)"
-age="$(activite_age_min)"
-cpu="$(psi_avg10 cpu)"
-io="$(psi_avg10 io)"
-
-au_repos() {
-  case "$act" in
-    veille | accueil) ;;
-    *) return 1 ;;
-  esac
-  [ "$age" -ge "$REPOS_MIN" ] || return 1
-  [ "$cpu" -le "$PSI_CPU_MAX" ] || return 1
-  [ "$io" -le "$PSI_IO_MAX" ] || return 1
+# Alerte et refus des mises à jour au-delà du seuil, vérifiés à chaque
+# passage, même pendant la lecture : c'est une lecture seule.
+alerte_stockage() {
+  usage="$(usage_data_pourcent)"
+  if [ "$usage" -ge "$SEUIL_ALERTE_POURCENT" ]; then
+    echo "$usage" >"$RUN/alerte-stockage"
+    : >"$RUN/maj-refusee"
+  else
+    rm -f "$RUN/alerte-stockage" "$RUN/maj-refusee"
+  fi
 }
 
-if [ "$forcer" = non ] && ! au_repos; then
-  journal "télé occupée ($act depuis ${age} min, PSI cpu $cpu %, io $io %) : rien à faire"
-  echo "repousse" >"$RUN/entretien-dernier"
+repousser() {
+  alerte_stockage
+  echo "repousse $1" >"$RUN/entretien-dernier"
+  exit 0
+}
+
+act="$(activite)"
+if [ "$forcer" = non ]; then
+  case "$act" in
+    veille | accueil) ;;
+    *) repousser "($act)" ;;
+  esac
+  cpu="$(psi_avg10 cpu)"
+  io="$(psi_avg10 io)"
+  [ "$cpu" -le "$PSI_CPU_MAX" ] || repousser "(processeur $cpu %)"
+  [ "$io" -le "$PSI_IO_MAX" ] || repousser "(SD $io %)"
+  age="$(activite_age_min)"
+  [ "$age" -ge "$REPOS_MIN" ] || repousser "($act depuis $age min)"
+fi
+alerte_stockage
+
+# Un seul entretien à la fois.
+exec 9>"$RUN/entretien.verrou"
+if command -v flock >/dev/null 2>&1 && ! flock -n 9; then
+  journal "entretien déjà en cours"
   exit 0
 fi
 

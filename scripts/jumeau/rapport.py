@@ -75,8 +75,10 @@ lignes = [
     ("Pendant une lecture, entretien en boucle (s)", "pendant_lecture_s"),
     ("Surcoût pendant la lecture (%)", "surcout_lecture_pourcent"),
     ("Durée d'un passage repoussé (ms)", "passage_repousse_ms"),
-    ("Pendant le ménage au repos (s)", "pendant_menage_s"),
-    ("Surcoût pendant le ménage (%)", "surcout_menage_pourcent"),
+    ("Garde quand le processeur travaille", "dernier_etat_processeur_occupe"),
+    ("Pire cas : ménage forcé en même temps (s)", "pendant_menage_s"),
+    ("Surcoût du ménage forcé (%)", "surcout_menage_pourcent"),
+    ("Durée du ménage au repos (s)", "menage_duree_s"),
     ("Cache Chromium avant → après (Mo)", None),
 ]
 for titre, cle in lignes:
@@ -89,8 +91,12 @@ for titre, cle in lignes:
 
 for p in profils:
     e = R[p]["entretien"]
-    if e.get("dernier_etat_lecture") != "repousse":
+    if not str(e.get("dernier_etat_lecture", "")).startswith("repousse"):
         problemes.append(f"{NOMS[p]} : l'entretien a travaillé pendant une lecture")
+    if not str(e.get("dernier_etat_processeur_occupe", "")).startswith("repousse"):
+        problemes.append(f"{NOMS[p]} : l'entretien a travaillé alors que le processeur était occupé")
+    if e.get("dernier_etat_repos") != "fait":
+        problemes.append(f"{NOMS[p]} : l'entretien n'a pas fait le ménage au repos")
     if e["cache_apres_mo"] > e["plafond_mo"]:
         problemes.append(f"{NOMS[p]} : cache au-dessus du plafond après l'entretien")
     if not R[p].get("interface_vivante_fin"):
