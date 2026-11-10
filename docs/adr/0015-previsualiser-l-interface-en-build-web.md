@@ -1,6 +1,6 @@
 # 0015. Prévisualiser l'interface avec le build web de l'app Flutter
 
-- Statut : proposée
+- Statut : acceptée
 - Date : 2026-11-06
 
 ## Contexte

@@ -1,6 +1,6 @@
 # 0013. Reprendre l'identité visuelle « veilleuse » de l'app
 
-- Statut : proposée
+- Statut : acceptée
 - Date : 2026-11-03
 
 ## Contexte

@@ -3,8 +3,8 @@
 #
 # Usage : sudo scripts/materiel/diagnostic.sh [--cec] > rapport.txt
 #
-# Le script est en LECTURE SEULE : il n'écrit sur aucun disque et ne touche
-# jamais à l'eMMC (Android d'origine, ADR 0003). Il collecte de quoi remplir
+# Le script est en LECTURE SEULE : il n'écrit sur aucun disque, eMMC comprise
+# (Android d'origine, ADR 0003 ; écritures permises après sauvegarde, ADR 0018). Il collecte de quoi remplir
 # docs/materiel.md. Les outils absents sont signalés, pas installés.
 #
 # --cec : en plus, déclare la box comme lecteur CEC (« playback ») et
@@ -85,7 +85,7 @@ done
 
 section "Stockage (lecture seule)"
 lancer lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL
-echo "Rappel : mmcblk* de type eMMC = Android d'origine, ne rien y écrire."
+echo "Rappel : mmcblk* de type eMMC = Android d'origine, à sauvegarder avant toute écriture (ADR 0018)."
 
 section "Réseau"
 lancer ip -br link

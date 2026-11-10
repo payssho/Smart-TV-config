@@ -1,11 +1,11 @@
 # 0016. Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée
 
-- Statut : proposée
+- Statut : acceptée
 - Date : 2026-11-06
 
 ## Contexte
 
-La HK1 commandée a 4 Go ; une box 2 Go reste le plan B. Marius veut voir la différence avant d'avoir le matériel. L'image Buildroot n'existe pas encore (J5), et le conteneur de l'agent n'a ni KVM ni GPU : une émulation complète en QEMU aarch64 (TCG) serait 10 à 50 fois plus lente qu'un Cortex-A55, donc inutile pour juger la fluidité, et longue à monter pour juger la mémoire.
+La box n'est pas encore achetée : Marius vise une S905X3 2 Go d'occasion, 4 Go en repli (ADR 0017). Marius veut voir la différence avant d'avoir le matériel. L'image Buildroot n'existe pas encore (J5), et le conteneur de l'agent n'a ni KVM ni GPU : une émulation complète en QEMU aarch64 (TCG) serait 10 à 50 fois plus lente qu'un Cortex-A55, donc inutile pour juger la fluidité, et longue à monter pour juger la mémoire.
 
 ## Options envisagées
 
@@ -22,4 +22,4 @@ Option 1 tout de suite (`scripts/emulation/lancer.sh`, rapports dans `scripts/em
 - Les mesures sont des ordres de grandeur. L'interface y passe par GTK et un rendu logiciel, plus gourmands que flutter-pi : ses chiffres sont un plafond haut. Pas de zram dans le banc.
 - Le hub et la mise à jour sont simulés par des blocs de mémoire de la bonne taille ; la dérive de Chromium après 2 h est une estimation (600 Mo) à confirmer.
 - Le banc applique déjà les règles du plan (un seul processus de rendu Chromium, Chromium premier tué par l'OOM) : il vérifie qu'elles protègent l'interface.
-- Premier résultat (2026-11-06) : 4 Go tient tout ; 2 Go tient une soirée normale mais perd l'onglet YouTube après la dérive de Chromium. Détail dans `docs/emulation-memoire.md`.
+- Premier résultat (2026-11-06) : 4 Go tient tout ; 2 Go tient une soirée normale mais perd l'onglet YouTube après la dérive de Chromium. Détail dans `docs/emulation-memoire.md`. Le 2026-11-10, Marius retient 2 Go d'abord, avec une maintenance mémoire qui ne dégrade jamais l'expérience (ADR 0017).

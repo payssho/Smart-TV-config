@@ -6,6 +6,8 @@ L'ordre, les dépendances, les dates indicatives et le budget mémoire sont dans
 
 Les phases 1 et 2 servent de spikes pour les risques bloquants R1 à R5 de la [vision](vision.md#risques-techniques).
 
+**Sans attendre la box** : la box n'est pas encore achetée (ADR 0017). Chaque phase s'avance d'abord sur une copie émulée de la box en 2 Go et en 4 Go ; la démo sur la vraie télé vient à la réception, quitte à corriger ce qui diffère.
+
 ## Phase 0. Cadrage du dépôt
 
 - **Objectif** : un agent sans contexte peut reprendre le projet en lisant le dépôt.
@@ -16,7 +18,7 @@ Les phases 1 et 2 servent de spikes pour les risques bloquants R1 à R5 de la [v
 
 | Horizon | Usage | Où | Phase |
 |---|---|---|---|
-| Now (dès la réception de la box) | Netflix, Canal+, YouTube, Twitch | Android d'origine, tel quel | 1 |
+| Now (dès la réception de la box, après la sauvegarde de l'eMMC) | Netflix, Canal+, YouTube, Twitch | Android d'origine, tel quel | 1 |
 | Next | YouTube (`youtube.com/tv`, envoi depuis le S25) | Notre OS, Chromium kiosque | 4 |
 | Next | Twitch | Notre OS, écran natif | 4 |
 | Next | Bouton « redémarrer sous Android » pour Netflix et Canal+ | Notre OS | 4 |
@@ -43,7 +45,7 @@ Choix et limites : ADR 0014. Netflix et Canal+ ne tourneront jamais en bonne qua
 ## Phase 3. Image Buildroot
 
 - **Objectif** : notre propre image qui démarre directement sur l'interface.
-- **Fin** : `.img.xz` construite en CI et publiée en artefact, démarrage depuis la SD via le u-boot d'origine, interface affichée en moins de 15 s.
+- **Fin** : `.img.xz` construite en CI et publiée en artefact, démarrage depuis la SD via le u-boot d'origine, interface atteinte à **chaque** démarrage (100 démarrages d'affilée sans échec), puis durée réduite au mieux (cible indicative 15 s).
 - **Tâches** : arbre `BR2_EXTERNAL` et defconfig QEMU · build en GitHub Actions avec cache · test de l'espace utilisateur dans QEMU · noyau mainline et DTB de la box · amorçage depuis la SD · empaqueter flutter-pi et l'app.
 - **Dépendances** : phase 1 (DTB, config noyau) pour la partie box ; la partie QEMU peut commencer avant.
 
@@ -56,15 +58,15 @@ Choix et limites : ADR 0014. Netflix et Canal+ ne tourneront jamais en bonne qua
 ## Phase 5. Hub intégré
 
 - **Objectif** : piloter la maison depuis la télé et depuis le S25 via la box.
-- **Fin** : hub Rust dans l'image, écran domotique sur la télé, l'app du S25 trouve la box en mDNS.
-- **Tâches** : empaqueter le hub · client gRPC et écran domotique · annonce mDNS.
+- **Fin** : hub Rust dans l'image, l'app du S25 trouve la box en mDNS, y règle les lumières et sert de télécommande de la télé ; l'onglet Ambiance de la télé applique les préréglages de la pièce.
+- **Tâches** : empaqueter le hub · client gRPC et préréglages d'ambiance · annonce mDNS · écran « Télé » dans l'app (#46).
 - **Dépendances** : le hub et le contrat Protobuf dans `payssho/Home-device-manager`.
 
 ## Phase 6. Solidité
 
 - **Objectif** : une télé qu'on n'a plus besoin de réparer.
-- **Fin** : racine en lecture seule, mise à jour A/B RAUC avec retour arrière, Wi‑Fi si la puce le permet, bouton « redémarrer sous Android ».
-- **Tâches** : racine en lecture seule · mises à jour RAUC · Wi‑Fi.
+- **Fin** : racine en lecture seule, mise à jour A/B RAUC avec retour arrière, garde-fous de stockage (#45), Wi‑Fi si la puce le permet. Le bouton « redémarrer sous Android » est livré en phase 4.
+- **Tâches** : racine en lecture seule · mises à jour RAUC · garde-fous de stockage · Wi‑Fi.
 
 ## Phase 7. Extras
 
