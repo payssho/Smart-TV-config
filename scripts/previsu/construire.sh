@@ -44,6 +44,6 @@ json.dump({"date": dossier.name, "profils": profils, "verdict": lignes},
 PY
 fi
 
-liste="$(cd "$sortie" && find . -type f ! -name index.html | sed 's|^\./||' | sort)"
+liste="$(cd "$sortie" && find . -type f ! -path ./index.html | sed 's|^\./||' | sort)"
 printf '%s\n' "$liste" >"$sortie/fichiers.txt"
 echo "== Prévisu prête : $sortie ($(du -sh "$sortie" | cut -f1))"

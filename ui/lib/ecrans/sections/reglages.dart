@@ -8,9 +8,10 @@ import '../dialogue_android.dart';
 
 enum _Rubrique {
   systeme('Système'),
+  stockage('Stockage'),
   telecommande('Télécommande'),
-  affichage('Affichage'),
-  android('Redémarrer sous Android');
+  android('Redémarrer sous Android'),
+  credits('Crédits');
 
   const _Rubrique(this.titre);
   final String titre;
@@ -26,6 +27,9 @@ class SectionReglages extends StatefulWidget {
 
 class _SectionReglagesState extends State<SectionReglages> {
   _Rubrique _rubrique = _Rubrique.systeme;
+
+  /// Démo : le vrai nettoyage vit dans l'image (issue #45, phase 6).
+  bool _cachesVides = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +62,9 @@ class _SectionReglagesState extends State<SectionReglages> {
                           montrerDialogueAndroid(context, 'Android');
                         case _Rubrique.systeme:
                           contexte.changerProfil?.call(contexte.profil.autre);
-                        case _Rubrique.telecommande || _Rubrique.affichage:
+                        case _Rubrique.stockage:
+                          setState(() => _cachesVides = true);
+                        case _Rubrique.telecommande || _Rubrique.credits:
                           break;
                       }
                     },
@@ -75,11 +81,12 @@ class _SectionReglagesState extends State<SectionReglages> {
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 160),
             child: KeyedSubtree(
-              key: ValueKey((_rubrique, contexte.profil)),
+              key: ValueKey((_rubrique, contexte.profil, _cachesVides)),
               child: _Detail(
                 rubrique: _rubrique,
                 profil: contexte.profil,
                 selecteur: contexte.changerProfil != null,
+                cachesVides: _cachesVides,
               ),
             ),
           ),
@@ -94,11 +101,13 @@ class _Detail extends StatelessWidget {
     required this.rubrique,
     required this.profil,
     required this.selecteur,
+    required this.cachesVides,
   });
 
   final _Rubrique rubrique;
   final ProfilMemoire profil;
   final bool selecteur;
+  final bool cachesVides;
 
   @override
   Widget build(BuildContext context) {
@@ -116,24 +125,29 @@ class _Detail extends StatelessWidget {
           profil.fondAllege ? 'allégé, pour épargner le GPU' : 'complet',
         ),
         ('Version', '0.1.0, prototype'),
-        ('Affichage', 'flutter-pi sur la box, navigateur en prévisualisation'),
+      ],
+      _Rubrique.stockage => [
+        ('Caches', cachesVides ? 'vidés' : 'OK pour les vider'),
+        ('Navigateur', '${profil.cacheNavigateurMo} Mo au plus'),
+        ('Nettoyage', 'chaque nuit, caches vidés dès 75 % de la carte'),
+        ('Alerte', 'à 90 % de la carte'),
       ],
       _Rubrique.telecommande => [
         ('Croix', 'déplace le focus'),
         ('OK', 'ouvre ou active'),
         ('Retour', 'revient à l\'écran précédent, puis aux onglets'),
-        ('Accueil', 'revient sur « Regarder »'),
-        ('Sources', 'télécommande de la télé (CEC) et infrarouge'),
-      ],
-      _Rubrique.affichage => [
-        ('Définition', '1920 × 1080'),
-        ('Marge de sécurité', '5 % sur chaque bord'),
-        ('Police', 'Bricolage Grotesque'),
+        ('Accueil', 'revient sur la première appli'),
+        ('Sources', 'télé (CEC), infrarouge, app mobile'),
       ],
       _Rubrique.android => [
-        ('Pourquoi', 'Netflix et Canal+ ne tournent bien que sous Android'),
+        ('Pour', 'Netflix et Canal+'),
         ('Durée', 'environ 40 secondes'),
-        ('Retour', 'rallumer la box ou choisir « Télé maison »'),
+        ('Retour', 'choisir « Télé maison » au démarrage'),
+      ],
+      _Rubrique.credits => [
+        ('Vidéo du feu', 'free video library, CC BY 3.0'),
+        ('Son du feu', 'lurpsis (Freesound), CC0'),
+        ('Police', 'Bricolage Grotesque, OFL'),
       ],
     };
     final textes = Theme.of(context).textTheme;

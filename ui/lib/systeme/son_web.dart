@@ -2,6 +2,8 @@ import 'dart:js_interop';
 
 import 'package:web/web.dart' as web;
 
+import 'medias.dart';
+
 /// Boucle sonore dans le navigateur (prévisualisation).
 class BoucleSonore {
   BoucleSonore(this.asset);
@@ -9,7 +11,7 @@ class BoucleSonore {
   final String asset;
   web.HTMLAudioElement? _audio;
 
-  bool get disponible => true;
+  bool get disponible => Medias.actifs;
 
   /// Renvoie faux si le navigateur bloque la lecture (pas encore de clic
   /// dans la page).

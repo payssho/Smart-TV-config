@@ -9,18 +9,15 @@ import '../donnees/etat_os.dart';
 import '../ui/fond.dart';
 import '../ui/theme.dart';
 import '../ui/touches.dart';
-import 'sections/ambiance_os.dart';
-import 'sections/ambiance_piece.dart';
-import 'sections/lumieres.dart';
+import 'sections/ambiance.dart';
 import 'sections/regarder.dart';
 import 'sections/reglages.dart';
 
-/// Les cinq parties de l'OS, dans l'ordre des onglets.
+/// Les trois parties de l'OS, dans l'ordre des onglets. Les lumières une
+/// par une se pilotent depuis l'app mobile (issue #46).
 enum Section {
   regarder('Regarder'),
-  lumieres('Lumières'),
-  piece('Ambiance de la pièce'),
-  os('Ambiance de l\'OS'),
+  ambiance('Ambiance'),
   reglages('Réglages');
 
   const Section(this.titre);
@@ -49,9 +46,8 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
   Timer? _minuteur;
   EtatOS? _os;
 
-  /// Aperçus : ce qui a le focus colore le fond avant d'être choisi.
-  Scene? _sceneSurvolee;
-  FondOS? _fondSurvole;
+  /// Aperçu : ce qui a le focus devient le fond avant d'être choisi.
+  Apercu _apercu = (fond: null, scene: null);
 
   @override
   void initState() {
@@ -114,7 +110,7 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
     final contexte = ContexteTele.de(context);
     final maison = PorteeMaison.de(context);
     final os = PorteeOS.de(context);
-    final scene = _sceneSurvolee;
+    final scene = _apercu.scene;
     final couleur = scene?.couleur ?? maison.couleurHalo;
     final intensite = scene == null
         ? maison.intensiteHalo
@@ -136,7 +132,7 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
             Fond(
               couleur: couleur,
               intensite: intensite,
-              type: _fondSurvole ?? os.fond,
+              type: _apercu.fond ?? os.fond,
               allege: contexte.profil.fondAllege,
             ),
             Padding(
@@ -152,8 +148,7 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
                     onDescendre: _entrerDansSection,
                     onSection: (s) => setState(() {
                       _section = s;
-                      _sceneSurvolee = null;
-                      _fondSurvole = null;
+                      _apercu = (fond: null, scene: null);
                     }),
                   ),
                   const SizedBox(height: 64),
@@ -186,14 +181,8 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
                                 autofocus: true,
                                 focusPremiere: _premiereAppli,
                               ),
-                              Section.lumieres => const SectionLumieres(),
-                              Section.piece => SectionAmbiancePiece(
-                                onSurvol: (s) =>
-                                    setState(() => _sceneSurvolee = s),
-                              ),
-                              Section.os => SectionAmbianceOS(
-                                onSurvol: (f) =>
-                                    setState(() => _fondSurvole = f),
+                              Section.ambiance => SectionAmbiance(
+                                onApercu: (a) => setState(() => _apercu = a),
                               ),
                               Section.reglages => const SectionReglages(),
                             },
@@ -295,7 +284,7 @@ class _EnTete extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Ambiance ${maison.scene.nom.toLowerCase()}',
+                  _nomAmbiance(maison, PorteeOS.de(context).fond),
                   style: textes.bodyLarge?.copyWith(fontSize: 24),
                 ),
               ],
@@ -305,6 +294,15 @@ class _EnTete extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Nom affiché sous l'heure : le préréglage en cours s'il y en a un, sinon
+/// la lumière de la pièce.
+String _nomAmbiance(EtatMaison maison, FondOS fond) {
+  for (final p in Catalogue.prereglages) {
+    if (p.fond == fond && p.scene == maison.scene.id) return p.nom;
+  }
+  return maison.scene.nom;
 }
 
 /// Un onglet : texte seul, souligné d'ambre quand il est choisi, entouré

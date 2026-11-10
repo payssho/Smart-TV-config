@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tele/app.dart';
 import 'package:tele/donnees/etat_maison.dart';
 import 'package:tele/donnees/etat_os.dart';
+import 'package:tele/ecrans/feu.dart';
+import 'package:tele/systeme/medias.dart';
 import 'package:tele/systeme/memoire.dart';
 import 'package:tele/systeme/telecommande_distante.dart';
 
@@ -26,6 +28,8 @@ Future<Tele> lancer(
   tester.platformDispatcher.accessibilityFeaturesTestValue =
       const FakeAccessibilityFeatures(disableAnimations: true);
   addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+  // Pas de lecteur vidéo en test : l'écran du feu montre l'image fixe.
+  Medias.actifs = false;
   final tele = Tele(EtatMaison(), EtatOS());
   await tester.pumpWidget(
     TeleApp(
@@ -58,35 +62,54 @@ Future<void> onglet(WidgetTester tester, int n) async {
 
 String? focus() => FocusManager.instance.primaryFocus?.debugLabel;
 
+/// Le nom de la tuile qui a le focus (son libellé d'accessibilité).
+String? tuileFocus(WidgetTester tester) {
+  final noeud = FocusManager.instance.primaryFocus;
+  final ctx = noeud?.context;
+  if (ctx == null) return null;
+  String? libelle;
+  ctx.visitAncestorElements((e) {
+    final w = e.widget;
+    if (w is Semantics && w.properties.label != null) {
+      libelle = w.properties.label;
+      return false;
+    }
+    return true;
+  });
+  return libelle;
+}
+
 void main() {
-  testWidgets("l'écran principal montre l'heure, les onglets et les applis", (
+  testWidgets("l'écran principal : trois onglets, les applis, sans aide", (
     tester,
   ) async {
     await lancer(tester);
     expect(find.text('21:47'), findsOneWidget);
     expect(find.text('Bonsoir.'), findsOneWidget);
-    for (final titre in [
-      'Regarder',
-      'Lumières',
-      'Ambiance de la pièce',
-      "Ambiance de l'OS",
-      'Réglages',
-    ]) {
+    for (final titre in ['Regarder', 'Ambiance', 'Réglages']) {
       expect(find.text(titre), findsOneWidget);
     }
+    expect(find.text('Lumières'), findsNothing);
     for (final nom in ['YouTube', 'Twitch', 'Netflix', 'Canal+', 'Médias']) {
       expect(find.text(nom), findsOneWidget);
     }
     expect(find.text('Feu de cheminée'), findsOneWidget);
+    // Plus de texte d'aide sous les tuiles.
+    expect(find.textContaining('navigateur'), findsNothing);
+    expect(find.text('Veillée'), findsOneWidget); // ambiance en cours
   });
 
-  testWidgets("la croix déplace le focus et met à jour l'aide", (tester) async {
+  testWidgets('la croix va des applis au feu et revient', (tester) async {
     await lancer(tester);
-    expect(find.textContaining('navigateur TV'), findsOneWidget);
+    expect(tuileFocus(tester), 'YouTube');
     await touche(tester, LogicalKeyboardKey.arrowRight);
-    expect(find.textContaining('Lecteur natif'), findsOneWidget);
+    expect(tuileFocus(tester), 'Twitch');
+    await touche(tester, LogicalKeyboardKey.arrowRight);
+    expect(tuileFocus(tester), 'Netflix, sous Android');
     await touche(tester, LogicalKeyboardKey.arrowDown);
-    expect(find.textContaining('crépite'), findsOneWidget);
+    expect(tuileFocus(tester), 'Feu de cheminée');
+    await touche(tester, LogicalKeyboardKey.arrowUp);
+    expect(tuileFocus(tester), isNotNull);
   });
 
   testWidgets('Netflix demande avant de redémarrer sous Android', (
@@ -108,55 +131,61 @@ void main() {
     await touche(tester, LogicalKeyboardKey.enter); // YouTube
     expect(find.textContaining('arrive avec la phase 4'), findsOneWidget);
     await touche(tester, LogicalKeyboardKey.escape);
-    expect(find.text('Applications'), findsOneWidget);
+    expect(find.text('YouTube'), findsOneWidget);
     await touche(tester, LogicalKeyboardKey.backspace);
     expect(focus(), 'regarder');
   });
 
-  testWidgets('onglet Lumières : OK allume ou éteint', (tester) async {
-    final tele = await lancer(tester);
-    await onglet(tester, 1);
-    expect(find.textContaining('sur 6 allumées'), findsOneWidget);
-    await touche(tester, LogicalKeyboardKey.arrowDown);
-    final avant = tele.maison.nombreAllumees;
-    await touche(tester, LogicalKeyboardKey.enter);
-    expect(tele.maison.nombreAllumees, isNot(avant));
-    // Retour : d'abord l'onglet courant, puis « Regarder ».
-    await touche(tester, LogicalKeyboardKey.escape);
-    expect(focus(), 'lumieres');
-    await touche(tester, LogicalKeyboardKey.escape);
-    expect(focus(), 'regarder');
-    expect(find.text('Applications'), findsOneWidget);
-  });
-
-  testWidgets("ambiance de la pièce : choisir une scène règle les lumières", (
+  testWidgets('ambiance : un préréglage règle le fond et la pièce', (
     tester,
   ) async {
     final tele = await lancer(tester);
-    await onglet(tester, 2);
-    await touche(tester, LogicalKeyboardKey.arrowDown); // Soirée
-    await touche(tester, LogicalKeyboardKey.arrowRight); // Cinéma
-    await touche(tester, LogicalKeyboardKey.enter);
-    expect(tele.maison.scene.id, 'cinema');
-    expect(tele.maison.nombreAllumees, 1);
-  });
-
-  testWidgets("ambiance de l'OS : choisir le fond", (tester) async {
-    final tele = await lancer(tester);
-    expect(tele.os.fond, FondOS.lucioles);
-    await onglet(tester, 3);
-    expect(find.text('Lucioles'), findsOneWidget);
-    await touche(tester, LogicalKeyboardKey.arrowDown);
-    await touche(tester, LogicalKeyboardKey.arrowRight); // Braises
+    await onglet(tester, 1);
+    await touche(tester, LogicalKeyboardKey.arrowDown); // Veillée
+    expect(tuileFocus(tester), 'Veillée');
+    await touche(tester, LogicalKeyboardKey.arrowRight); // Coin du feu
     await touche(tester, LogicalKeyboardKey.enter);
     expect(tele.os.fond, FondOS.braises);
+    expect(tele.maison.scene.id, 'soiree');
+    await touche(tester, LogicalKeyboardKey.arrowRight, fois: 2); // Cinéma
+    await touche(tester, LogicalKeyboardKey.enter);
+    expect(tele.os.fond, FondOS.calme);
+    expect(tele.maison.scene.id, 'cinema');
+    expect(tele.maison.nombreAllumees, 1);
+    // Retour : d'abord l'onglet courant, puis « Regarder ».
+    await touche(tester, LogicalKeyboardKey.escape);
+    expect(focus(), 'ambiance');
+    await touche(tester, LogicalKeyboardKey.escape);
+    expect(focus(), 'regarder');
+    expect(find.text('YouTube'), findsOneWidget);
+  });
+
+  testWidgets('ambiance : le fond et la lumière se règlent aussi à part', (
+    tester,
+  ) async {
+    final tele = await lancer(tester);
+    await onglet(tester, 1);
+    await touche(tester, LogicalKeyboardKey.arrowDown); // préréglages
+    await touche(tester, LogicalKeyboardKey.arrowDown); // rangée des fonds
+    expect(tuileFocus(tester), 'Lucioles');
+    await touche(tester, LogicalKeyboardKey.arrowRight, fois: 2);
+    expect(tuileFocus(tester), 'Pluie');
+    await touche(tester, LogicalKeyboardKey.enter);
+    expect(tele.os.fond, FondOS.pluie);
+    expect(tele.maison.scene.id, 'soiree');
+    // La rangée des lumières prolonge celle des fonds, à droite.
+    await touche(tester, LogicalKeyboardKey.arrowRight, fois: 3);
+    expect(tuileFocus(tester), 'Lumière Cinéma');
+    await touche(tester, LogicalKeyboardKey.enter);
+    expect(tele.maison.scene.id, 'cinema');
+    expect(tele.os.fond, FondOS.pluie);
   });
 
   testWidgets('réglages : le sélecteur bascule le profil mémoire', (
     tester,
   ) async {
     await lancer(tester);
-    await onglet(tester, 4);
+    await onglet(tester, 2);
     await touche(tester, LogicalKeyboardKey.arrowDown);
     expect(find.text('2 Go, OK pour simuler 4 Go'), findsOneWidget);
     expect(find.text('allégé, pour épargner le GPU'), findsOneWidget);
@@ -165,25 +194,47 @@ void main() {
     expect(find.text('complet'), findsOneWidget);
   });
 
+  testWidgets('réglages : stockage et crédits des médias', (tester) async {
+    await lancer(tester);
+    await onglet(tester, 2);
+    await touche(tester, LogicalKeyboardKey.arrowDown); // Système
+    await touche(tester, LogicalKeyboardKey.arrowDown); // Stockage
+    expect(find.text('256 Mo au plus'), findsOneWidget);
+    await touche(tester, LogicalKeyboardKey.enter);
+    expect(find.text('vidés'), findsOneWidget);
+    await touche(tester, LogicalKeyboardKey.arrowDown, fois: 3); // Crédits
+    expect(find.text('free video library, CC BY 3.0'), findsOneWidget);
+  });
+
   testWidgets('accueil revient sur la première appli', (tester) async {
     await lancer(tester);
-    await onglet(tester, 3);
+    await onglet(tester, 1);
     await touche(tester, LogicalKeyboardKey.arrowDown);
     await touche(tester, LogicalKeyboardKey.home);
-    expect(find.text('Applications'), findsOneWidget);
+    expect(find.text('YouTube'), findsOneWidget);
     expect(focus(), 'premiere appli');
   });
 
-  testWidgets('feu de cheminée : OK coupe le son, retour revient', (
+  testWidgets('feu de cheminée : un vrai feu, crédité, retour revient', (
     tester,
   ) async {
     await lancer(tester);
     await touche(tester, LogicalKeyboardKey.arrowDown);
     await touche(tester, LogicalKeyboardKey.enter);
-    expect(find.text('Feu de cheminée'), findsOneWidget);
-    expect(find.textContaining('phase 4'), findsOneWidget);
+    expect(find.text(MediasFeu.credit), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Image &&
+            w.image is AssetImage &&
+            (w.image as AssetImage).assetName == MediasFeu.affiche,
+      ),
+      findsOneWidget,
+    );
+    // Sans lecteur, pas de son : l'icône le dit, sans phrase.
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
     await touche(tester, LogicalKeyboardKey.escape);
-    expect(find.text('Applications'), findsOneWidget);
+    expect(find.text('YouTube'), findsOneWidget);
   });
 
   testWidgets('la télécommande de la prévisu rejoue les touches', (
@@ -206,11 +257,19 @@ void main() {
     expect(focus(), 'premiere appli');
   });
 
-  testWidgets('les fonds se dessinent en 2 Go et 4 Go, animés', (tester) async {
+  testWidgets('les quatre fonds se dessinent en 2 Go et 4 Go, animés', (
+    tester,
+  ) async {
     tester.view
       ..physicalSize = const Size(1920, 1080)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    expect(FondOS.values.map((f) => f.nom), [
+      'Lucioles',
+      'Braises',
+      'Pluie',
+      'Nuit calme',
+    ]);
     for (final profil in ProfilMemoire.values) {
       for (final fond in FondOS.values) {
         await tester.pumpWidget(
@@ -234,11 +293,12 @@ void main() {
   group('ProfilMemoire', () {
     test("lit le profil depuis le texte ou l'adresse", () {
       expect(ProfilMemoire.depuisTexte('2go'), ProfilMemoire.deuxGo);
-      expect(ProfilMemoire.depuisTexte('2 Go'), ProfilMemoire.deuxGo);
-      expect(ProfilMemoire.depuisTexte(null), ProfilMemoire.quatreGo);
+      expect(ProfilMemoire.depuisTexte('4 Go'), ProfilMemoire.quatreGo);
+      // Sans indication : 2 Go, la cible de la première version.
+      expect(ProfilMemoire.depuisTexte(null), ProfilMemoire.deuxGo);
       expect(
-        ProfilMemoire.detecter(adresse: Uri.parse('http://x/?memoire=2go')),
-        ProfilMemoire.deuxGo,
+        ProfilMemoire.detecter(adresse: Uri.parse('http://x/?memoire=4go')),
+        ProfilMemoire.quatreGo,
       );
     });
 

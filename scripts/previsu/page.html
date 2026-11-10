@@ -129,8 +129,8 @@ th:first-child, td:first-child { text-align: left; }
     </div>
     <div class="reglages">
       <div class="choix" role="group" aria-label="Mémoire de la box">
-        <button type="button" id="profil-4go" data-profil="4go" aria-pressed="true">Box 4 Go</button>
-        <button type="button" id="profil-2go" data-profil="2go" aria-pressed="false">Box 2 Go</button>
+        <button type="button" id="profil-2go" data-profil="2go" aria-pressed="true">Box 2 Go</button>
+        <button type="button" id="profil-4go" data-profil="4go" aria-pressed="false">Box 4 Go</button>
       </div>
       <div class="choix" role="group" aria-label="Heure affichée">
         <button type="button" id="heure-soir" data-heure="21:47" aria-pressed="true">Soir</button>
@@ -142,7 +142,7 @@ th:first-child, td:first-child { text-align: left; }
   <div class="scene">
     <div>
       <div class="tele" id="tele">
-        <iframe id="ecran" title="Interface de la télé" src="app/index.html?memoire=4go&amp;heure=21:47"></iframe>
+        <iframe id="ecran" title="Interface de la télé" src="app/index.html?memoire=2go&amp;heure=21:47"></iframe>
       </div>
       <p class="legende-tele">En 2 Go, le fond est allégé et le cache d'images passe de 96 à 32 Mo. Le processeur de la box n'est pas simulé ici : la fluidité réelle se juge sur la télé.</p>
     </div>
@@ -190,7 +190,7 @@ th:first-child, td:first-child { text-align: left; }
 (() => {
   const ecran = document.getElementById('ecran');
   const tele = document.getElementById('tele');
-  const etat = { profil: '4go', heure: '21:47' };
+  const etat = { profil: '2go', heure: '21:47' };
 
   // L'iframe garde ses 1920 × 1080 logiques ; on la réduit à la largeur dispo.
   const ajuster = () => { ecran.style.transform = `scale(${tele.clientWidth / 1920})`; };
