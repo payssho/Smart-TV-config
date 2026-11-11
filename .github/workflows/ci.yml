@@ -82,7 +82,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         if: steps.app.outputs.presente == 'true'
         with:
+          # Version figée : Flutter 3.50 rend package:flutter/material.dart
+          # obsolète (material_ui) ; la migration de ui/ se fera dans sa PR.
           channel: stable
+          flutter-version: 3.47.9
           cache: true
       - name: Dépendances
         if: steps.app.outputs.presente == 'true'
