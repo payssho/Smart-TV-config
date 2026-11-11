@@ -194,6 +194,7 @@ class _TuileApercu extends StatelessWidget {
                 temps: const AlwaysStoppedAnimation(0.27),
                 type: fond,
                 allege: true,
+                miniature: true,
               ),
             ),
             Padding(
