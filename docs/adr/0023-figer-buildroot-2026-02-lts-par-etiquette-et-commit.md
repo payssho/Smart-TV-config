@@ -1,4 +1,4 @@
-# 0021. Figer Buildroot 2026.02 LTS par étiquette et commit, et le construire en CI avec cache
+# 0023. Figer Buildroot 2026.02 LTS par étiquette et commit, et le construire en CI avec cache
 
 - Statut : proposée
 - Date : 2026-11-11

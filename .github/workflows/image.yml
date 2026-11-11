@@ -1,6 +1,6 @@
 name: Image Buildroot
 
-# Construit l'image de la télé avec Buildroot (ADR 0004, 0021, 0022), puis
+# Construit l'image de la télé avec Buildroot (ADR 0004, 0023, 0024), puis
 # la démarre sur le jumeau de la box en 2 Go et en 4 Go (ADR 0019).
 #
 # Un build complet coûte 30 à 60 minutes de runner : il ne part que sur une

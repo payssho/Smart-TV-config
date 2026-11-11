@@ -1,6 +1,6 @@
 # Image Buildroot de la télé
 
-Arbre externe Buildroot (`BR2_EXTERNAL`) : tout ce qui fait notre image vit ici, Buildroot lui-même n'est jamais modifié ni copié dans le dépôt. Décisions : ADR [0004](../docs/adr/0004-construire-le-systeme-avec-buildroot.md), [0021](../docs/adr/0021-figer-buildroot-2026-02-lts-par-etiquette-et-commit.md), [0022](../docs/adr/0022-batir-l-image-sur-systemd-glibc-et-une-chaine-precompilee.md).
+Arbre externe Buildroot (`BR2_EXTERNAL`) : tout ce qui fait notre image vit ici, Buildroot lui-même n'est jamais modifié ni copié dans le dépôt. Décisions : ADR [0004](../docs/adr/0004-construire-le-systeme-avec-buildroot.md), [0023](../docs/adr/0023-figer-buildroot-2026-02-lts-par-etiquette-et-commit.md), [0024](../docs/adr/0024-batir-l-image-sur-systemd-glibc-et-une-chaine-precompilee.md).
 
 ## Contenu
 

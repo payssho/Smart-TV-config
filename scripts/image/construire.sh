@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Construit l'image de la télé avec Buildroot (ADR 0004, 0021, 0022).
+# Construit l'image de la télé avec Buildroot (ADR 0004, 0023, 0024).
 #
 # Un build complet prend 30 à 60 minutes et une dizaine de Go : il se lance
 # en GitHub Actions (workflow « Image Buildroot ») ou sous WSL2 chez Marius,

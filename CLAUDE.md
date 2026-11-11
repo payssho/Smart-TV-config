@@ -25,7 +25,7 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - Banc mémoire 2 Go / 4 Go : `scripts/emulation/lancer.sh` (Docker, environ 12 min, ADR 0016, résultats dans `docs/emulation-memoire.md`).
 - Scripts système de la box (`systeme/` : zram, réglages mémoire, entretien au repos, ADR 0020) : `systeme/tests/tester.sh`.
 - Jumeau numérique de la box (QEMU arm64, 2 Go / 4 Go, ADR 0019) : `scripts/jumeau/construire-image.sh` puis `scripts/jumeau/lancer.sh` ; en CI, workflow « Jumeau de la box ». Guide : `docs/jumeau.md`.
-- Image Buildroot (ADR 0021, 0022, détail dans `buildroot/README.md`) : `scripts/image/construire.sh --verifier` valide la defconfig sans compiler (quelques secondes, partout) ; `scripts/image/construire.sh` fait le build complet (CI « Image Buildroot » ou WSL2 seulement) ; l'image démarre sur le jumeau avec `scripts/jumeau/demarrer.sh --profil 2go --image buildroot/output/qemu_aarch64_tv/jumeau`.
+- Image Buildroot (ADR 0023, 0024, détail dans `buildroot/README.md`) : `scripts/image/construire.sh --verifier` valide la defconfig sans compiler (quelques secondes, partout) ; `scripts/image/construire.sh` fait le build complet (CI « Image Buildroot » ou WSL2 seulement) ; l'image démarre sur le jumeau avec `scripts/jumeau/demarrer.sh --profil 2go --image buildroot/output/qemu_aarch64_tv/jumeau`.
 - (à remplir : flash SD)
 
 ## Arborescence

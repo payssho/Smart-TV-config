@@ -1,6 +1,6 @@
 # Image de la télé pour le jumeau QEMU (machine « virt » arm64, ADR 0019).
 # Même socle que la future image de la box : systemd, glibc, mêmes scripts
-# système ; seuls le noyau et le banc de test changent (ADR 0022).
+# système ; seuls le noyau et le banc de test changent (ADR 0024).
 
 # Processeur de la S905X3
 BR2_aarch64=y

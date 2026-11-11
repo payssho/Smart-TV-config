@@ -1,4 +1,4 @@
-# Version de Buildroot utilisée pour construire l'image (ADR 0021).
+# Version de Buildroot utilisée pour construire l'image (ADR 0023).
 # Lue par scripts/image/construire.sh : l'étiquette est clonée, puis le
 # commit obtenu est comparé à celui noté ici. Pour monter de version :
 # changer les deux lignes, relancer « construire.sh --verifier », puis un

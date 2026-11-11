@@ -1,4 +1,4 @@
-# 0022. Bâtir l'image sur systemd, glibc et une chaîne de compilation précompilée
+# 0024. Bâtir l'image sur systemd, glibc et une chaîne de compilation précompilée
 
 - Statut : proposée
 - Date : 2026-11-11
