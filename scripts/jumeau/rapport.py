@@ -28,9 +28,14 @@ def cellule(p, nom):
             if pal["swap_mo"]:
                 texte += f" · zram {pal['swap_mo']}→{pal['zram_ram_mo']}"
             if morts:
-                texte += " · **tué : " + ", ".join(morts) + "**"
+                # Sans OOM pendant le palier, la brique s'est arrêtée d'elle-même.
+                verbe = "tué" if pal.get("oom_kills") else "arrêté seul"
+                texte += f" · **{verbe} : " + ", ".join(morts) + "**"
                 if {"interface", "hub"} & set(morts):
-                    problemes.append(f"{NOMS[p]}, {nom} : {', '.join(morts)} tué")
+                    problemes.append(f"{NOMS[p]}, {nom} : {', '.join(morts)} {verbe}")
+                # Hors pire cas, Chromium doit tenir : sinon YouTube n'est pas testé.
+                if "chromium" in morts and nom == "YouTube (Chromium)":
+                    problemes.append(f"{NOMS[p]}, {nom} : Chromium {verbe}, YouTube non testé")
             return texte
     return "—"
 

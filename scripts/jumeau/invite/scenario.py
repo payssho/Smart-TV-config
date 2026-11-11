@@ -168,8 +168,12 @@ def compositeur():
 def lancer_ui():
     """Interface Flutter sous cage. Renvoie le temps jusqu'à la première image."""
     if not os.access(UI, os.X_OK):
-        journal("pas d'app Flutter dans l'image : substitut de 150 Mo")
-        lancer("interface", [sys.executable, "-c", ALLOUEUR, "150"])
+        # Le substitut tourne quand même sous cage : sans compositeur, pas de
+        # wayland-0, et Chromium (--ozone-platform=wayland) s'arrête aussitôt.
+        journal("pas d'app Flutter dans l'image : substitut de 150 Mo sous cage")
+        lancer("interface", ["seatd-launch", "--", "cage", "-s", "--",
+                             sys.executable, "-c", ALLOUEUR, "150"],
+               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=compositeur())
         return None
     t0 = time.time()
     p = lancer("interface", ["seatd-launch", "--", "cage", "-s", "--", UI],
@@ -199,7 +203,14 @@ def chromium_present():
     return os.access(CHROME, os.X_OK)
 
 
+# Journal de Chromium, copié avec les résultats : s'il s'arrête seul, on sait pourquoi.
+CHROMIUM_LOG = None
+
+
 def lancer_chromium(fuite_mo=0):
+    global CHROMIUM_LOG
+    if CHROMIUM_LOG is None:
+        CHROMIUM_LOG = open(f"{SORTIE}/chromium-{PROFIL}.log", "a")
     lancer("chromium", [
         CHROME, "--no-sandbox", "--kiosk", "--no-first-run", "--ozone-platform=wayland",
         "--no-default-browser-check", "--disable-dev-shm-usage",
@@ -207,7 +218,7 @@ def lancer_chromium(fuite_mo=0):
         "--autoplay-policy=no-user-gesture-required",
         "--user-data-dir=/data/chromium", "--disk-cache-size=268435456",
         f"file://{MEDIAS}/page-youtube.html#fuite={fuite_mo}",
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    ], stdout=CHROMIUM_LOG, stderr=subprocess.STDOUT,
         env={"WAYLAND_DISPLAY": "wayland-0"})
 
 
