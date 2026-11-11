@@ -115,8 +115,9 @@ echo "== Build terminé en $(( ($(date +%s) - debut) / 60 )) min"
 # Dossier au format attendu par le jumeau : noyau, racine, fiche d'identité.
 if [[ -f "$sortie/images/Image" && -f "$sortie/images/rootfs.ext4" ]]; then
   mkdir -p "$sortie/jumeau"
-  ln -f "$sortie/images/Image" "$sortie/jumeau/Image"
-  ln -f "$sortie/images/rootfs.ext4" "$sortie/jumeau/racine.ext4"
+  # rootfs.ext4 est un lien symbolique vers rootfs.ext2 : on lie le vrai fichier.
+  ln -f "$(readlink -f "$sortie/images/Image")" "$sortie/jumeau/Image"
+  ln -f "$(readlink -f "$sortie/images/rootfs.ext4")" "$sortie/jumeau/racine.ext4"
   {
     cat "$sortie/target/etc/tele/image"
     echo "distribution=buildroot $BUILDROOT_VERSION ($cible)"

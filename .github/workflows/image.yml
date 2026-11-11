@@ -113,6 +113,7 @@ jobs:
       - name: Empaqueter (.img.xz)
         run: |
           mkdir -p "$RUNNER_TEMP/image"
+          test -s "buildroot/output/$CIBLE/jumeau/racine.ext4"
           cp "buildroot/output/$CIBLE/jumeau/Image" "buildroot/output/$CIBLE/jumeau/image.txt" "$RUNNER_TEMP/image/"
           xz -T0 -3 -c "buildroot/output/$CIBLE/jumeau/racine.ext4" >"$RUNNER_TEMP/image/tele-$CIBLE.img.xz"
           ls -lh "$RUNNER_TEMP/image"
@@ -124,6 +125,8 @@ jobs:
           retention-days: 14
       - name: Journal de build complet
         if: always()
+        # Un incident du stockage d'artefacts ne doit pas faire échouer le build.
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: journal-build
