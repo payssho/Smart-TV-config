@@ -48,6 +48,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Outils (mmdebstrap, et qemu-user sur x86)
+        # Un miroir apt injoignable bloquait ce pas jusqu'au plafond du job.
+        timeout-minutes: 15
         run: |
           sudo apt-get update
           sudo apt-get install -y mmdebstrap debian-archive-keyring e2fsprogs zstd
@@ -89,6 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: QEMU et ffmpeg
+        timeout-minutes: 15
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-arm qemu-utils ffmpeg zstd e2fsprogs

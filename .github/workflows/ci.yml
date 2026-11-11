@@ -29,19 +29,21 @@ jobs:
   systeme:
     name: Scripts système de la box (tests)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: tele-memoire, tele-entretien, tele-role sur une fausse racine
         run: systeme/tests/tester.sh
       - name: Les mêmes sous le sh de BusyBox (celui de Buildroot)
+        timeout-minutes: 10
         run: |
           # Le paquet « busybox » et pas « busybox-static » déjà présent sur le
           # runner : la version statique d'Ubuntu exécute ses applets internes
           # avant le PATH, ce qui contourne les doublures des tests (df, sleep)
           # et ne ressemble pas au BusyBox de Buildroot. apt réessaie, car un
           # miroir injoignable a déjà fait échouer ce job.
-          sudo apt-get update -o Acquire::Retries=3
-          sudo apt-get install -y -o Acquire::Retries=3 busybox
+          sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
+          sudo apt-get install -y -o Acquire::Retries=3 -o Acquire::http::Timeout=30 busybox
           mkdir -p "$RUNNER_TEMP/bb"
           for c in awk find stat du df date sort head cat mkdir rm touch grep sed tr kill renice; do
             ln -sf "$(command -v busybox)" "$RUNNER_TEMP/bb/$c"
