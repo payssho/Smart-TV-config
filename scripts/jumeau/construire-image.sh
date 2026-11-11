@@ -41,10 +41,11 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Paquets communs : de quoi faire tourner l'interface (cage + GTK + Mesa en
-# rendu logiciel), le lecteur (ffmpeg) et le scénario (python3).
+# rendu logiciel), le lecteur (ffmpeg) et le scénario (python3). passwd
+# n'est plus « essentiel » dans Debian trixie : on le demande nommément.
 paquets=(
   systemd-sysv udev kmod dbus initramfs-tools util-linux procps iproute2
-  e2fsprogs python3 ffmpeg cage seatd fonts-dejavu-core
+  e2fsprogs passwd python3 ffmpeg cage seatd fonts-dejavu-core
   libgtk-3-0t64 libegl1 libgles2 libgl1-mesa-dri libegl-mesa0 libgbm1
 )
 case "$distribution" in
