@@ -38,7 +38,7 @@ flowchart TB
 
 | Composant | Rôle | Où vit le code | ADR |
 |---|---|---|---|
-| Image système | Linux minimal Buildroot, démarre depuis la SD via le u-boot d'origine | `buildroot/` (phase 3) | 0004, 0006 |
+| Image système | Linux minimal Buildroot, démarre depuis la SD via le u-boot d'origine | `buildroot/`, `scripts/image/` | 0004, 0006, 0021, 0022 |
 | Affichage | DRM/KMS + Mesa Panfrost + GBM/EGL, sans X11 ni Wayland | config Buildroot | 0007 |
 | Interface | App Flutter « 10 pieds » plein écran via flutter-pi | `ui/` (phase 2) | 0008, 0013 |
 | Entrées | CEC et infrarouge exposés en evdev, lus par flutter-pi via libinput | config noyau + keymaps | 0009 |

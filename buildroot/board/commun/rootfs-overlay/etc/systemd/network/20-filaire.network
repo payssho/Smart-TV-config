@@ -1,0 +1,12 @@
+# Ethernet d'abord (ADR 0001) : toute prise filaire prend son adresse en
+# DHCP. Le nom de l'interface change d'une box à l'autre, d'où le filtre
+# sur le type et pas sur le nom.
+[Match]
+Type=ether
+
+[Network]
+DHCP=yes
+
+[Link]
+# Un câble débranché ne doit jamais retenir le démarrage.
+RequiredForOnline=no

@@ -1,0 +1,19 @@
+config BR2_PACKAGE_TELE_SYSTEME
+	bool "tele-systeme"
+	depends on BR2_INIT_SYSTEMD
+	depends on BR2_USE_MMU # util-linux
+	select BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_UTIL_LINUX_BINARIES # swapon -p, mkswap, fstrim, flock
+	select BR2_PACKAGE_UTIL_LINUX_SCHEDUTILS # ionice, chrt
+	help
+	  Scripts système de la télé (dossier systeme/ du dépôt) :
+	  tele-memoire (zram et réglages du noyau selon la RAM),
+	  tele-role (rang de chaque brique face au manque de mémoire)
+	  et tele-entretien (ménage au repos), avec leurs unités
+	  systemd. Voir l'ADR 0020.
+
+	  Les outils complets de util-linux sont installés : le
+	  BusyBox de Buildroot n'a ni « swapon -p » ni « ionice ».
+
+comment "tele-systeme demande systemd comme init"
+	depends on !BR2_INIT_SYSTEMD

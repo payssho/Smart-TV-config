@@ -1,0 +1,35 @@
+# Ajouts au noyau du jumeau, par-dessus la configuration « virt » de
+# Buildroot. Tout est intégré au noyau (=y) : pas d'initramfs ni de module
+# à charger pour démarrer.
+
+# Mémoire (ADR 0020) : swap compressé zram en lz4, MGLRU, pression PSI.
+CONFIG_SWAP=y
+CONFIG_ZSMALLOC=y
+CONFIG_ZRAM=y
+CONFIG_ZRAM_BACKEND_LZ4=y
+CONFIG_ZRAM_BACKEND_ZSTD=y
+CONFIG_ZRAM_DEF_COMP_LZ4=y
+CONFIG_CRYPTO_LZ4=y
+CONFIG_LRU_GEN=y
+CONFIG_LRU_GEN_ENABLED=y
+CONFIG_PSI=y
+CONFIG_COMPACTION=y
+
+# Priorités de l'entretien (CPUWeight=idle, IOWeight, MemoryHigh, ionice).
+CONFIG_CGROUP_SCHED=y
+CONFIG_FAIR_GROUP_SCHED=y
+CONFIG_CFS_BANDWIDTH=y
+CONFIG_CGROUP_PIDS=y
+CONFIG_MQ_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_BFQ=y
+CONFIG_BFQ_GROUP_IOSCHED=y
+
+# Partages avec l'hôte (médias en lecture, résultats en écriture).
+CONFIG_NETWORK_FILESYSTEMS=y
+CONFIG_NET_9P=y
+CONFIG_NET_9P_VIRTIO=y
+CONFIG_9P_FS=y
+
+# Écran 1080p du jumeau (virtio-gpu) avec une console dessus.
+CONFIG_DRM_FBDEV_EMULATION=y
+CONFIG_FRAMEBUFFER_CONSOLE=y

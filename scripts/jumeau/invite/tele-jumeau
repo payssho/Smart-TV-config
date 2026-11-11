@@ -15,6 +15,8 @@ mount -t 9p -o trans=virtio,version=9p2000.L resultats /resultats
 PROFIL="$(param profil)" PALIER_S="$(param palier)" SCENARIO="$scenario" \
   python3 -u /usr/lib/tele/jumeau/scenario.py
 code=$?
+# Unités systemd en échec depuis le démarrage : fichier vide si tout va bien.
+systemctl list-units --failed --plain --no-legend >/resultats/unites-en-echec-"$(param profil)".txt 2>&1 || true
 echo "$code" >/resultats/code-sortie-"$(param profil)"
 sync
 systemctl poweroff --no-block

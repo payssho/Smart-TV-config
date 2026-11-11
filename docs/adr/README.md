@@ -22,3 +22,5 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | proposée |
 | [0019](0019-emuler-la-box-dans-un-jumeau-qemu-arm64.md) | Émuler la box entière dans un jumeau QEMU arm64, en 2 Go et en 4 Go | proposée |
 | [0020](0020-garder-la-box-2-go-fluide-avec-zram-et-un-entretien-au-repos.md) | Garder la box 2 Go fluide avec zram et un entretien qui ne tourne qu'au repos | proposée |
+| [0021](0021-figer-buildroot-2026-02-lts-par-etiquette-et-commit.md) | Figer Buildroot 2026.02 LTS par étiquette et commit, et le construire en CI avec cache | proposée |
+| [0022](0022-batir-l-image-sur-systemd-glibc-et-une-chaine-precompilee.md) | Bâtir l'image sur systemd, glibc et une chaîne de compilation précompilée | proposée |

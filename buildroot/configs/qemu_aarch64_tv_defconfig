@@ -1,0 +1,46 @@
+# Image de la télé pour le jumeau QEMU (machine « virt » arm64, ADR 0019).
+# Même socle que la future image de la box : systemd, glibc, mêmes scripts
+# système ; seuls le noyau et le banc de test changent (ADR 0022).
+
+# Processeur de la S905X3
+BR2_aarch64=y
+BR2_cortex_a55=y
+
+# Chaîne de compilation précompilée (Bootlin, glibc) et cache de compilation
+BR2_TOOLCHAIN_EXTERNAL=y
+BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_AARCH64_GLIBC_STABLE=y
+BR2_CCACHE=y
+
+# Toute archive téléchargée est vérifiée par son empreinte
+BR2_GLOBAL_PATCH_DIR="board/qemu/patches"
+BR2_DOWNLOAD_FORCE_CHECK_HASHES=y
+
+# Système
+BR2_INIT_SYSTEMD=y
+BR2_TARGET_GENERIC_HOSTNAME="tele"
+BR2_TARGET_GENERIC_ISSUE="Télé maison"
+BR2_TARGET_GENERIC_GETTY_PORT="ttyAMA0"
+BR2_TARGET_TZ_INFO=y
+BR2_TARGET_LOCALTIME="Europe/Paris"
+BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_TELE_PATH)/board/commun/rootfs-overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_TELE_PATH)/board/commun/post-build.sh"
+
+# Noyau 6.18 (LTS), configuration « virt » de Buildroot plus nos ajouts
+BR2_LINUX_KERNEL=y
+BR2_LINUX_KERNEL_CUSTOM_VERSION=y
+BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.18.7"
+BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
+BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="board/qemu/aarch64-virt/linux.config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_TELE_PATH)/board/qemu-aarch64-tv/linux.fragment"
+BR2_LINUX_KERNEL_NEEDS_HOST_OPENSSL=y
+
+# Racine ext4, sans archive tar
+BR2_TARGET_ROOTFS_EXT2=y
+BR2_TARGET_ROOTFS_EXT2_4=y
+BR2_TARGET_ROOTFS_EXT2_SIZE="768M"
+# BR2_TARGET_ROOTFS_TAR is not set
+
+# Nos paquets
+BR2_PACKAGE_TELE_SYSTEME=y
+BR2_PACKAGE_TELE_JUMEAU=y

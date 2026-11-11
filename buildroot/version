@@ -1,0 +1,8 @@
+# Version de Buildroot utilisée pour construire l'image (ADR 0021).
+# Lue par scripts/image/construire.sh : l'étiquette est clonée, puis le
+# commit obtenu est comparé à celui noté ici. Pour monter de version :
+# changer les deux lignes, relancer « construire.sh --verifier », puis un
+# build complet en CI.
+BUILDROOT_DEPOT=https://github.com/buildroot/buildroot.git
+BUILDROOT_VERSION=2026.02.3
+BUILDROOT_COMMIT=679b9ead7620bbf193620d1ebf56f53c1764d37a

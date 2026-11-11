@@ -1,0 +1,3 @@
+# Scénario du jumeau : ne fait rien sans tele.scenario= sur la ligne de
+# commande du noyau.
+enable tele-jumeau.service
