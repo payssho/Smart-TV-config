@@ -157,11 +157,25 @@ MISE_A_JOUR = (
 )
 
 
+def siege():
+    """Préfixe qui donne un « siège » (écran, clavier) à cage.
+
+    Le paquet seatd de Debian démarre déjà le démon système (/run/seatd.sock) :
+    seatd-launch refuse alors d'en lancer un second, et cage s'arrêtait net.
+    On se branche sur le démon s'il est là, sinon on en lance un pour cage.
+    """
+    if os.path.exists("/run/seatd.sock"):
+        return []
+    return ["seatd-launch", "--"]
+
+
 def compositeur():
     """cage : compositeur Wayland plein écran, comme le repli de l'ADR 0008."""
     os.makedirs(XDG, mode=0o700, exist_ok=True)
     env = {"WLR_RENDERER": "pixman", "WLR_LIBINPUT_NO_DEVICES": "1",
            "WLR_NO_HARDWARE_CURSORS": "1"}
+    if os.path.exists("/run/seatd.sock"):
+        env["LIBSEAT_BACKEND"] = "seatd"
     return env
 
 
@@ -186,13 +200,13 @@ def lancer_ui():
         # wayland-0, et Chromium (--ozone-platform=wayland) s'arrête aussitôt.
         journal("pas d'app Flutter dans l'image : substitut de 150 Mo sous cage")
         log = open(f"{SORTIE}/interface-{PROFIL}.log", "a")
-        p = lancer("interface", ["seatd-launch", "--", "cage", "-s", "--",
-                                 sys.executable, "-c", ALLOUEUR, "150"],
+        p = lancer("interface", siege() + ["cage", "-s", "--",
+                                           sys.executable, "-c", ALLOUEUR, "150"],
                    stdout=log, stderr=subprocess.STDOUT, env=compositeur())
         attendre_wayland(p)
         return None
     t0 = time.time()
-    p = lancer("interface", ["seatd-launch", "--", "cage", "-s", "--", UI],
+    p = lancer("interface", siege() + ["cage", "-s", "--", UI],
                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
                env=compositeur())
     resultat = {}
