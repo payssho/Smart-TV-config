@@ -9,7 +9,7 @@ import '../a_venir.dart';
 import '../dialogue_android.dart';
 import '../feu.dart';
 
-/// « Regarder » : la rangée des applis, puis la détente. Aucun texte d'aide :
+/// « Regarder » : les applis sur deux rangées, puis la détente. Aucun texte d'aide :
 /// le logo et le nom suffisent, l'icône de redémarrage signale les applis
 /// qui s'ouvrent sous Android.
 class SectionRegarder extends StatelessWidget {
@@ -39,28 +39,33 @@ class SectionRegarder extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            for (final (i, usage) in Catalogue.usages.indexed) ...[
-              if (i > 0) const SizedBox(width: 28),
-              Tuile(
-                largeur: 322,
-                hauteur: 230,
-                autofocus: autofocus && i == 0,
-                focusNode: i == 0 ? focusPremiere : null,
-                libelleSemantique: usage.lanceur == Lanceur.android
-                    ? '${usage.nom}, sous Android'
-                    : usage.nom,
-                onActive: () => _ouvrir(context, usage),
-                child: _ContenuUsage(usage: usage),
-              ),
+        // Deux rangées de quatre : notre OS en haut, Android en dessous.
+        for (var debut = 0; debut < Catalogue.usages.length; debut += 4) ...[
+          if (debut > 0) const SizedBox(height: 24),
+          Row(
+            children: [
+              for (final (i, usage)
+                  in Catalogue.usages.skip(debut).take(4).indexed) ...[
+                if (i > 0) const SizedBox(width: 28),
+                Tuile(
+                  largeur: 411,
+                  hauteur: 196,
+                  autofocus: autofocus && debut + i == 0,
+                  focusNode: debut + i == 0 ? focusPremiere : null,
+                  libelleSemantique: usage.lanceur == Lanceur.android
+                      ? '${usage.nom}, sous Android'
+                      : usage.nom,
+                  onActive: () => _ouvrir(context, usage),
+                  child: _ContenuUsage(usage: usage),
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
+        ],
         const Spacer(),
         Tuile(
-          largeur: 760,
-          hauteur: 300,
+          largeur: 850,
+          hauteur: 270,
           padding: EdgeInsets.zero,
           libelleSemantique: 'Feu de cheminée',
           onActive: () => Navigator.of(context).push(EcranFeu.route()),
@@ -116,7 +121,7 @@ class _ContenuUsage extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LogoUsage(id: usage.id, hauteur: 72),
+            LogoUsage(id: usage.id, hauteur: 64),
             const Spacer(),
             if (usage.lanceur == Lanceur.android)
               const Icon(

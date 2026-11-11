@@ -153,39 +153,47 @@ class _EcranPrincipalState extends State<EcranPrincipal> {
                   ),
                   const SizedBox(height: 64),
                   Expanded(
-                    child: Focus(
-                      focusNode: _contenu,
-                      child: FocusTraversalGroup(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 220),
-                          switchInCurve: Curves.easeOutCubic,
-                          transitionBuilder: (enfant, animation) =>
-                              FadeTransition(
-                                opacity: animation,
-                                child: SlideTransition(
-                                  position: Tween(
-                                    begin: const Offset(0, 0.015),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: enfant,
+                    child: Actions(
+                      actions: {
+                        DirectionalFocusIntent: _MonterAction(
+                          contenu: _contenu,
+                          versOnglet: () => _onglets[_section]!.requestFocus(),
+                        ),
+                      },
+                      child: Focus(
+                        focusNode: _contenu,
+                        child: FocusTraversalGroup(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            switchInCurve: Curves.easeOutCubic,
+                            transitionBuilder: (enfant, animation) =>
+                                FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween(
+                                      begin: const Offset(0, 0.015),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: enfant,
+                                  ),
                                 ),
-                              ),
-                          layoutBuilder: (actuel, precedents) => Stack(
-                            alignment: Alignment.topLeft,
-                            children: [...precedents, ?actuel],
-                          ),
-                          child: KeyedSubtree(
-                            key: ValueKey(_section),
-                            child: switch (_section) {
-                              Section.regarder => SectionRegarder(
-                                autofocus: true,
-                                focusPremiere: _premiereAppli,
-                              ),
-                              Section.ambiance => SectionAmbiance(
-                                onApercu: (a) => setState(() => _apercu = a),
-                              ),
-                              Section.reglages => const SectionReglages(),
-                            },
+                            layoutBuilder: (actuel, precedents) => Stack(
+                              alignment: Alignment.topLeft,
+                              children: [...precedents, ?actuel],
+                            ),
+                            child: KeyedSubtree(
+                              key: ValueKey(_section),
+                              child: switch (_section) {
+                                Section.regarder => SectionRegarder(
+                                  autofocus: true,
+                                  focusPremiere: _premiereAppli,
+                                ),
+                                Section.ambiance => SectionAmbiance(
+                                  onApercu: (a) => setState(() => _apercu = a),
+                                ),
+                                Section.reglages => const SectionReglages(),
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -388,6 +396,32 @@ class _OngletState extends State<_Onglet> {
         ),
       ),
     );
+  }
+}
+
+/// Flèche vers le haut dans une section : s'il n'y a plus rien au-dessus
+/// dans la section, on monte à l'onglet courant (et pas à l'onglet le plus
+/// proche à l'écran, qui changerait de section par surprise).
+class _MonterAction extends DirectionalFocusAction {
+  _MonterAction({required this.contenu, required this.versOnglet});
+
+  final FocusNode contenu;
+  final VoidCallback versOnglet;
+
+  @override
+  void invoke(DirectionalFocusIntent intent) {
+    final focus = primaryFocus;
+    if (intent.direction == TraversalDirection.up && focus != null) {
+      final haut = focus.rect.top;
+      final resteAuDessus = contenu.traversalDescendants.any(
+        (n) => n != focus && n.canRequestFocus && n.rect.bottom <= haut + 1,
+      );
+      if (!resteAuDessus) {
+        versOnglet();
+        return;
+      }
+    }
+    super.invoke(intent);
   }
 }
 

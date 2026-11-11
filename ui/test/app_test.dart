@@ -90,7 +90,16 @@ void main() {
       expect(find.text(titre), findsOneWidget);
     }
     expect(find.text('Lumières'), findsNothing);
-    for (final nom in ['YouTube', 'Twitch', 'Netflix', 'Canal+', 'Médias']) {
+    for (final nom in [
+      'YouTube',
+      'Twitch',
+      'Deezer',
+      'Médias',
+      'Netflix',
+      'Canal+',
+      'Prime Video',
+      'Disney+',
+    ]) {
       expect(find.text(nom), findsOneWidget);
     }
     expect(find.text('Feu de cheminée'), findsOneWidget);
@@ -105,6 +114,12 @@ void main() {
     await touche(tester, LogicalKeyboardKey.arrowRight);
     expect(tuileFocus(tester), 'Twitch');
     await touche(tester, LogicalKeyboardKey.arrowRight);
+    expect(tuileFocus(tester), 'Deezer');
+    await touche(tester, LogicalKeyboardKey.arrowDown);
+    expect(tuileFocus(tester), 'Prime Video, sous Android');
+    await touche(tester, LogicalKeyboardKey.arrowRight);
+    expect(tuileFocus(tester), 'Disney+, sous Android');
+    await touche(tester, LogicalKeyboardKey.arrowLeft, fois: 3);
     expect(tuileFocus(tester), 'Netflix, sous Android');
     await touche(tester, LogicalKeyboardKey.arrowDown);
     expect(tuileFocus(tester), 'Feu de cheminée');
@@ -116,7 +131,7 @@ void main() {
     tester,
   ) async {
     await lancer(tester);
-    await touche(tester, LogicalKeyboardKey.arrowRight, fois: 2);
+    await touche(tester, LogicalKeyboardKey.arrowDown);
     await touche(tester, LogicalKeyboardKey.select);
     expect(find.text("Netflix s'ouvre sous Android"), findsOneWidget);
     await touche(tester, LogicalKeyboardKey.arrowRight); // « Annuler »
@@ -219,7 +234,7 @@ void main() {
     tester,
   ) async {
     await lancer(tester);
-    await touche(tester, LogicalKeyboardKey.arrowDown);
+    await touche(tester, LogicalKeyboardKey.arrowDown, fois: 2);
     await touche(tester, LogicalKeyboardKey.enter);
     expect(find.text(MediasFeu.credit), findsOneWidget);
     expect(
@@ -241,8 +256,7 @@ void main() {
     tester,
   ) async {
     await lancer(tester);
-    appuyer('ArrowRight');
-    appuyer('ArrowRight');
+    appuyer('ArrowDown');
     await tester.pumpAndSettle();
     appuyer('Enter');
     await tester.pumpAndSettle();

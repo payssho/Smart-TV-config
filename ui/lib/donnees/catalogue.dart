@@ -98,6 +98,8 @@ class Prereglage {
 
 /// Données de démonstration, en attendant le hub domotique (phase 5).
 abstract final class Catalogue {
+  /// Dans l'ordre d'affichage : d'abord ce qui s'ouvre dans notre OS, puis
+  /// ce qui redémarre sous Android (ADR 0014).
   static const usages = <Usage>[
     Usage(
       id: 'youtube',
@@ -114,6 +116,20 @@ abstract final class Catalogue {
       teinte: Color(0xFF9B6BFF),
     ),
     Usage(
+      id: 'deezer',
+      nom: 'Deezer',
+      description: 'Musique, dans le navigateur TV.',
+      lanceur: Lanceur.navigateur,
+      teinte: Color(0xFFA238FF),
+    ),
+    Usage(
+      id: 'medias',
+      nom: 'Médias',
+      description: 'Films et photos du disque réseau.',
+      lanceur: Lanceur.natif,
+      teinte: Color(0xFF4CC38A),
+    ),
+    Usage(
       id: 'netflix',
       nom: 'Netflix',
       description: 'Redémarre la box sous Android, environ 40 secondes.',
@@ -128,11 +144,18 @@ abstract final class Catalogue {
       teinte: Color(0xFFCBD2E0),
     ),
     Usage(
-      id: 'medias',
-      nom: 'Médias',
-      description: 'Films et photos du disque réseau.',
-      lanceur: Lanceur.natif,
-      teinte: Color(0xFF4CC38A),
+      id: 'prime',
+      nom: 'Prime Video',
+      description: 'Redémarre la box sous Android, environ 40 secondes.',
+      lanceur: Lanceur.android,
+      teinte: Color(0xFF1A98FF),
+    ),
+    Usage(
+      id: 'disney',
+      nom: 'Disney+',
+      description: 'Redémarre la box sous Android, environ 40 secondes.',
+      lanceur: Lanceur.android,
+      teinte: Color(0xFF1F6FE0),
     ),
   ];
 

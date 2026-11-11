@@ -5,7 +5,7 @@ App « 10 pieds » de la télé maison : flutter-pi sur la box (ADR 0008), build
 ## Écrans
 
 - **Onglets** : Regarder, Ambiance, Réglages. La croix vers le haut mène aux onglets, un onglet affiche sa section dès qu'il a le focus, la croix vers le bas entre dans la section. Les lumières une par une se pilotent depuis l'app mobile (issue #46).
-- **Regarder** : YouTube, Twitch, Netflix et Canal+ (sous Android, icône de redémarrage et confirmation), Médias, puis « Feu de cheminée » : un vrai feu filmé et un vrai crépitement enregistré (crédits dans `assets/CREDITS.md`). Aucun texte d'aide : logo et nom suffisent.
+- **Regarder** : deux rangées de quatre. En haut, ce qui s'ouvre dans notre OS : YouTube, Twitch, Deezer, Médias. En dessous, ce qui redémarre sous Android (icône de redémarrage et confirmation) : Netflix, Canal+, Prime Video, Disney+. Puis « Feu de cheminée » : un vrai feu filmé et un vrai crépitement enregistré (crédits dans `assets/CREDITS.md`). Aucun texte d'aide : logo et nom suffisent.
 - **Ambiance** : des préréglages (Veillée, Coin du feu, Pluie dehors, Cinéma, Nuit) qui règlent d'un OK le fond de l'OS et la lumière de la pièce, puis le réglage fin : fond seul (lucioles, braises, pluie, nuit calme) et lumière seule. L'écran prend le fond et la couleur du choix qui a le focus.
 - **Fonds** : une pièce nue éclairée par la lampe, sans décor ; la profondeur vient de trois plans (loin net, près flou comme hors mise au point). Allégés en 2 Go (moins de particules, pas de flou), figés si les animations sont réduites.
 - **Réglages** : système (profil mémoire), stockage (plafonds de cache, nettoyage, issue #45), télécommande, redémarrer sous Android, crédits.
