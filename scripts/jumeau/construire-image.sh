@@ -58,7 +58,8 @@ case "$distribution" in
     suite=noble
     miroir=http://ports.ubuntu.com/ubuntu-ports
     composants=main,universe
-    paquets+=(linux-image-virtual)
+    # linux-image-extra-virtual : modules « extra », dont zram.
+    paquets+=(linux-image-virtual linux-image-extra-virtual)
     ;;
   *) echo "Distribution inconnue : $distribution" >&2; exit 2 ;;
 esac

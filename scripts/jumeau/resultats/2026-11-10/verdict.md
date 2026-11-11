@@ -8,7 +8,7 @@ Image de repli Ubuntu 24.04 arm64 (deb.debian.org était injoignable depuis le c
 
 Ce que ce passage ne montre pas encore :
 
-- **zram** : absent du noyau `linux-image-virtual` d'Ubuntu (module dans `linux-modules-extra`) ; `tele-memoire` a continué sans, comme prévu. Le noyau Debian de l'image CI l'a.
+- **zram** : absent du noyau `linux-image-virtual` d'Ubuntu (module dans les modules « extra ») ; `tele-memoire` a continué sans, comme prévu. L'image de repli embarque désormais `linux-image-extra-virtual`, et le noyau Debian de l'image CI l'a d'origine.
 - **Chromium et l'app Flutter** : absents de l'image de repli (Chromium n'existe qu'en snap sur Ubuntu, l'app ne se compile pour arm64 que sur une machine arm64). Les paliers YouTube, Twitch et pire cas mémoire attendent l'image Debian en CI.
 
 Défauts trouvés par le jumeau et corrigés avant ce passage : passage repoussé trop coûteux (sous-processus inutiles, écriture du journal), garde aveugle quand le processeur est saturé sans file d'attente (PSI à zéro), plafonnement qui relançait `du` à chaque fichier.
