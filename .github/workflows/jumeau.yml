@@ -115,7 +115,7 @@ jobs:
   rapport:
     name: Rapport 2 Go / 4 Go
     needs: jumeau
-    if: always() && needs.jumeau.result != 'skipped'
+    if: ${{ !cancelled() && needs.jumeau.result != 'skipped' && needs.jumeau.result != 'cancelled' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
