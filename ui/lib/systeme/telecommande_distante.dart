@@ -34,13 +34,13 @@ void appuyer(String touche) {
   final contexte = focus?.context;
   switch (touche) {
     case 'ArrowUp':
-      focus?.focusInDirection(TraversalDirection.up);
+      _diriger(contexte, TraversalDirection.up);
     case 'ArrowDown':
-      focus?.focusInDirection(TraversalDirection.down);
+      _diriger(contexte, TraversalDirection.down);
     case 'ArrowLeft':
-      focus?.focusInDirection(TraversalDirection.left);
+      _diriger(contexte, TraversalDirection.left);
     case 'ArrowRight':
-      focus?.focusInDirection(TraversalDirection.right);
+      _diriger(contexte, TraversalDirection.right);
     case 'Enter':
       if (contexte != null) {
         Actions.maybeInvoke(contexte, const ActivateIntent());
@@ -54,4 +54,11 @@ void appuyer(String touche) {
         Actions.maybeInvoke(contexte, const RetourIntent());
       }
   }
+}
+
+/// Passe par les actions de l'app, comme une vraie flèche du clavier, pour
+/// que les règles de navigation (onglets, sections) s'appliquent aussi.
+void _diriger(BuildContext? contexte, TraversalDirection direction) {
+  if (contexte == null) return;
+  Actions.maybeInvoke(contexte, DirectionalFocusIntent(direction));
 }

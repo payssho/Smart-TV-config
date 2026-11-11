@@ -47,6 +47,18 @@ class LogoUsage extends StatelessWidget {
             ),
           ),
         ),
+        'deezer' => AspectRatio(
+          aspectRatio: 1.25,
+          child: CustomPaint(painter: _Egaliseur()),
+        ),
+        'prime' => AspectRatio(
+          aspectRatio: 1.5,
+          child: CustomPaint(painter: _Sourire()),
+        ),
+        'disney' => AspectRatio(
+          aspectRatio: 1.5,
+          child: CustomPaint(painter: _ArcEtPlus()),
+        ),
         _ => AspectRatio(
           aspectRatio: 1,
           child: FittedBox(
@@ -130,6 +142,88 @@ class _RubanN extends CustomPainter {
       ..lineTo(w - b, h)
       ..close();
     canvas.drawPath(diagonale, Paint()..color = const Color(0xFFE50914));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter ancien) => false;
+}
+
+/// Cinq barres d'égaliseur violettes, de hauteurs inégales.
+class _Egaliseur extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size t) {
+    const hauteurs = [0.45, 0.8, 1.0, 0.62, 0.34];
+    final pas = t.width / hauteurs.length;
+    final pinceau = Paint()..color = const Color(0xFFA238FF);
+    for (final (i, h) in hauteurs.indexed) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(i * pas, t.height * (1 - h), pas * 0.66, t.height * h),
+          Radius.circular(pas * 0.2),
+        ),
+        pinceau,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter ancien) => false;
+}
+
+/// Un triangle de lecture clair au-dessus d'un sourire bleu.
+class _Sourire extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size t) {
+    final w = t.width, h = t.height;
+    final triangle = Path()
+      ..moveTo(w * 0.36, h * 0.04)
+      ..lineTo(w * 0.72, h * 0.3)
+      ..lineTo(w * 0.36, h * 0.56)
+      ..close();
+    canvas.drawPath(triangle, Paint()..color = Veilleuse.lin);
+    final sourire = Path()
+      ..moveTo(w * 0.04, h * 0.62)
+      ..quadraticBezierTo(w * 0.5, h * 1.12, w * 0.96, h * 0.62);
+    canvas.drawPath(
+      sourire,
+      Paint()
+        ..color = const Color(0xFF1A98FF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * 0.11
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter ancien) => false;
+}
+
+/// Un arc de lumière bleu qui se termine par un plus.
+class _ArcEtPlus extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size t) {
+    final w = t.width, h = t.height;
+    final arc = Path()
+      ..moveTo(w * 0.04, h * 0.86)
+      ..quadraticBezierTo(w * 0.36, h * -0.28, w * 0.74, h * 0.4);
+    canvas.drawPath(
+      arc,
+      Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0xFF0B3FA8), Color(0xFF6FD3FF)],
+        ).createShader(Offset.zero & t)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * 0.1
+        ..strokeCap = StrokeCap.round,
+    );
+    final plus = Paint()
+      ..color = Veilleuse.lin
+      ..strokeWidth = h * 0.1
+      ..strokeCap = StrokeCap.round;
+    final c = Offset(w * 0.8, h * 0.7);
+    final b = h * 0.17;
+    canvas.drawLine(c - Offset(b, 0), c + Offset(b, 0), plus);
+    canvas.drawLine(c - Offset(0, b), c + Offset(0, b), plus);
   }
 
   @override

@@ -1,17 +1,14 @@
 import 'package:flutter/widgets.dart';
 
-/// Fond de l'OS, choisi dans « Ambiance de l'OS ».
+/// Fond de l'OS, choisi dans l'onglet « Ambiance ».
 enum FondOS {
-  lucioles('Lucioles', 'Des lucioles dérivent lentement dans la pénombre.'),
-  braises('Braises', 'Une lueur de cheminée et quelques braises qui montent.'),
-  calme(
-    'Nuit calme',
-    'Seulement la lueur des lumières de la pièce, sans mouvement.',
-  );
+  lucioles('Lucioles'),
+  braises('Braises'),
+  pluie('Pluie'),
+  calme('Nuit calme');
 
-  const FondOS(this.nom, this.description);
+  const FondOS(this.nom);
   final String nom;
-  final String description;
 }
 
 /// Réglages d'ambiance de l'OS. En mémoire pour l'instant ; persistés dans

@@ -9,8 +9,10 @@ import '../a_venir.dart';
 import '../dialogue_android.dart';
 import '../feu.dart';
 
-/// « Regarder » : les applis, puis la détente.
-class SectionRegarder extends StatefulWidget {
+/// « Regarder » : les applis sur deux rangées, puis la détente. Aucun texte d'aide :
+/// le logo et le nom suffisent, l'icône de redémarrage signale les applis
+/// qui s'ouvrent sous Android.
+class SectionRegarder extends StatelessWidget {
   const SectionRegarder({
     super.key,
     this.autofocus = false,
@@ -22,14 +24,7 @@ class SectionRegarder extends StatefulWidget {
   /// Focus de la première tuile, pour y revenir avec la touche Accueil.
   final FocusNode? focusPremiere;
 
-  @override
-  State<SectionRegarder> createState() => _SectionRegarderState();
-}
-
-class _SectionRegarderState extends State<SectionRegarder> {
-  String _aide = Catalogue.usages.first.description;
-
-  void _ouvrir(Usage usage) {
+  void _ouvrir(BuildContext context, Usage usage) {
     if (usage.lanceur == Lanceur.android) {
       montrerDialogueAndroid(context, usage.nom);
     } else {
@@ -44,100 +39,63 @@ class _SectionRegarderState extends State<SectionRegarder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Applications', style: textes.titleLarge),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            for (final (i, usage) in Catalogue.usages.indexed) ...[
-              if (i > 0) const SizedBox(width: 28),
-              Tuile(
-                largeur: 322,
-                hauteur: 210,
-                autofocus: widget.autofocus && i == 0,
-                focusNode: i == 0 ? widget.focusPremiere : null,
-                libelleSemantique: usage.nom,
-                onFocus: (f) {
-                  if (f) setState(() => _aide = usage.description);
-                },
-                onActive: () => _ouvrir(usage),
-                child: _ContenuUsage(usage: usage),
-              ),
+        // Deux rangées de quatre : notre OS en haut, Android en dessous.
+        for (var debut = 0; debut < Catalogue.usages.length; debut += 4) ...[
+          if (debut > 0) const SizedBox(height: 24),
+          Row(
+            children: [
+              for (final (i, usage)
+                  in Catalogue.usages.skip(debut).take(4).indexed) ...[
+                if (i > 0) const SizedBox(width: 28),
+                Tuile(
+                  largeur: 411,
+                  hauteur: 196,
+                  autofocus: autofocus && debut + i == 0,
+                  focusNode: debut + i == 0 ? focusPremiere : null,
+                  libelleSemantique: usage.lanceur == Lanceur.android
+                      ? '${usage.nom}, sous Android'
+                      : usage.nom,
+                  onActive: () => _ouvrir(context, usage),
+                  child: _ContenuUsage(usage: usage),
+                ),
+              ],
             ],
-          ],
-        ),
-        const SizedBox(height: 28),
-        SizedBox(
-          height: 40,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
-            child: Text(_aide, key: ValueKey(_aide), style: textes.bodyLarge),
           ),
-        ),
+        ],
         const Spacer(),
-        Text('Détente', style: textes.titleLarge),
-        const SizedBox(height: 24),
         Tuile(
-          largeur: 672,
-          hauteur: 210,
+          largeur: 850,
+          hauteur: 270,
           padding: EdgeInsets.zero,
           libelleSemantique: 'Feu de cheminée',
-          onFocus: (f) {
-            if (f) {
-              setState(
-                () => _aide =
-                    'Un feu qui crépite en plein écran, avec le son. '
-                    'Retour pour revenir.',
-              );
-            }
-          },
           onActive: () => Navigator.of(context).push(EcranFeu.route()),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(Veilleuse.rayonTuile - 4),
             child: Stack(
               fit: StackFit.expand,
               children: [
+                // Une image du vrai feu, pas un dessin.
+                Image.asset(MediasFeu.affiche, fit: BoxFit.cover),
                 const DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment(0.55, 1.2),
-                      radius: 1.1,
-                      colors: [
-                        Color(0xFFB8471A),
-                        Color(0xFF3A1A0E),
-                        Color(0xFF1B1210),
-                      ],
-                      stops: [0, 0.45, 1],
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Color(0xCC0B0806)],
+                      stops: [0.35, 1],
                     ),
                   ),
                 ),
-                const Positioned(
-                  right: 48,
-                  bottom: 20,
-                  child: Icon(
-                    Icons.local_fire_department_rounded,
-                    size: 150,
-                    color: Color(0xFFFFA24A),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'avec le son',
-                        style: textes.bodyLarge?.copyWith(fontSize: 22),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Feu de cheminée',
-                        style: textes.headlineMedium?.copyWith(
-                          fontFamily: Veilleuse.policeEtroite,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 56,
-                        ),
-                      ),
-                    ],
+                Positioned(
+                  left: 32,
+                  bottom: 24,
+                  child: Text(
+                    'Feu de cheminée',
+                    style: textes.headlineMedium?.copyWith(
+                      fontFamily: Veilleuse.policeEtroite,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 52,
+                    ),
                   ),
                 ),
               ],
@@ -166,9 +124,10 @@ class _ContenuUsage extends StatelessWidget {
             LogoUsage(id: usage.id, hauteur: 64),
             const Spacer(),
             if (usage.lanceur == Lanceur.android)
-              Text(
-                'sous Android',
-                style: textes.bodyLarge?.copyWith(fontSize: 22),
+              const Icon(
+                Icons.restart_alt_rounded,
+                size: 34,
+                color: Veilleuse.brume,
               ),
           ],
         ),

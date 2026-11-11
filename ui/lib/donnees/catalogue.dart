@@ -1,5 +1,7 @@
 import 'package:flutter/painting.dart';
 
+import 'etat_os.dart';
+
 /// Où s'ouvre un usage (ADR 0014).
 enum Lanceur {
   /// Dans notre OS, écran natif Flutter.
@@ -76,14 +78,33 @@ class Lumiere {
   );
 }
 
+/// Un préréglage de l'onglet « Ambiance » : un fond pour l'OS et une scène
+/// de lumière pour la pièce, appliqués d'un seul OK.
+class Prereglage {
+  const Prereglage({
+    required this.id,
+    required this.nom,
+    required this.fond,
+    required this.scene,
+  });
+
+  final String id;
+  final String nom;
+  final FondOS fond;
+
+  /// Identifiant de la scène de [Catalogue.scenes].
+  final String scene;
+}
+
 /// Données de démonstration, en attendant le hub domotique (phase 5).
 abstract final class Catalogue {
+  /// Dans l'ordre d'affichage : d'abord ce qui s'ouvre dans notre OS, puis
+  /// ce qui redémarre sous Android (ADR 0014).
   static const usages = <Usage>[
     Usage(
       id: 'youtube',
       nom: 'YouTube',
-      description:
-          "S'ouvre dans le navigateur TV, l'envoi depuis le téléphone marche.",
+      description: 'Navigateur TV, envoi depuis le téléphone.',
       lanceur: Lanceur.navigateur,
       teinte: Color(0xFFE5484D),
     ),
@@ -93,6 +114,20 @@ abstract final class Catalogue {
       description: 'Lecteur natif : chaînes suivies et directs en 1080p.',
       lanceur: Lanceur.natif,
       teinte: Color(0xFF9B6BFF),
+    ),
+    Usage(
+      id: 'deezer',
+      nom: 'Deezer',
+      description: 'Musique, dans le navigateur TV.',
+      lanceur: Lanceur.navigateur,
+      teinte: Color(0xFFA238FF),
+    ),
+    Usage(
+      id: 'medias',
+      nom: 'Médias',
+      description: 'Films et photos du disque réseau.',
+      lanceur: Lanceur.natif,
+      teinte: Color(0xFF4CC38A),
     ),
     Usage(
       id: 'netflix',
@@ -109,13 +144,50 @@ abstract final class Catalogue {
       teinte: Color(0xFFCBD2E0),
     ),
     Usage(
-      id: 'medias',
-      nom: 'Médias',
-      description: 'Films et photos du disque réseau.',
-      lanceur: Lanceur.natif,
-      teinte: Color(0xFF4CC38A),
+      id: 'prime',
+      nom: 'Prime Video',
+      description: 'Redémarre la box sous Android, environ 40 secondes.',
+      lanceur: Lanceur.android,
+      teinte: Color(0xFF1A98FF),
+    ),
+    Usage(
+      id: 'disney',
+      nom: 'Disney+',
+      description: 'Redémarre la box sous Android, environ 40 secondes.',
+      lanceur: Lanceur.android,
+      teinte: Color(0xFF1F6FE0),
     ),
   ];
+
+  static const prereglages = <Prereglage>[
+    Prereglage(
+      id: 'veillee',
+      nom: 'Veillée',
+      fond: FondOS.lucioles,
+      scene: 'soiree',
+    ),
+    Prereglage(
+      id: 'coin-du-feu',
+      nom: 'Coin du feu',
+      fond: FondOS.braises,
+      scene: 'soiree',
+    ),
+    Prereglage(
+      id: 'pluie',
+      nom: 'Pluie dehors',
+      fond: FondOS.pluie,
+      scene: 'lecture',
+    ),
+    Prereglage(
+      id: 'cinema',
+      nom: 'Cinéma',
+      fond: FondOS.calme,
+      scene: 'cinema',
+    ),
+    Prereglage(id: 'nuit', nom: 'Nuit', fond: FondOS.calme, scene: 'nuit'),
+  ];
+
+  static Scene scene(String id) => scenes.firstWhere((s) => s.id == id);
 
   static const scenes = <Scene>[
     Scene(
