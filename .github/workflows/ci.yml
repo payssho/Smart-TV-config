@@ -35,7 +35,11 @@ jobs:
         run: systeme/tests/tester.sh
       - name: Les mêmes sous le sh de BusyBox (celui de Buildroot)
         run: |
-          sudo apt-get install -y busybox
+          # L'image ubuntu-24.04 livre déjà busybox-static : on ne passe par
+          # apt que s'il manque (un miroir injoignable faisait échouer le job).
+          if ! command -v busybox >/dev/null; then
+            sudo apt-get update && sudo apt-get install -y busybox-static
+          fi
           mkdir -p "$RUNNER_TEMP/bb"
           for c in awk find stat du df date sort head cat mkdir rm touch grep sed tr kill renice; do
             ln -sf "$(command -v busybox)" "$RUNNER_TEMP/bb/$c"
