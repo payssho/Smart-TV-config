@@ -109,6 +109,9 @@ jobs:
         run: |
           scripts/jumeau/demarrer.sh --profil "${{ matrix.profil }}" --scenario "$SCENARIO" \
             --palier "$PALIER" --sortie resultats
+      - name: Fin du journal de Chromium
+        if: always()
+        run: tail -n 40 resultats/chromium-*.log 2>/dev/null || echo "pas de journal Chromium"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
