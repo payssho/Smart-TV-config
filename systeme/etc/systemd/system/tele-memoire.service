@@ -1,0 +1,14 @@
+# Réglages mémoire au démarrage (zram, noyau), avant l'interface. ADR 0020.
+[Unit]
+Description=Télé maison : réglages mémoire (zram, noyau)
+DefaultDependencies=no
+After=systemd-modules-load.service local-fs.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/tele-memoire appliquer
+
+[Install]
+WantedBy=sysinit.target

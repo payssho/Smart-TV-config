@@ -1,0 +1,75 @@
+#!/bin/sh
+# Règle la mémoire de la box au démarrage, selon sa RAM (ADR 0020) :
+# swap compressé zram, réglages du noyau (swappiness, MGLRU, écritures SD).
+# Une seule fois par démarrage, avant l'interface. Aucun coût ensuite :
+# c'est le noyau qui travaille, pas un processus qui tourne.
+#
+# Usage : tele-memoire [appliquer|etat]
+set -eu
+
+TELE_NOM=memoire
+# shellcheck source-path=SCRIPTDIR source=../lib/tele/commun.sh
+. "${TELE_LIB:-${TELE_RACINE:-}/usr/lib/tele}/commun.sh"
+
+zram() {
+  if [ -e "$R/sys/block/zram0/disksize" ] && grep -q zram0 "$R/proc/swaps" 2>/dev/null; then
+    journal "zram déjà actif"
+    return
+  fi
+  modprobe zram num_devices=1 2>/dev/null || true
+  if [ ! -e "$R/sys/block/zram0" ]; then
+    journal "pas de zram dans ce noyau : on continue sans"
+    return
+  fi
+  total="$(meminfo_mo MemTotal)"
+  taille=$((total * ZRAM_POURCENT / 100))
+  ecrire /sys/block/zram0/comp_algorithm "$ZRAM_ALGO"
+  ecrire /sys/block/zram0/disksize "${taille}M"
+  mkswap "$R/dev/zram0" >/dev/null
+  # Priorité haute : zram passe avant tout autre swap.
+  swapon -p 100 "$R/dev/zram0"
+  journal "zram : ${taille} Mo en $ZRAM_ALGO"
+}
+
+noyau() {
+  ecrire /proc/sys/vm/swappiness "$SWAPPINESS"
+  ecrire /proc/sys/vm/page-cluster "$PAGE_CLUSTER"
+  ecrire /proc/sys/vm/watermark_scale_factor "$WATERMARK_SCALE_FACTOR"
+  ecrire /proc/sys/vm/dirty_background_bytes "$DIRTY_BACKGROUND_OCTETS"
+  ecrire /proc/sys/vm/dirty_bytes "$DIRTY_OCTETS"
+  if [ -e "$R/sys/kernel/mm/lru_gen/enabled" ]; then
+    ecrire /sys/kernel/mm/lru_gen/enabled y
+    ecrire /sys/kernel/mm/lru_gen/min_ttl_ms "$LRU_GEN_MIN_TTL_MS"
+  fi
+}
+
+appliquer() {
+  charger_profil
+  mkdir -p "$RUN"
+  echo "$PROFIL" >"$RUN/profil"
+  journal "profil $PROFIL ($(meminfo_mo MemTotal) Mo vus par Linux)"
+  zram
+  noyau
+  journal "réglages appliqués"
+}
+
+etat() {
+  charger_profil
+  echo "profil=$PROFIL"
+  echo "memtotal_mo=$(meminfo_mo MemTotal)"
+  echo "memdisponible_mo=$(meminfo_mo MemAvailable)"
+  for r in swappiness page-cluster watermark_scale_factor; do
+    printf '%s=%s\n' "$r" "$(cat "$R/proc/sys/vm/$r" 2>/dev/null || echo '?')"
+  done
+  if [ -r "$R/sys/block/zram0/mm_stat" ]; then
+    # mm_stat : données d'origine, compressées, mémoire utilisée (octets).
+    awk '{ printf "zram_donnees_mo=%d\nzram_compresse_mo=%d\nzram_ram_mo=%d\n", $1/1048576, $2/1048576, $3/1048576 }' \
+      "$R/sys/block/zram0/mm_stat"
+  fi
+}
+
+case "${1:-appliquer}" in
+  appliquer) appliquer ;;
+  etat) etat ;;
+  *) echo "Usage : tele-memoire [appliquer|etat]" >&2; exit 2 ;;
+esac

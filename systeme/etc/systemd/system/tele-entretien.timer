@@ -1,0 +1,11 @@
+[Unit]
+Description=Télé maison : entretien toutes les 10 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=10min
+RandomizedDelaySec=1min
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

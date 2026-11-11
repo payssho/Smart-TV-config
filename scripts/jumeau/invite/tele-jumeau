@@ -1,0 +1,20 @@
+#!/bin/sh
+# Côté jumeau : monte les partages de l'hôte, lance le scénario demandé sur
+# la ligne de commande du noyau, puis éteint (demarrer.sh attend la fin).
+set -u
+
+param() { tr ' ' '\n' </proc/cmdline | sed -n "s/^tele\.$1=//p" | tail -n1; }
+
+scenario="$(param scenario)"
+[ -n "$scenario" ] || exit 0
+
+mkdir -p /medias /resultats
+mount -t 9p -o trans=virtio,version=9p2000.L,ro medias /medias
+mount -t 9p -o trans=virtio,version=9p2000.L resultats /resultats
+
+PROFIL="$(param profil)" PALIER_S="$(param palier)" SCENARIO="$scenario" \
+  python3 -u /usr/lib/tele/jumeau/scenario.py
+code=$?
+echo "$code" >/resultats/code-sortie-"$(param profil)"
+sync
+systemctl poweroff --no-block

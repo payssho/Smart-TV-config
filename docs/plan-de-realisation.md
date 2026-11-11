@@ -109,7 +109,7 @@ gantt
 ### J5. Image Buildroot dans QEMU (phase 3, sans box)
 
 - **Objectif** : notre image se construit en CI et son espace utilisateur démarre dans QEMU.
-- **Livrables** : arbre `BR2_EXTERNAL`, defconfig QEMU aarch64, build GitHub Actions avec cache, test de démarrage en CI avec `-m 2G` et `-m 4G`.
+- **Livrables** : arbre `BR2_EXTERNAL`, defconfig QEMU aarch64, build GitHub Actions avec cache, test de démarrage en CI avec `-m 2G` et `-m 4G`. La machine existe déjà : le jumeau de l'ADR 0019 (`scripts/jumeau/`) ; J5 y remplace l'image Debian par l'image Buildroot.
 - **Fin** : artefact `.img.xz` produit par la CI, rapport mémoire des deux profils en artefact.
 - **Issues** : #17, #18, #19, #43 (partie QEMU).
 - **Durée** : 3 à 4 semaines, en parallèle de J2. **Dépend de** : J0.

@@ -1,0 +1,70 @@
+{
+  "profil": "4go",
+  "scenario": "fumee",
+  "palier_s": 20,
+  "noyau": "6.8.0-31-generic",
+  "machine": "aarch64",
+  "memtotal_mo": 3339,
+  "swap_zram_mo": 0,
+  "demarrage_s": 54.1,
+  "reglages": {
+    "profil": "4go",
+    "memtotal_mo": "3339",
+    "memdisponible_mo": "3116",
+    "swappiness": "60",
+    "page-cluster": "0",
+    "watermark_scale_factor": "10"
+  },
+  "chromium": false,
+  "paliers": [
+    {
+      "nom": "Accueil",
+      "occupee_mo": 407,
+      "disponible_mo": 2932,
+      "anon_mo": 213,
+      "cache_mo": 97,
+      "swap_mo": 0,
+      "zram_ram_mo": 0,
+      "pic_occupee_mo": 421,
+      "min_disponible_mo": 2918,
+      "psi_memoire_some_max": 0.0,
+      "psi_memoire_full_max": 0.0,
+      "pages_swap_entrees": 0,
+      "pages_swap_sorties": 0,
+      "oom_kills": 0,
+      "vivants": {
+        "interface": true,
+        "hub": true
+      }
+    }
+  ],
+  "ui_premiere_image_ms": null,
+  "capture_accueil": true,
+  "entretien": {
+    "seul_s": 7.13,
+    "pendant_lecture_s": 8.02,
+    "passage_repousse_ms": 1008,
+    "frequence_boucle_facteur": 291,
+    "dernier_etat_lecture": "repousse (lecture)",
+    "dernier_etat_processeur_occupe": "repousse (processeur occupé à 86 %)",
+    "pendant_menage_s": 8.57,
+    "cache_avant_mo": 712,
+    "menage_duree_s": 21.8,
+    "cache_apres_mo": 511,
+    "plafond_mo": 512,
+    "dernier_etat_repos": "fait",
+    "surcout_lecture_pourcent": 12.5,
+    "surcout_lecture_reel_pourcent": 0.043,
+    "surcout_menage_pourcent": 20.2
+  },
+  "reglages_fin": {
+    "profil": "4go",
+    "memtotal_mo": "3339",
+    "memdisponible_mo": "2926",
+    "swappiness": "60",
+    "page-cluster": "0",
+    "watermark_scale_factor": "10"
+  },
+  "oom_kills_total": 0,
+  "interface_vivante_fin": true
+}

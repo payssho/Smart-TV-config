@@ -1,0 +1,161 @@
+#!/bin/sh
+# Entretien régulier de la box (ADR 0020), lancé toutes les 10 minutes.
+#
+# Règle d'or : ne jamais gêner la télé. Tant qu'elle sert (lecture, YouTube,
+# menus touchés récemment) ou que le processeur ou la SD travaillent, le
+# script ne fait que lire quelques compteurs et repart (quelques millisecondes).
+# Le vrai ménage n'a lieu qu'au repos, en priorité minimale (nice 19, E/S
+# « idle »), et il ne vide jamais le cache du noyau : relire depuis la SD
+# coûterait plus cher que ce qu'on gagnerait.
+#
+# Usage : tele-entretien [--forcer]   (--forcer : ignore la garde de repos)
+set -eu
+
+TELE_NOM=entretien
+# shellcheck source-path=SCRIPTDIR source=../lib/tele/commun.sh
+. "${TELE_LIB:-${TELE_RACINE:-}/usr/lib/tele}/commun.sh"
+
+forcer=non
+[ "${1:-}" = "--forcer" ] && forcer=oui
+
+charger_profil
+mkdir -p "$RUN"
+
+# --- Garde de repos (chemin rapide) -----------------------------------------
+# Tant que la télé sert, l'entretien ne lit que deux petits fichiers (shell
+# seul, sans sous-processus), vérifie l'alerte de stockage et repart, sans
+# rien écrire sur la SD.
+
+# Taux d'occupation de /data, en % (lecture seule).
+usage_data_pourcent() {
+  if [ -d "$R$DOSSIER_DATA" ]; then
+    df -P "$R$DOSSIER_DATA" | awk 'NR == 2 { sub("%", "", $5); print $5 }'
+  else
+    echo 0
+  fi
+}
+
+# Alerte et refus des mises à jour au-delà du seuil, vérifiés à chaque
+# passage, même pendant la lecture : c'est une lecture seule.
+alerte_stockage() {
+  usage="$(usage_data_pourcent)"
+  if [ "$usage" -ge "$SEUIL_ALERTE_POURCENT" ]; then
+    echo "$usage" >"$RUN/alerte-stockage"
+    : >"$RUN/maj-refusee"
+  else
+    rm -f "$RUN/alerte-stockage" "$RUN/maj-refusee"
+  fi
+}
+
+repousser() {
+  alerte_stockage
+  echo "repousse $1" >"$RUN/entretien-dernier"
+  exit 0
+}
+
+act="$(activite)"
+if [ "$forcer" = non ]; then
+  case "$act" in
+    veille | accueil) ;;
+    *) repousser "($act)" ;;
+  esac
+  cpu="$(psi_avg10 cpu)"
+  io="$(psi_avg10 io)"
+  [ "$cpu" -le "$PSI_CPU_MAX" ] || repousser "(processeur $cpu %)"
+  [ "$io" -le "$PSI_IO_MAX" ] || repousser "(SD $io %)"
+  age="$(activite_age_min)"
+  [ "$age" -ge "$REPOS_MIN" ] || repousser "($act depuis $age min)"
+  # Dernier contrôle, le seul qui prend une seconde : le processeur.
+  occupe="$(cpu_occupe_pourcent)"
+  [ "$occupe" -le "$CPU_MAX_POURCENT" ] || repousser "(processeur occupé à $occupe %)"
+fi
+alerte_stockage
+
+# Un seul entretien à la fois.
+exec 9>"$RUN/entretien.verrou"
+if command -v flock >/dev/null 2>&1 && ! flock -n 9; then
+  journal "entretien déjà en cours"
+  exit 0
+fi
+
+# À partir d'ici, on se fait tout petit.
+renice -n 19 -p $$ >/dev/null 2>&1 || true
+ionice -c 3 -p $$ >/dev/null 2>&1 || true
+
+# --- Mémoire ----------------------------------------------------------------
+
+# Chromium n'a rien à faire en mémoire hors de YouTube : s'il traîne (fermeture
+# ratée), on le ferme. C'est ce qui sauve la box 2 Go après une longue soirée.
+if [ "$act" != youtube ] && [ -r "$RUN/roles/chromium.pid" ]; then
+  pid="$(cat "$RUN/roles/chromium.pid")"
+  if kill -0 "$pid" 2>/dev/null; then
+    kill -TERM "$pid" 2>/dev/null || true
+    journal "Chromium fermé (resté ouvert hors YouTube)"
+  fi
+  rm -f "$RUN/roles/chromium.pid"
+fi
+
+# Compacter la mémoire en veille : le décodeur vidéo et l'affichage ont
+# besoin de grands blocs contigus au prochain allumage.
+if [ "$act" = veille ]; then
+  ecrire /proc/sys/vm/compact_memory 1
+fi
+
+# --- Stockage (issue #45) ---------------------------------------------------
+
+# Vide un dossier de cache en gardant le dossier lui-même.
+vider() {
+  if [ -d "$R$1" ]; then
+    find "$R$1" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+  fi
+}
+
+# Ramène un dossier sous son plafond en supprimant les plus vieux fichiers.
+plafonner() {
+  dossier="$1"
+  cap="$2"
+  avant="$(taille_mo "$dossier")"
+  [ "$avant" -gt "$cap" ] || return 0
+  # Plus vieux d'abord (date de dernier accès). Une seule mesure du dossier,
+  # puis on décompte la taille de chaque fichier supprimé : pas de « du » à
+  # chaque fichier, qui coûterait cher sur un cache de milliers d'entrées.
+  # (stat -c plutôt que find -printf, absent de BusyBox.)
+  reste_ko="$(du -sk "$R$dossier" 2>/dev/null | awk '{ print $1 }')"
+  cap_ko=$((cap * 1024))
+  find "$R$dossier" -type f -exec stat -c '%X %s %n' {} + 2>/dev/null | sort -n |
+    while read -r _ octets f; do
+      [ "$reste_ko" -gt "$cap_ko" ] || break
+      rm -f "$f"
+      reste_ko=$((reste_ko - (octets + 1023) / 1024))
+    done
+  journal "$dossier : ${avant} Mo ramenés à $(taille_mo "$dossier") Mo (plafond $cap)"
+}
+
+if [ "$usage" -ge "$SEUIL_VIDER_POURCENT" ]; then
+  vider "$DOSSIER_CHROMIUM_CACHE"
+  vider "$DOSSIER_MINIATURES"
+  vider "$DOSSIER_TMP"
+  journal "stockage à ${usage} % : caches vidés"
+else
+  plafonner "$DOSSIER_CHROMIUM_CACHE" "$CAP_CHROMIUM_MO"
+  plafonner "$DOSSIER_MINIATURES" "$CAP_MINIATURES_MO"
+  plafonner "$DOSSIER_TMP" "$CAP_TMP_MO"
+fi
+
+if command -v journalctl >/dev/null 2>&1; then
+  journalctl --vacuum-size="${CAP_JOURNAL_MO}M" >/dev/null 2>&1 || true
+fi
+
+# fstrim : prévient l'usure et le ralentissement de la SD, en veille seulement.
+if [ "$act" = veille ] && command -v fstrim >/dev/null 2>&1; then
+  dernier="$R/var/lib/tele/dernier-trim"
+  if [ ! -e "$dernier" ] || [ -n "$(find "$dernier" -mtime +"$TRIM_JOURS" 2>/dev/null)" ]; then
+    fstrim -a >/dev/null 2>&1 || true
+    mkdir -p "$(dirname "$dernier")"
+    touch "$dernier"
+    journal "fstrim fait"
+  fi
+fi
+
+echo "fait" >"$RUN/entretien-dernier"
+journal "entretien fait ($act, stockage ${usage} %)"

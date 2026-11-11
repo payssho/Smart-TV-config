@@ -1,0 +1,34 @@
+#!/bin/sh
+# Lance une brique de la télé avec son rang face au manque de mémoire.
+# Le score OOM dit au noyau qui tuer en premier si la RAM manque : Chromium
+# d'abord, l'interface et le hub jamais (ADR 0020). Le pid est noté dans
+# /run/tele/roles/ pour que tele-entretien sache qui tourne.
+#
+# Usage : tele-role <interface|hub|lecteur|mise_a_jour|chromium> -- commande...
+set -eu
+
+TELE_NOM=role
+# shellcheck source-path=SCRIPTDIR source=../lib/tele/commun.sh
+. "${TELE_LIB:-${TELE_RACINE:-}/usr/lib/tele}/commun.sh"
+
+role="${1:-}"
+[ "${2:-}" = "--" ] || { echo "Usage : tele-role <rôle> -- commande..." >&2; exit 2; }
+shift 2
+[ $# -gt 0 ] || { echo "Commande manquante" >&2; exit 2; }
+
+# shellcheck disable=SC1090
+. "$CONF"
+case "$role" in
+  interface) score="$OOM_INTERFACE" ;;
+  hub) score="$OOM_HUB" ;;
+  lecteur) score="$OOM_LECTEUR" ;;
+  mise_a_jour) score="$OOM_MISE_A_JOUR" ;;
+  chromium) score="$OOM_CHROMIUM" ;;
+  *) echo "Rôle inconnu : $role" >&2; exit 2 ;;
+esac
+
+mkdir -p "$RUN/roles"
+echo $$ >"$RUN/roles/$role.pid"
+# Les enfants héritent du score : tous les processus de Chromium sont visés.
+printf '%s\n' "$score" >"$R/proc/self/oom_score_adj"
+exec "$@"
