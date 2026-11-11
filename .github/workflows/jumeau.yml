@@ -130,8 +130,11 @@ jobs:
       - name: Rapport
         run: |
           code=0
+          mkdir -p resultats
           python3 scripts/jumeau/rapport.py resultats >resultats/rapport.md || code=$?
           cat resultats/rapport.md >>"$GITHUB_STEP_SUMMARY"
+          # Aussi dans le journal du job, lisible sans télécharger l'artefact.
+          cat resultats/rapport.md
           exit "$code"
       - uses: actions/upload-artifact@v4
         if: always()
