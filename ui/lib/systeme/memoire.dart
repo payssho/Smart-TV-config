@@ -36,7 +36,7 @@ enum ProfilMemoire {
   /// Plafond du cache disque de Chromium sur la carte SD (issue #45).
   final int cacheNavigateurMo;
 
-  /// Fond animé allégé en 2 Go (moins de particules, pas de flou) pour
+  /// Fond animé allégé en 2 Go (moins de lumières à l'écran) pour
   /// épargner le GPU quand Chromium ou le lecteur vidéo tournent à côté.
   final bool fondAllege;
 

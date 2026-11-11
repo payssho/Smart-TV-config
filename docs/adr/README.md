@@ -21,3 +21,4 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0015](0015-previsualiser-l-interface-en-build-web.md) | Prévisualiser l'interface avec le build web de l'app Flutter | proposée |
 | [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | proposée |
 | [0019](0019-montrer-un-vrai-feu-filme-sous-licence-libre.md) | Montrer un vrai feu filmé et un vrai son, sous licence libre | proposée |
+| [0021](0021-dessiner-les-fonds-avec-des-motifs-de-lumiere-precuits.md) | Dessiner les fonds animés avec des motifs de lumière précuits | proposée |
