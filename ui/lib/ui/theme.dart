@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Tokens de l'identité « veilleuse » (ADR 0013), adaptés au « 10 pieds ».
 /// Valeurs de la palette « nuit » de `app/lib/ui/theme.dart` dans

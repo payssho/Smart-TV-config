@@ -5,10 +5,13 @@ version: 0.1.0+1
 
 environment:
   sdk: ^3.13.7
+  # Version de Flutter figée en CI (ADR 0022).
+  flutter: ">=3.50.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.11.0
   video_player: ^2.14.1
   web: ^1.1.2
 

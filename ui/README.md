@@ -13,6 +13,8 @@ App « 10 pieds » de la télé maison : flutter-pi sur la box (ADR 0008), build
 
 ## Commandes
 
+Flutter 3.50.0, la version figée en CI (ADR 0022). Les widgets Material viennent du paquet `material_ui` : importer `package:material_ui/material_ui.dart`, plus `package:flutter/material.dart`.
+
 ```sh
 flutter test                                   # tests de navigation et des profils
 flutter run -d linux                           # sur le poste

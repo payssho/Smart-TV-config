@@ -58,7 +58,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         if: steps.app.outputs.presente == 'true'
         with:
+          # Version figée, montée exprès dans une PR (ADR 0022) : même numéro dans
+          # tous les workflows et dans ui/pubspec.yaml.
           channel: stable
+          flutter-version: 3.50.0
           cache: true
       - name: Dépendances
         if: steps.app.outputs.presente == 'true'
