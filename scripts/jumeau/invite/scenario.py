@@ -165,15 +165,31 @@ def compositeur():
     return env
 
 
+def attendre_wayland(p, delai_s=120):
+    """Attend la prise wayland-0 de cage, sans quoi Chromium ne peut pas s'afficher."""
+    prise = f"{XDG}/wayland-0"
+    for _ in range(delai_s * 10):
+        if os.path.exists(prise):
+            return True
+        if p.poll() is not None:
+            journal(f"cage s'est arrêté (code {p.returncode}) : voir interface-{PROFIL}.log")
+            return False
+        time.sleep(0.1)
+    journal(f"pas de {prise} après {delai_s} s")
+    return False
+
+
 def lancer_ui():
     """Interface Flutter sous cage. Renvoie le temps jusqu'à la première image."""
     if not os.access(UI, os.X_OK):
         # Le substitut tourne quand même sous cage : sans compositeur, pas de
         # wayland-0, et Chromium (--ozone-platform=wayland) s'arrête aussitôt.
         journal("pas d'app Flutter dans l'image : substitut de 150 Mo sous cage")
-        lancer("interface", ["seatd-launch", "--", "cage", "-s", "--",
-                             sys.executable, "-c", ALLOUEUR, "150"],
-               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=compositeur())
+        log = open(f"{SORTIE}/interface-{PROFIL}.log", "a")
+        p = lancer("interface", ["seatd-launch", "--", "cage", "-s", "--",
+                                 sys.executable, "-c", ALLOUEUR, "150"],
+                   stdout=log, stderr=subprocess.STDOUT, env=compositeur())
+        attendre_wayland(p)
         return None
     t0 = time.time()
     p = lancer("interface", ["seatd-launch", "--", "cage", "-s", "--", UI],
