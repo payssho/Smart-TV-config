@@ -1,0 +1,6 @@
+menu "Télé maison"
+
+source "$BR2_EXTERNAL_TELE_PATH/package/tele-systeme/Config.in"
+source "$BR2_EXTERNAL_TELE_PATH/package/tele-jumeau/Config.in"
+
+endmenu

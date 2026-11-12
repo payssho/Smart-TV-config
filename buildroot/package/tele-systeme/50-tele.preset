@@ -1,0 +1,3 @@
+# Unités de la télé activées dans l'image (ADR 0020).
+enable tele-memoire.service
+enable tele-entretien.timer

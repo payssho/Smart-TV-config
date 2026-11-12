@@ -1,0 +1,18 @@
+config BR2_PACKAGE_TELE_JUMEAU
+	bool "tele-jumeau (banc de test, pas pour la box)"
+	depends on BR2_PACKAGE_TELE_SYSTEME
+	depends on BR2_PACKAGE_FFMPEG_ARCH_SUPPORTS
+	depends on BR2_USE_WCHAR # python3
+	depends on BR2_TOOLCHAIN_HAS_THREADS # python3
+	depends on !BR2_STATIC_LIBS # python3
+	select BR2_PACKAGE_PYTHON3
+	select BR2_PACKAGE_FFMPEG
+	select BR2_PACKAGE_FFMPEG_FFMPEG
+	help
+	  Scénario de test joué dans le jumeau QEMU de la box
+	  (scripts/jumeau/, ADR 0019) : il se lance si la ligne de
+	  commande du noyau contient tele.scenario=..., écrit son
+	  rapport chez l'hôte puis éteint la machine.
+
+	  Amène python3 et ffmpeg, qui ne servent qu'au banc : à ne
+	  pas activer dans l'image de la vraie box.

@@ -1,0 +1,220 @@
+name: Image Buildroot
+
+# Construit l'image de la télé avec Buildroot (ADR 0004, 0023, 0024), puis
+# la démarre sur le jumeau de la box en 2 Go et en 4 Go (ADR 0019).
+#
+# Un build complet coûte 30 à 60 minutes de runner : il ne part que sur une
+# PR qui touche l'image, sur une étiquette de version, ou à la demande. Les
+# archives téléchargées (dl/) et le cache de compilation (ccache) sont
+# gardés d'un build à l'autre, même quand le build échoue.
+on:
+  pull_request:
+    paths:
+      - "buildroot/**"
+      - "scripts/image/**"
+      - ".github/workflows/image.yml"
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      cible:
+        description: "Defconfig de buildroot/configs/, sans _defconfig"
+        default: "qemu_aarch64_tv"
+      scenario:
+        description: "Scénario du jumeau : fumee ou complet"
+        default: "fumee"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CIBLE: ${{ inputs.cible || 'qemu_aarch64_tv' }}
+  SCENARIO: ${{ inputs.scenario || 'fumee' }}
+  BR2_DL_DIR: ${{ github.workspace }}/buildroot/output/dl
+  BR2_CCACHE_DIR: ${{ github.workspace }}/buildroot/output/ccache
+
+jobs:
+  image:
+    name: Build de l'image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version de Buildroot
+        id: version
+        run: |
+          . buildroot/version
+          echo "buildroot=$BUILDROOT_VERSION" >>"$GITHUB_OUTPUT"
+          # Empreinte de tout ce qui entre dans l'image : clé du cache.
+          echo "empreinte=$(git ls-files -s buildroot systeme scripts/jumeau/invite | sha256sum | cut -c1-16)" >>"$GITHUB_OUTPUT"
+      - name: Defconfig acceptée par Buildroot (sans rien compiler)
+        run: scripts/image/construire.sh --cible "$CIBLE" --verifier
+      - name: Libérer de l'espace sur le runner
+        run: |
+          df -h / | tail -n 1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h / | tail -n 1
+      - name: Outils de build
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
+          sudo apt-get install -y -o Acquire::Retries=3 -o Acquire::http::Timeout=30 \
+            build-essential bc bison flex cpio file rsync unzip wget xz-utils libssl-dev libncurses-dev
+      - name: Reprendre dl/ et ccache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            buildroot/output/dl
+            buildroot/output/ccache
+          key: image-${{ env.CIBLE }}-${{ steps.version.outputs.buildroot }}-${{ steps.version.outputs.empreinte }}
+          restore-keys: |
+            image-${{ env.CIBLE }}-${{ steps.version.outputs.buildroot }}-
+            image-${{ env.CIBLE }}-
+      - name: Build Buildroot
+        run: |
+          debut=$(date +%s)
+          # Journal complet dans un fichier (publié en artefact) ; à l'écran,
+          # seulement les étapes de Buildroot et les erreurs.
+          set +e
+          scripts/image/construire.sh --cible "$CIBLE" 2>&1 | tee "$RUNNER_TEMP/build.log" \
+            | grep --line-buffered -E '>>> |^== |\*\*\* |[Ee]rror[: ]'
+          code="${PIPESTATUS[0]}"
+          set -e
+          echo "DUREE_MIN=$(( ($(date +%s) - debut) / 60 ))" >>"$GITHUB_ENV"
+          if [[ "$code" -ne 0 ]]; then
+            echo "::group::Fin du journal de build"
+            tail -n 300 "$RUNNER_TEMP/build.log"
+            echo "::endgroup::"
+            exit "$code"
+          fi
+      - name: Durée et tailles
+        run: |
+          sortie="buildroot/output/$CIBLE"
+          {
+            echo "## Image $CIBLE"
+            echo
+            echo "| | |"
+            echo "|---|---:|"
+            echo "| Buildroot | ${{ steps.version.outputs.buildroot }} |"
+            echo "| Durée du build (min) | $DUREE_MIN |"
+            echo "| Cache dl/ et ccache repris | ${{ steps.cache.outputs.cache-matched-key != '' && 'oui' || 'non' }} |"
+            echo "| Dossier de build (Go) | $(du -s --block-size=1G "$sortie" | cut -f1) |"
+            echo "| dl/ (Mo) | $(du -sm "$BR2_DL_DIR" | cut -f1) |"
+            echo "| ccache (Mo) | $(du -sm "$BR2_CCACHE_DIR" | cut -f1) |"
+            echo "| Racine, contenu (Mo) | $(du -sm "$sortie/target" | cut -f1) |"
+            echo "| Noyau Image (Mo) | $(du -m "$sortie/images/Image" | cut -f1) |"
+            echo "| Disque restant sur le runner | $(df -h --output=avail / | tail -n 1 | tr -d ' ') |"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Empaqueter (.img.xz)
+        run: |
+          mkdir -p "$RUNNER_TEMP/image"
+          test -s "buildroot/output/$CIBLE/jumeau/racine.ext4"
+          cp "buildroot/output/$CIBLE/jumeau/Image" "buildroot/output/$CIBLE/jumeau/image.txt" "$RUNNER_TEMP/image/"
+          xz -T0 -3 -c "buildroot/output/$CIBLE/jumeau/racine.ext4" >"$RUNNER_TEMP/image/tele-$CIBLE.img.xz"
+          ls -lh "$RUNNER_TEMP/image"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ env.CIBLE }}
+          path: ${{ runner.temp }}/image
+          compression-level: 0
+          retention-days: 14
+      - name: Journal de build complet
+        if: always()
+        # Un incident du stockage d'artefacts ne doit pas faire échouer le build.
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: journal-build
+          path: ${{ runner.temp }}/build.log
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Garder dl/ et ccache, même après un échec
+        if: always() && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            buildroot/output/dl
+            buildroot/output/ccache
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+  jumeau:
+    name: Jumeau ${{ matrix.profil }}
+    needs: image
+    runs-on: ${{ vars.JUMEAU_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        profil: [2go, 4go]
+    steps:
+      - uses: actions/checkout@v4
+      - name: QEMU et ffmpeg
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
+          sudo apt-get install -y -o Acquire::Retries=3 -o Acquire::http::Timeout=30 \
+            qemu-system-arm qemu-utils ffmpeg xz-utils e2fsprogs
+          if [[ -e /dev/kvm ]]; then sudo chmod 666 /dev/kvm; fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-${{ env.CIBLE }}
+          path: scripts/jumeau/.image
+      - name: Déballer l'image
+        run: |
+          xz -d -c "scripts/jumeau/.image/tele-$CIBLE.img.xz" >scripts/jumeau/.image/racine.ext4
+          rm "scripts/jumeau/.image/tele-$CIBLE.img.xz"
+          cat scripts/jumeau/.image/image.txt
+      - name: Scénario
+        run: |
+          scripts/jumeau/demarrer.sh --profil "${{ matrix.profil }}" --scenario "$SCENARIO" \
+            --palier 30 --delai 75 --sortie resultats
+      - name: Aucune unité systemd en échec
+        run: |
+          f="resultats/unites-en-echec-${{ matrix.profil }}.txt"
+          [[ -f "$f" ]] || { echo "Liste des unités absente : le scénario n'est pas allé au bout" >&2; exit 1; }
+          if [[ -s "$f" ]]; then
+            echo "Unités en échec au démarrage :" >&2
+            cat "$f" >&2
+            exit 1
+          fi
+          echo "Aucune unité en échec."
+      - name: Fin de la console série
+        if: always()
+        run: tail -n 80 "resultats/serie-${{ matrix.profil }}.txt" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jumeau-${{ matrix.profil }}
+          path: resultats
+
+  rapport:
+    name: Rapport 2 Go / 4 Go
+    needs: jumeau
+    if: ${{ !cancelled() && needs.jumeau.result != 'skipped' && needs.jumeau.result != 'cancelled' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: jumeau-*
+          path: resultats
+          merge-multiple: true
+      - name: Rapport
+        run: |
+          code=0
+          mkdir -p resultats
+          python3 scripts/jumeau/rapport.py resultats >resultats/rapport.md || code=$?
+          cat resultats/rapport.md >>"$GITHUB_STEP_SUMMARY"
+          # Aussi dans le journal du job, lisible sans télécharger l'artefact.
+          cat resultats/rapport.md
+          exit "$code"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-jumeau-buildroot
+          path: resultats

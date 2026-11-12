@@ -25,7 +25,8 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - Banc mémoire 2 Go / 4 Go : `scripts/emulation/lancer.sh` (Docker, environ 12 min, ADR 0016, résultats dans `docs/emulation-memoire.md`).
 - Scripts système de la box (`systeme/` : zram, réglages mémoire, entretien au repos, ADR 0020) : `systeme/tests/tester.sh`.
 - Jumeau numérique de la box (QEMU arm64, 2 Go / 4 Go, ADR 0019) : `scripts/jumeau/construire-image.sh` puis `scripts/jumeau/lancer.sh` ; en CI, workflow « Jumeau de la box ». Guide : `docs/jumeau.md`.
-- (à remplir : build Buildroot, flash SD)
+- Image Buildroot (ADR 0023, 0024, détail dans `buildroot/README.md`) : `scripts/image/construire.sh --verifier` valide la defconfig sans compiler (quelques secondes, partout) ; `scripts/image/construire.sh` fait le build complet (CI « Image Buildroot » ou WSL2 seulement) ; l'image démarre sur le jumeau avec `scripts/jumeau/demarrer.sh --profil 2go --image buildroot/output/qemu_aarch64_tv/jumeau`.
+- (à remplir : flash SD)
 
 ## Arborescence
 
@@ -33,9 +34,9 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - `maquette/` : banc de prévisu HTML de l'interface (profils 2 Go et 4 Go).
 - `scripts/` : outils shell (CI, diagnostic matériel, plus tard image et flash).
 - `ui/` : app Flutter TV (onglets, ambiances, feu de cheminée), testable sans la box.
-- `systeme/` : fichiers système de la box (futur overlay Buildroot) : `tele-memoire`, `tele-entretien`, `tele-role`, `/etc/tele/memoire.conf`, unités systemd.
+- `systeme/` : fichiers système de la box (installés dans l'image par le paquet `tele-systeme`) : `tele-memoire`, `tele-entretien`, `tele-role`, `/etc/tele/memoire.conf`, unités systemd.
 - `scripts/jumeau/` : jumeau QEMU de la box (image arm64, lanceur, scénario, rapport).
-- À venir : `buildroot/` (arbre `BR2_EXTERNAL`, phase 3).
+- `buildroot/` : arbre `BR2_EXTERNAL` (defconfigs, paquets `tele-systeme` et `tele-jumeau`, version de Buildroot figée dans `buildroot/version`) ; `scripts/image/` le construit.
 
 ## Matériel validé
 

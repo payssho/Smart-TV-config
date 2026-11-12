@@ -18,6 +18,7 @@ deux mesures du même jumeau, jamais comme temps de la vraie box.
 import json
 import os
 import re
+import shutil
 import signal
 import statistics
 import subprocess
@@ -198,6 +199,12 @@ def lancer_ui():
     if not os.access(UI, os.X_OK):
         # Le substitut tourne quand même sous cage : sans compositeur, pas de
         # wayland-0, et Chromium (--ozone-platform=wayland) s'arrête aussitôt.
+        if shutil.which("cage") is None:
+            # Image sans pile graphique (image Buildroot avant J6) : le
+            # substitut tourne seul, il n'y a de toute façon pas de Chromium.
+            journal("pas d'app Flutter ni de cage dans l'image : substitut de 150 Mo")
+            lancer("interface", [sys.executable, "-c", ALLOUEUR, "150"])
+            return None
         journal("pas d'app Flutter dans l'image : substitut de 150 Mo sous cage")
         log = open(f"{SORTIE}/interface-{PROFIL}.log", "a")
         p = lancer("interface", siege() + ["cage", "-s", "--",

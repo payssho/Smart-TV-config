@@ -13,6 +13,7 @@
 #                    mot de passe), Ctrl-a x pour quitter.
 #   --palier S       durée d'un palier du scénario, en secondes (défaut 60)
 #   --image DOSSIER  image de construire-image.sh (défaut scripts/jumeau/.image)
+#                    ou image Buildroot : buildroot/output/<cible>/jumeau
 #   --sortie DOSSIER rapports et captures (défaut scripts/jumeau/resultats/AAAA-MM-JJ)
 #   --accel MODE     auto | kvm | tcg (défaut auto : KVM si hôte arm64 avec /dev/kvm)
 #   --delai MIN      arrêt forcé au bout de MIN minutes (défaut 120)
@@ -36,7 +37,7 @@ while [[ $# -gt 0 ]]; do
     --sortie) sortie="$2"; shift 2 ;;
     --accel) accel="$2"; shift 2 ;;
     --delai) delai="$2"; shift 2 ;;
-    -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
     *) echo "Option inconnue : $1" >&2; exit 2 ;;
   esac
 done
@@ -53,9 +54,13 @@ case "$profil" in
   *) echo "Profil attendu : --profil 2go ou --profil 4go" >&2; exit 2 ;;
 esac
 
-for f in Image initrd.img racine.ext4; do
+for f in Image racine.ext4; do
   [[ -f "$image/$f" ]] || { echo "Image incomplète ($image/$f) : lancer construire-image.sh" >&2; exit 1; }
 done
+# L'image Debian démarre par un initramfs ; l'image Buildroot n'en a pas
+# (tout ce qu'il faut pour monter la racine est dans son noyau).
+initrd=()
+[[ -f "$image/initrd.img" ]] && initrd=(-initrd "$image/initrd.img")
 command -v qemu-system-aarch64 >/dev/null || { echo "qemu-system-aarch64 manquant (paquet qemu-system-arm)" >&2; exit 1; }
 
 if [[ "$accel" = auto ]]; then
@@ -97,7 +102,7 @@ cmdline="root=/dev/vda rw console=ttyAMA0 mem=${mem_linux}M tele.profil=$profil"
 # shellcheck disable=SC2054 # idem.
 qemu=(
   qemu-system-aarch64 -machine virt "${cpu[@]}" -smp 4 -m "$ram"
-  -kernel "$image/Image" -initrd "$image/initrd.img" -append "$cmdline"
+  -kernel "$image/Image" "${initrd[@]}" -append "$cmdline"
   -drive "file=$travail/racine.qcow2,if=none,id=racine,format=qcow2,$sd"
   -device virtio-blk-pci,drive=racine
   -drive "file=$travail/data.ext4,if=none,id=data,format=raw,$sd"
@@ -118,7 +123,7 @@ if [[ -z "$scenario" ]]; then
 fi
 
 journal="$sortie/serie-$profil.txt"
-rm -f "$sortie/$profil.json" "$sortie/code-sortie-$profil"
+rm -f "$sortie/$profil.json" "$sortie/code-sortie-$profil" "$sortie/unites-en-echec-$profil.txt"
 python3 "$ici/captures.py" "$travail/qmp.sock" "$sortie" &
 captures=$!
 debut=$(date +%s)

@@ -1,0 +1,5 @@
+# Ajouts au BusyBox de Buildroot pour les scripts système de la télé.
+# tele-entretien trie les fichiers de cache par date d'accès avec
+# « stat -c », que la configuration par défaut de Buildroot n'a pas.
+CONFIG_STAT=y
+CONFIG_FEATURE_STAT_FORMAT=y
