@@ -20,7 +20,7 @@ Ce qui existe déjà et pèse sur le choix : nos scripts système sont livrés a
 Option 1, et un socle commun aux deux images : la defconfig du jumeau (`qemu_aarch64_tv`) et la future defconfig de la box partagent l'init, la libc, la chaîne, le réglage processeur Cortex-A55 et nos paquets ; seuls le noyau, l'amorçage et le banc de test diffèrent.
 
 - **Nos fichiers entrent par des paquets de l'arbre externe**, pas par une copie à la main : `tele-systeme` installe `systeme/` tel quel et active ses unités par un préréglage systemd ; `tele-jumeau` ajoute le scénario de test, python3 et ffmpeg, et ne sera pas activé dans l'image de la box.
-- **util-linux complet** en plus de BusyBox : le BusyBox de Buildroot n'a ni `swapon -p` ni `ionice`, dont `tele-memoire` et `tele-entretien` ont besoin.
+- **util-linux complet** en plus de BusyBox : le BusyBox de Buildroot n'a ni `swapon -p` ni `ionice`, dont `tele-memoire` et `tele-entretien` ont besoin. Il n'a pas non plus `stat`, ajouté par un fragment de configuration BusyBox (`board/commun/busybox.fragment`) ; le premier démarrage sur le jumeau l'a montré : le ménage des caches ne supprimait rien et se disait pourtant fait. `tele-entretien` échoue désormais clairement si un outil lui manque.
 - **Noyau 6.18 (LTS)** pour le jumeau, configuration « virt » de Buildroot plus un fragment (zram lz4, MGLRU, PSI, cgroups, partages 9p), tout intégré au noyau : pas d'initramfs.
 - **`/data` montée par son étiquette** (`LABEL=data`, `nofail`) : même ligne de `fstab` sur la carte SD de la box et sur le deuxième disque du jumeau.
 - **Ethernet en DHCP** par systemd-networkd sur toute interface filaire, sans jamais retenir le démarrage.

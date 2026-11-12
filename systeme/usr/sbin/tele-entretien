@@ -103,6 +103,17 @@ fi
 
 # --- Stockage (issue #45) ---------------------------------------------------
 
+# Sans ces outils, le ménage ne ferait rien sans le dire (le BusyBox de
+# Buildroot, par exemple, n'a pas « stat » par défaut) : on échoue haut et
+# fort plutôt que de laisser la carte se remplir.
+for outil in find stat du sort awk; do
+  if ! command -v "$outil" >/dev/null 2>&1; then
+    journal "outil manquant : $outil, ménage impossible"
+    echo "erreur (outil manquant : $outil)" >"$RUN/entretien-dernier"
+    exit 1
+  fi
+done
+
 # Vide un dossier de cache en gardant le dossier lui-même.
 vider() {
   if [ -d "$R$1" ]; then

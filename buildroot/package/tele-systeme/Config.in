@@ -15,5 +15,8 @@ config BR2_PACKAGE_TELE_SYSTEME
 	  Les outils complets de util-linux sont installés : le
 	  BusyBox de Buildroot n'a ni « swapon -p » ni « ionice ».
 
+	  Il n'a pas non plus « stat » : la defconfig doit ajouter
+	  board/commun/busybox.fragment à la configuration de BusyBox.
+
 comment "tele-systeme demande systemd comme init"
 	depends on !BR2_INIT_SYSTEMD

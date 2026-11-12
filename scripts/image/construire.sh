@@ -95,7 +95,7 @@ while IFS= read -r chemin; do
   chemin="${chemin//\$(BR2_EXTERNAL_TELE_PATH)/$externe}"
   [[ "$chemin" = /* ]] || chemin="$sources/$chemin"
   [[ -e "$chemin" ]] || { echo "Fichier de la defconfig introuvable : $chemin" >&2; exit 1; }
-done < <(sed -n -E 's/^BR2_(ROOTFS_OVERLAY|ROOTFS_POST_BUILD_SCRIPT|LINUX_KERNEL_CUSTOM_CONFIG_FILE|LINUX_KERNEL_CONFIG_FRAGMENT_FILES|GLOBAL_PATCH_DIR)="(.*)"$/\2/p' "$defconfig" | tr ' ' '\n')
+done < <(sed -n -E 's/^BR2_(ROOTFS_OVERLAY|ROOTFS_POST_BUILD_SCRIPT|PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES|LINUX_KERNEL_CUSTOM_CONFIG_FILE|LINUX_KERNEL_CONFIG_FRAGMENT_FILES|GLOBAL_PATCH_DIR)="(.*)"$/\2/p' "$defconfig" | tr ' ' '\n')
 
 if [[ "$verifier" = 1 ]]; then
   echo "Defconfig $cible : toutes les lignes sont prises en compte par Buildroot $BUILDROOT_VERSION."

@@ -8,7 +8,7 @@ Arbre externe Buildroot (`BR2_EXTERNAL`) : tout ce qui fait notre image vit ici,
 |---|---|
 | `version` | Version de Buildroot : dépôt, étiquette, commit attendu. |
 | `configs/qemu_aarch64_tv_defconfig` | Image pour le jumeau QEMU de la box (ADR 0019). |
-| `board/commun/` | Commun à toutes les images : réseau filaire en DHCP, `/data` dans `fstab`, fiche `/etc/tele/image`. |
+| `board/commun/` | Commun à toutes les images : réseau filaire en DHCP, `/data` dans `fstab`, fiche `/etc/tele/image`, ajouts à BusyBox (`stat`). |
 | `board/qemu-aarch64-tv/linux.fragment` | Ajouts au noyau du jumeau : zram, MGLRU, PSI, cgroups, partages 9p. |
 | `package/tele-systeme/` | Installe `systeme/` (tele-memoire, tele-role, tele-entretien) et active ses unités. |
 | `package/tele-jumeau/` | Scénario de test du jumeau, avec python3 et ffmpeg. Pas pour la box. |
