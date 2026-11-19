@@ -1,0 +1,66 @@
+# Paquets que les scripts ne désactivent JAMAIS, même s'ils sont listés dans
+# paquets-a-alleger.txt (ADR 0025). Motifs glob permis. Un par ligne.
+# Compléter après l'inventaire avec les paquets du fabricant qui portent le
+# trapèze, la mise au point et la source HDMI.
+
+# Système et interface de base
+android
+com.android.systemui
+com.android.settings
+com.android.tv.settings
+com.android.providers.*
+com.android.shell
+com.android.packageinstaller
+com.google.android.packageinstaller
+com.android.permissioncontroller
+com.google.android.permissioncontroller
+com.android.inputmethod.*
+com.google.android.inputmethod.*
+com.google.android.tvkeyboard*
+com.android.externalstorage
+com.android.documentsui
+com.android.webview
+com.google.android.webview
+com.google.android.trichromelibrary*
+
+# Réseau, Bluetooth, son
+com.android.bluetooth
+com.android.networkstack*
+com.google.android.networkstack*
+com.android.wifi*
+com.google.android.wifi*
+com.android.server.telecom
+com.android.nfc
+com.android.cts.*
+
+# Google : Play, services, cast, DRM (Widevine passe par le framework média)
+com.google.android.gms
+com.google.android.gsf
+com.android.vending
+com.google.android.apps.mediashell
+com.android.media*
+com.google.android.media*
+com.android.providers.media*
+
+# Usages prioritaires
+com.netflix.*
+com.canal.*
+com.google.android.youtube*
+tv.twitch.*
+
+# Lanceurs : on garde celui du fabricant (il peut porter le trapèze) et le nôtre
+com.android.launcher*
+com.google.android.tvlauncher
+com.google.android.apps.tv.launcherx
+fr.veilleuse.lanceur
+
+# Fabricant Allwinner / Magcubic : trapèze, mise au point, source, mises à jour.
+# Motifs larges par prudence ; à resserrer après l'inventaire.
+com.softwinner.*
+com.allwinner.*
+com.allwinnertech.*
+*keystone*
+*focus*
+*projector*
+*hdmi*
+*ota*

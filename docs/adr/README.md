@@ -20,3 +20,4 @@ Une ADR explique pourquoi le dépôt est comme il est. Format : `NNNN-titre-cour
 | [0014](0014-youtube-et-twitch-dans-notre-os.md) | Regarder YouTube et Twitch dans notre OS, Netflix et Canal+ sous Android | proposée |
 | [0015](0015-previsualiser-l-interface-en-build-web.md) | Prévisualiser l'interface avec le build web de l'app Flutter | proposée |
 | [0016](0016-comparer-2-go-et-4-go-dans-des-conteneurs-bornes.md) | Comparer 2 Go et 4 Go dans des conteneurs à mémoire bornée | proposée |
+| [0025](0025-ameliorer-le-projecteur-sous-android-sans-root.md) | Améliorer le projecteur HY300 Pro sous son Android d'origine, sans root | proposée |

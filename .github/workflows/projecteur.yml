@@ -1,0 +1,59 @@
+name: Projecteur
+
+# Lanceur Android « Veilleuse » et scripts adb du projecteur HY300 Pro
+# (ADR 0025). Ne tourne que si projecteur/ change.
+on:
+  pull_request:
+    paths:
+      - "projecteur/**"
+      - ".github/workflows/projecteur.yml"
+  push:
+    branches: [main]
+    paths:
+      - "projecteur/**"
+      - ".github/workflows/projecteur.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: projecteur-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lanceur:
+    name: Lanceur (tests et APK)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: projecteur/lanceur
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          # Même version figée que l'app télé (ADR 0022).
+          flutter-version: "3.50.0"
+          channel: stable
+          cache: true
+      - name: Dépendances
+        run: flutter pub get
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Analyse
+        run: flutter analyze
+      - name: Tests
+        run: flutter test
+      - name: APK
+        # Signée avec la clé de debug : à installer par adb, pas pour un magasin.
+        run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lanceur-veilleuse-apk
+          path: projecteur/lanceur/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
