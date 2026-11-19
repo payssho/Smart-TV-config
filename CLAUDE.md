@@ -23,6 +23,7 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - Prévisu de l'interface : `maquette/banc-interface.html`, publiée comme page Claude (voir `maquette/README.md`).
 - Interface Flutter : `cd ui && flutter test` ; prévisu publiable : `scripts/previsu/construire.sh` (ADR 0015, détail dans `ui/README.md`).
 - Banc mémoire 2 Go / 4 Go : `scripts/emulation/lancer.sh` (Docker, environ 12 min, ADR 0016, résultats dans `docs/emulation-memoire.md`).
+- Projecteur HY300 Pro (Android d'origine, ADR 0025) : `cd projecteur/lanceur && flutter test` ; scripts adb sans root dans `projecteur/adb/` (inventaire en lecture seule d'abord, voir `projecteur/README.md`).
 - (à remplir : build Buildroot, test QEMU, flash SD)
 
 ## Arborescence
@@ -31,6 +32,7 @@ Projet personnel de Marius : OS de télé maison sur box Amlogic S905X3 (4/32 Go
 - `maquette/` : banc de prévisu HTML de l'interface (profils 2 Go et 4 Go).
 - `scripts/` : outils shell (CI, diagnostic matériel, plus tard image et flash).
 - `ui/` : app Flutter TV (onglets, ambiances, feu de cheminée), testable sans la box.
+- `projecteur/` : chantier séparé, projecteur HY300 Pro sous son Android d'origine (lanceur Flutter « Veilleuse », scripts adb sans root).
 - À venir : `buildroot/` (arbre `BR2_EXTERNAL`, phase 3).
 
 ## Matériel validé

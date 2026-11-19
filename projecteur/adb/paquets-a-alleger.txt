@@ -1,0 +1,5 @@
+# Paquets à désactiver sur le projecteur (ADR 0025), un par ligne.
+# Vide exprès : les noms dépendent du firmware. Lancer d'abord inventaire.sh,
+# relire etat/inventaire-*/paquets-systeme.txt, puis copier ici ce qui ne sert
+# pas (magasin d'applis du fabricant, publicité, démos, lecteurs en double…).
+# Les paquets protégés (paquets-proteges.txt) sont ignorés même s'ils sont ici.
